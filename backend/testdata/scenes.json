@@ -1,0 +1,617 @@
+{
+  "note": "Seed catalog for the local scene-service. Exactly one scene is real - the Synspective StriX-3 sample product over Mt. Aso, whose metadata is public and is quoted in the repository README and read off the product in notebook 01. Every other scene carries \"synthetic\": true and exists so the catalog, its filters and the map are worth building. The console shows that flag as a badge.",
+  "scenes": [
+    {
+      "id": "STRIX3-20260615T063527Z-SL1",
+      "satellite": "STRIX-3",
+      "synthetic": false,
+      "acquired_at": "2026-06-15T06:35:27Z",
+      "product_level": "ORT",
+      "imaging_mode": "SlidingSpotlight",
+      "band": "X",
+      "centre_frequency_ghz": 9.65,
+      "polarization": "VV",
+      "look_side": "Left",
+      "pass_direction": "Ascending",
+      "platform_heading_deg": 347.74,
+      "incidence_angle_deg": 34.76,
+      "incidence_near_deg": 34.34,
+      "incidence_far_deg": 35.25,
+      "off_nadir_deg": 31.94,
+      "nesz_db": null,
+      "orbit_source": "Precise",
+      "centre": {
+        "lon_deg": 131.092252,
+        "lat_deg": 32.887635
+      },
+      "footprint": [
+        [
+          131.013264,
+          32.828434
+        ],
+        [
+          131.17124,
+          32.828434
+        ],
+        [
+          131.17124,
+          32.946836
+        ],
+        [
+          131.013264,
+          32.946836
+        ],
+        [
+          131.013264,
+          32.828434
+        ]
+      ],
+      "duration_s": 1.41,
+      "map_projection": "UTM 52N / WGS84 (EPSG:32652)",
+      "resolution_azimuth_m": 0.44,
+      "resolution_range_m": 0.8,
+      "note": "Real Synspective sample product over Mt. Aso, Kyushu. Every field above is delivered metadata read off the product in notebook 01, except the footprint, which is the axis-aligned extent of the orthorectified raster (14.78 x 13.13 km, from its UTM 52N bounds) placed on the scene centre - not the delivered slant-range polygon. NESZ is null because the delivered metadata does not state it."
+    },
+    {
+      "id": "SYN-S1-20260702-01",
+      "satellite": "STRIX-1",
+      "synthetic": true,
+      "acquired_at": "2026-07-02T21:14:08Z",
+      "product_level": "GRD",
+      "imaging_mode": "Stripmap",
+      "band": "X",
+      "centre_frequency_ghz": 9.65,
+      "polarization": "VV",
+      "look_side": "Right",
+      "pass_direction": "Descending",
+      "platform_heading_deg": 191.4,
+      "incidence_angle_deg": 42.8,
+      "incidence_near_deg": 41.0,
+      "incidence_far_deg": 44.6,
+      "off_nadir_deg": 38.1,
+      "nesz_db": -22.4,
+      "orbit_source": "Predicted",
+      "centre": {
+        "lon_deg": 139.769,
+        "lat_deg": 35.5494
+      },
+      "footprint": [
+        [
+          139.603572,
+          35.436737
+        ],
+        [
+          139.934428,
+          35.436737
+        ],
+        [
+          139.934428,
+          35.662063
+        ],
+        [
+          139.603572,
+          35.662063
+        ],
+        [
+          139.603572,
+          35.436737
+        ]
+      ],
+      "duration_s": 4.2,
+      "map_projection": "WGS84 (EPSG:4326)",
+      "resolution_azimuth_m": 1.0,
+      "resolution_range_m": 1.8,
+      "note": "Synthetic scene over Tokyo Bay. Field names follow the SAR Data Product Format Manual; the values are illustrative, not measured."
+    },
+    {
+      "id": "SYN-S2-20260711-02",
+      "satellite": "STRIX-2",
+      "synthetic": true,
+      "acquired_at": "2026-07-11T02:48:31Z",
+      "product_level": "SLC",
+      "imaging_mode": "SlidingSpotlight",
+      "band": "X",
+      "centre_frequency_ghz": 9.65,
+      "polarization": "HH",
+      "look_side": "Left",
+      "pass_direction": "Ascending",
+      "platform_heading_deg": 349.1,
+      "incidence_angle_deg": 30.2,
+      "incidence_near_deg": 29.6,
+      "incidence_far_deg": 30.9,
+      "off_nadir_deg": 27.65,
+      "nesz_db": -19.8,
+      "orbit_source": "Precise",
+      "centre": {
+        "lon_deg": 106.885,
+        "lat_deg": -6.105
+      },
+      "footprint": [
+        [
+          106.817245,
+          -6.163777
+        ],
+        [
+          106.952755,
+          -6.163777
+        ],
+        [
+          106.952755,
+          -6.046223
+        ],
+        [
+          106.817245,
+          -6.046223
+        ],
+        [
+          106.817245,
+          -6.163777
+        ]
+      ],
+      "duration_s": 1.41,
+      "map_projection": "WGS84 (EPSG:4326)",
+      "resolution_azimuth_m": 0.44,
+      "resolution_range_m": 0.8,
+      "note": "Synthetic scene over Jakarta Port. Field names follow the SAR Data Product Format Manual; the values are illustrative, not measured."
+    },
+    {
+      "id": "SYN-S4-20260719-03",
+      "satellite": "STRIX-4",
+      "synthetic": true,
+      "acquired_at": "2026-07-19T11:05:52Z",
+      "product_level": "ORT",
+      "imaging_mode": "Stripmap",
+      "band": "X",
+      "centre_frequency_ghz": 9.65,
+      "polarization": "VV",
+      "look_side": "Left",
+      "pass_direction": "Ascending",
+      "platform_heading_deg": 43.6,
+      "incidence_angle_deg": 48.0,
+      "incidence_near_deg": 46.4,
+      "incidence_far_deg": 49.7,
+      "off_nadir_deg": 43.02,
+      "nesz_db": -24.1,
+      "orbit_source": "Predicted",
+      "centre": {
+        "lon_deg": 103.8198,
+        "lat_deg": 1.2644
+      },
+      "footprint": [
+        [
+          103.68502,
+          1.151354
+        ],
+        [
+          103.95458,
+          1.151354
+        ],
+        [
+          103.95458,
+          1.377446
+        ],
+        [
+          103.68502,
+          1.377446
+        ],
+        [
+          103.68502,
+          1.151354
+        ]
+      ],
+      "duration_s": 4.2,
+      "map_projection": "WGS84 (EPSG:4326)",
+      "resolution_azimuth_m": 1.0,
+      "resolution_range_m": 1.8,
+      "note": "Synthetic scene over Singapore Strait. Field names follow the SAR Data Product Format Manual; the values are illustrative, not measured."
+    },
+    {
+      "id": "SYN-S5-20260728-04",
+      "satellite": "STRIX-5",
+      "synthetic": true,
+      "acquired_at": "2026-07-28T20:31:17Z",
+      "product_level": "SLC",
+      "imaging_mode": "Spotlight",
+      "band": "X",
+      "centre_frequency_ghz": 9.65,
+      "polarization": "VV",
+      "look_side": "Right",
+      "pass_direction": "Descending",
+      "platform_heading_deg": 133.5,
+      "incidence_angle_deg": 23.1,
+      "incidence_near_deg": 22.9,
+      "incidence_far_deg": 23.4,
+      "off_nadir_deg": 21.44,
+      "nesz_db": -17.2,
+      "orbit_source": "Precise",
+      "centre": {
+        "lon_deg": 135.429,
+        "lat_deg": 34.634
+      },
+      "footprint": [
+        [
+          135.401735,
+          34.611464
+        ],
+        [
+          135.456265,
+          34.611464
+        ],
+        [
+          135.456265,
+          34.656536
+        ],
+        [
+          135.401735,
+          34.656536
+        ],
+        [
+          135.401735,
+          34.611464
+        ]
+      ],
+      "duration_s": 2.6,
+      "map_projection": "WGS84 (EPSG:4326)",
+      "resolution_azimuth_m": 0.25,
+      "resolution_range_m": 0.25,
+      "note": "Synthetic scene over Osaka Port. Field names follow the SAR Data Product Format Manual; the values are illustrative, not measured."
+    },
+    {
+      "id": "SYN-S3-20260803-05",
+      "satellite": "STRIX-3",
+      "synthetic": true,
+      "acquired_at": "2026-08-03T13:22:45Z",
+      "product_level": "GRD",
+      "imaging_mode": "Stripmap",
+      "band": "X",
+      "centre_frequency_ghz": 9.65,
+      "polarization": "HH",
+      "look_side": "Right",
+      "pass_direction": "Ascending",
+      "platform_heading_deg": 336.2,
+      "incidence_angle_deg": 40.1,
+      "incidence_near_deg": 38.4,
+      "incidence_far_deg": 41.9,
+      "off_nadir_deg": 35.77,
+      "nesz_db": -23.0,
+      "orbit_source": "Predicted",
+      "centre": {
+        "lon_deg": 15.6267,
+        "lat_deg": 78.2232
+      },
+      "footprint": [
+        [
+          14.968615,
+          78.11124
+        ],
+        [
+          16.284785,
+          78.11124
+        ],
+        [
+          16.284785,
+          78.33516
+        ],
+        [
+          14.968615,
+          78.33516
+        ],
+        [
+          14.968615,
+          78.11124
+        ]
+      ],
+      "duration_s": 4.2,
+      "map_projection": "WGS84 (EPSG:4326)",
+      "resolution_azimuth_m": 1.0,
+      "resolution_range_m": 1.8,
+      "note": "Synthetic scene over Longyearbyen. Field names follow the SAR Data Product Format Manual; the values are illustrative, not measured."
+    },
+    {
+      "id": "SYN-S6-20260809-06",
+      "satellite": "STRIX-6",
+      "synthetic": true,
+      "acquired_at": "2026-08-09T18:57:03Z",
+      "product_level": "ORT",
+      "imaging_mode": "SlidingSpotlight",
+      "band": "X",
+      "centre_frequency_ghz": 9.65,
+      "polarization": "VV",
+      "look_side": "Left",
+      "pass_direction": "Descending",
+      "platform_heading_deg": 217.4,
+      "incidence_angle_deg": 33.9,
+      "incidence_near_deg": 33.3,
+      "incidence_far_deg": 34.5,
+      "off_nadir_deg": 31.08,
+      "nesz_db": -20.6,
+      "orbit_source": "Precise",
+      "centre": {
+        "lon_deg": 151.2093,
+        "lat_deg": -33.8688
+      },
+      "footprint": [
+        [
+          151.128242,
+          -33.927401
+        ],
+        [
+          151.290358,
+          -33.927401
+        ],
+        [
+          151.290358,
+          -33.810199
+        ],
+        [
+          151.128242,
+          -33.810199
+        ],
+        [
+          151.128242,
+          -33.927401
+        ]
+      ],
+      "duration_s": 1.41,
+      "map_projection": "WGS84 (EPSG:4326)",
+      "resolution_azimuth_m": 0.44,
+      "resolution_range_m": 0.8,
+      "note": "Synthetic scene over Sydney Harbour. Field names follow the SAR Data Product Format Manual; the values are illustrative, not measured."
+    },
+    {
+      "id": "SYN-S7-20260815-07",
+      "satellite": "STRIX-7",
+      "synthetic": true,
+      "acquired_at": "2026-08-15T03:12:39Z",
+      "product_level": "SLC",
+      "imaging_mode": "Spotlight",
+      "band": "X",
+      "centre_frequency_ghz": 9.65,
+      "polarization": "VV",
+      "look_side": "Left",
+      "pass_direction": "Ascending",
+      "platform_heading_deg": 49.8,
+      "incidence_angle_deg": 26.1,
+      "incidence_near_deg": 25.8,
+      "incidence_far_deg": 26.4,
+      "off_nadir_deg": 24.19,
+      "nesz_db": -18.5,
+      "orbit_source": "Predicted",
+      "centre": {
+        "lon_deg": 55.3094,
+        "lat_deg": 25.2532
+      },
+      "footprint": [
+        [
+          55.284584,
+          25.230632
+        ],
+        [
+          55.334216,
+          25.230632
+        ],
+        [
+          55.334216,
+          25.275768
+        ],
+        [
+          55.284584,
+          25.275768
+        ],
+        [
+          55.284584,
+          25.230632
+        ]
+      ],
+      "duration_s": 2.6,
+      "map_projection": "WGS84 (EPSG:4326)",
+      "resolution_azimuth_m": 0.25,
+      "resolution_range_m": 0.25,
+      "note": "Synthetic scene over Dubai Creek. Field names follow the SAR Data Product Format Manual; the values are illustrative, not measured."
+    },
+    {
+      "id": "SYN-S8-20260822-08",
+      "satellite": "STRIX-8",
+      "synthetic": true,
+      "acquired_at": "2026-08-22T09:44:20Z",
+      "product_level": "GRD",
+      "imaging_mode": "Stripmap",
+      "band": "X",
+      "centre_frequency_ghz": 9.65,
+      "polarization": "HH",
+      "look_side": "Right",
+      "pass_direction": "Descending",
+      "platform_heading_deg": 205.9,
+      "incidence_angle_deg": 45.3,
+      "incidence_near_deg": 43.7,
+      "incidence_far_deg": 47.1,
+      "off_nadir_deg": 40.55,
+      "nesz_db": -23.8,
+      "orbit_source": "Predicted",
+      "centre": {
+        "lon_deg": 18.4241,
+        "lat_deg": -33.9249
+      },
+      "footprint": [
+        [
+          18.261878,
+          -34.037593
+        ],
+        [
+          18.586322,
+          -34.037593
+        ],
+        [
+          18.586322,
+          -33.812207
+        ],
+        [
+          18.261878,
+          -33.812207
+        ],
+        [
+          18.261878,
+          -34.037593
+        ]
+      ],
+      "duration_s": 4.2,
+      "map_projection": "WGS84 (EPSG:4326)",
+      "resolution_azimuth_m": 1.0,
+      "resolution_range_m": 1.8,
+      "note": "Synthetic scene over Cape Town. Field names follow the SAR Data Product Format Manual; the values are illustrative, not measured."
+    },
+    {
+      "id": "SYN-S1-20260830-09",
+      "satellite": "STRIX-1",
+      "synthetic": true,
+      "acquired_at": "2026-08-30T22:06:11Z",
+      "product_level": "ORT",
+      "imaging_mode": "SlidingSpotlight",
+      "band": "X",
+      "centre_frequency_ghz": 9.65,
+      "polarization": "VV",
+      "look_side": "Right",
+      "pass_direction": "Descending",
+      "platform_heading_deg": 192.6,
+      "incidence_angle_deg": 32.6,
+      "incidence_near_deg": 32.0,
+      "incidence_far_deg": 33.2,
+      "off_nadir_deg": 29.87,
+      "nesz_db": -20.1,
+      "orbit_source": "Precise",
+      "centre": {
+        "lon_deg": 131.0923,
+        "lat_deg": 32.8876
+      },
+      "footprint": [
+        [
+          131.012147,
+          32.82899
+        ],
+        [
+          131.172453,
+          32.82899
+        ],
+        [
+          131.172453,
+          32.94621
+        ],
+        [
+          131.012147,
+          32.94621
+        ],
+        [
+          131.012147,
+          32.82899
+        ]
+      ],
+      "duration_s": 1.41,
+      "map_projection": "WGS84 (EPSG:4326)",
+      "resolution_azimuth_m": 0.44,
+      "resolution_range_m": 0.8,
+      "note": "Synthetic scene over Mt. Aso. Field names follow the SAR Data Product Format Manual; the values are illustrative, not measured."
+    },
+    {
+      "id": "SYN-S2-20260905-10",
+      "satellite": "STRIX-2",
+      "synthetic": true,
+      "acquired_at": "2026-09-05T06:19:54Z",
+      "product_level": "GRD",
+      "imaging_mode": "Stripmap",
+      "band": "X",
+      "centre_frequency_ghz": 9.65,
+      "polarization": "VV",
+      "look_side": "Left",
+      "pass_direction": "Ascending",
+      "platform_heading_deg": 348.0,
+      "incidence_angle_deg": 37.2,
+      "incidence_near_deg": 35.8,
+      "incidence_far_deg": 38.6,
+      "off_nadir_deg": 33.41,
+      "nesz_db": -22.9,
+      "orbit_source": "Predicted",
+      "centre": {
+        "lon_deg": -122.373,
+        "lat_deg": 37.7749
+      },
+      "footprint": [
+        [
+          -122.54326,
+          37.662279
+        ],
+        [
+          -122.20274,
+          37.662279
+        ],
+        [
+          -122.20274,
+          37.887521
+        ],
+        [
+          -122.54326,
+          37.887521
+        ],
+        [
+          -122.54326,
+          37.662279
+        ]
+      ],
+      "duration_s": 4.2,
+      "map_projection": "WGS84 (EPSG:4326)",
+      "resolution_azimuth_m": 1.0,
+      "resolution_range_m": 1.8,
+      "note": "Synthetic scene over San Francisco Bay. Field names follow the SAR Data Product Format Manual; the values are illustrative, not measured."
+    },
+    {
+      "id": "SYN-S5-20260912-11",
+      "satellite": "STRIX-5",
+      "synthetic": true,
+      "acquired_at": "2026-09-12T10:38:26Z",
+      "product_level": "SLC",
+      "imaging_mode": "Spotlight",
+      "band": "X",
+      "centre_frequency_ghz": 9.65,
+      "polarization": "HH",
+      "look_side": "Right",
+      "pass_direction": "Ascending",
+      "platform_heading_deg": 42.2,
+      "incidence_angle_deg": 24.5,
+      "incidence_near_deg": 24.3,
+      "incidence_far_deg": 24.8,
+      "off_nadir_deg": 22.73,
+      "nesz_db": -17.9,
+      "orbit_source": "Precise",
+      "centre": {
+        "lon_deg": -70.6483,
+        "lat_deg": -33.4489
+      },
+      "footprint": [
+        [
+          -70.675188,
+          -33.47144
+        ],
+        [
+          -70.621412,
+          -33.47144
+        ],
+        [
+          -70.621412,
+          -33.42636
+        ],
+        [
+          -70.675188,
+          -33.42636
+        ],
+        [
+          -70.675188,
+          -33.47144
+        ]
+      ],
+      "duration_s": 2.6,
+      "map_projection": "WGS84 (EPSG:4326)",
+      "resolution_azimuth_m": 0.25,
+      "resolution_range_m": 0.25,
+      "note": "Synthetic scene over Santiago. Field names follow the SAR Data Product Format Manual; the values are illustrative, not measured."
+    }
+  ]
+}
