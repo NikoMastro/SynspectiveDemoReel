@@ -1,5 +1,8 @@
 # Synspective sample product + format manual — local only, never committed
 data/
+# Derived from that product, so it is not redistributed either.
+# Regenerate by running notebooks/03-tle-ground-track.ipynb with your own copy of the sample.
+fixtures/precise_ephemeris.json
 
 # Go
 bin/
@@ -43,3 +46,4 @@ gha-creds-*.json
 .idea/
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
