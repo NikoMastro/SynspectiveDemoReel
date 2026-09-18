@@ -1,0 +1,2227 @@
+{
+  "generated_by": "notebooks/04-access-windows.ipynb",
+  "source": "Celestrak TLEs (public, see fixtures/tle_strix.txt) + chosen target coordinates",
+  "assumptions": {
+    "off_nadir_min_deg": 20.0,
+    "off_nadir_max_deg": 45.0,
+    "note": "Steering envelope is ASSUMED. The SAR Data Product Format Manual is a file format spec and does not publish it. Observed value in the StriX-3 sample product: 31.94 deg.",
+    "earth_model": "WGS84 ellipsoid, target height 0 m",
+    "frame": "SGP4 TEME rotated to ECEF by IAU-1982 GMST; ECEF velocity excludes omega x r"
+  },
+  "horizon": {
+    "start_utc": "2026-09-19T00:00:00Z",
+    "days": 3.0,
+    "coarse_step_s": 20,
+    "edge_refinement": "bisection, 30 iterations"
+  },
+  "targets": {
+    "Mt. Aso, JP": {
+      "lat_deg": 32.887635,
+      "lon_deg": 131.092252
+    },
+    "Tokyo, JP": {
+      "lat_deg": 35.6762,
+      "lon_deg": 139.6503
+    },
+    "Jakarta, ID": {
+      "lat_deg": -6.2088,
+      "lon_deg": 106.8456
+    },
+    "Longyearbyen, NO": {
+      "lat_deg": 78.2232,
+      "lon_deg": 15.6267
+    }
+  },
+  "windows": [
+    {
+      "satellite": "STRIX-5",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-19T00:33:08.539737Z",
+      "end_utc": "2026-09-19T00:34:30.946495Z",
+      "duration_s": 82.407,
+      "best_off_nadir_deg": 41.579,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-19T00:33:38.901933Z",
+      "end_utc": "2026-09-19T00:36:21.063885Z",
+      "duration_s": 162.162,
+      "best_off_nadir_deg": 20.418,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-19T00:35:26.372583Z",
+      "end_utc": "2026-09-19T00:37:15.020797Z",
+      "duration_s": 108.648,
+      "best_off_nadir_deg": 38.4022,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-19T01:23:55.074791Z",
+      "end_utc": "2026-09-19T01:24:36.674445Z",
+      "duration_s": 41.6,
+      "best_off_nadir_deg": 31.9719,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-19T01:25:19.388082Z",
+      "end_utc": "2026-09-19T01:26:00.760271Z",
+      "duration_s": 41.372,
+      "best_off_nadir_deg": 20.4814,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-19T01:25:51.859753Z",
+      "end_utc": "2026-09-19T01:26:44.050811Z",
+      "duration_s": 52.191,
+      "best_off_nadir_deg": 22.1277,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-19T01:27:20.359278Z",
+      "end_utc": "2026-09-19T01:28:12.553709Z",
+      "duration_s": 52.194,
+      "best_off_nadir_deg": 30.6162,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-19T01:27:53.122983Z",
+      "end_utc": "2026-09-19T01:28:40.255832Z",
+      "duration_s": 47.133,
+      "best_off_nadir_deg": 20.1823,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-19T01:29:31.269480Z",
+      "end_utc": "2026-09-19T01:30:18.372925Z",
+      "duration_s": 47.103,
+      "best_off_nadir_deg": 25.9418,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T02:21:31.071662Z",
+      "end_utc": "2026-09-19T02:22:02.138350Z",
+      "duration_s": 31.067,
+      "best_off_nadir_deg": 44.6114,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-19T02:24:55.855557Z",
+      "end_utc": "2026-09-19T02:27:27.341779Z",
+      "duration_s": 151.486,
+      "best_off_nadir_deg": 28.2796,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-19T02:26:52.144407Z",
+      "end_utc": "2026-09-19T02:27:58.617101Z",
+      "duration_s": 66.473,
+      "best_off_nadir_deg": 27.5303,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-19T02:28:35.339881Z",
+      "end_utc": "2026-09-19T02:29:42.695698Z",
+      "duration_s": 67.356,
+      "best_off_nadir_deg": 21.7158,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-7",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-19T02:55:26.415772Z",
+      "end_utc": "2026-09-19T02:57:23.906188Z",
+      "duration_s": 117.49,
+      "best_off_nadir_deg": 37.7974,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T03:55:19.191835Z",
+      "end_utc": "2026-09-19T03:56:13.519808Z",
+      "duration_s": 54.328,
+      "best_off_nadir_deg": 27.6931,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T03:57:06.151727Z",
+      "end_utc": "2026-09-19T03:58:00.651463Z",
+      "duration_s": 54.5,
+      "best_off_nadir_deg": 27.8557,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-19T04:08:40.203354Z",
+      "end_utc": "2026-09-19T04:09:29.654427Z",
+      "duration_s": 49.451,
+      "best_off_nadir_deg": 44.0483,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-7",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-19T04:34:17.411792Z",
+      "end_utc": "2026-09-19T04:35:15.508728Z",
+      "duration_s": 58.097,
+      "best_off_nadir_deg": 28.4434,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-7",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-19T04:36:17.268034Z",
+      "end_utc": "2026-09-19T04:37:14.662372Z",
+      "duration_s": 57.394,
+      "best_off_nadir_deg": 21.5921,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T04:48:00.497789Z",
+      "end_utc": "2026-09-19T04:50:11.518174Z",
+      "duration_s": 131.02,
+      "best_off_nadir_deg": 26.5273,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-19T05:13:54.318947Z",
+      "end_utc": "2026-09-19T05:15:36.763987Z",
+      "duration_s": 102.445,
+      "best_off_nadir_deg": 37.7244,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-19T05:14:12.360146Z",
+      "end_utc": "2026-09-19T05:15:56.734564Z",
+      "duration_s": 104.374,
+      "best_off_nadir_deg": 37.4216,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T05:29:58.651025Z",
+      "end_utc": "2026-09-19T05:32:19.767724Z",
+      "duration_s": 141.117,
+      "best_off_nadir_deg": 27.6427,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-19T05:37:25.238091Z",
+      "end_utc": "2026-09-19T05:39:49.668071Z",
+      "duration_s": 144.43,
+      "best_off_nadir_deg": 30.081,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-19T06:06:16.872446Z",
+      "end_utc": "2026-09-19T06:07:56.588613Z",
+      "duration_s": 99.716,
+      "best_off_nadir_deg": 37.0823,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T06:21:52.754583Z",
+      "end_utc": "2026-09-19T06:22:50.598374Z",
+      "duration_s": 57.844,
+      "best_off_nadir_deg": 24.4456,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T06:23:16.347752Z",
+      "end_utc": "2026-09-19T06:24:14.119493Z",
+      "duration_s": 57.772,
+      "best_off_nadir_deg": 21.3791,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-19T06:24:36.286136Z",
+      "end_utc": "2026-09-19T06:26:49.124106Z",
+      "duration_s": 132.838,
+      "best_off_nadir_deg": 20.0754,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T07:04:34.476502Z",
+      "end_utc": "2026-09-19T07:06:12.476938Z",
+      "duration_s": 98.0,
+      "best_off_nadir_deg": 39.0205,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-19T07:29:40.900149Z",
+      "end_utc": "2026-09-19T07:30:42.155317Z",
+      "duration_s": 61.255,
+      "best_off_nadir_deg": 21.1494,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-19T07:31:43.123089Z",
+      "end_utc": "2026-09-19T07:32:44.399313Z",
+      "duration_s": 61.276,
+      "best_off_nadir_deg": 28.5516,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T07:55:55.500060Z",
+      "end_utc": "2026-09-19T07:57:29.485058Z",
+      "duration_s": 93.985,
+      "best_off_nadir_deg": 38.2132,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-19T08:01:47.204081Z",
+      "end_utc": "2026-09-19T08:03:45.100946Z",
+      "duration_s": 117.897,
+      "best_off_nadir_deg": 29.3991,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T08:38:38.410881Z",
+      "end_utc": "2026-09-19T08:40:29.645693Z",
+      "duration_s": 111.235,
+      "best_off_nadir_deg": 36.6838,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-19T09:04:03.562904Z",
+      "end_utc": "2026-09-19T09:04:56.193340Z",
+      "duration_s": 52.63,
+      "best_off_nadir_deg": 29.0067,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-19T09:05:37.737193Z",
+      "end_utc": "2026-09-19T09:06:29.857136Z",
+      "duration_s": 52.12,
+      "best_off_nadir_deg": 21.2602,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-19T09:09:07.799763Z",
+      "end_utc": "2026-09-19T09:11:34.589553Z",
+      "duration_s": 146.79,
+      "best_off_nadir_deg": 31.9232,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T09:29:35.111488Z",
+      "end_utc": "2026-09-19T09:30:51.705269Z",
+      "duration_s": 76.594,
+      "best_off_nadir_deg": 41.0307,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-7",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-19T09:39:11.849618Z",
+      "end_utc": "2026-09-19T09:40:34.893702Z",
+      "duration_s": 83.044,
+      "best_off_nadir_deg": 41.6253,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T10:12:35.539980Z",
+      "end_utc": "2026-09-19T10:13:37.009348Z",
+      "duration_s": 61.469,
+      "best_off_nadir_deg": 27.2865,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T10:14:08.219768Z",
+      "end_utc": "2026-09-19T10:15:10.044976Z",
+      "duration_s": 61.825,
+      "best_off_nadir_deg": 24.8794,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-19T10:22:19.246368Z",
+      "end_utc": "2026-09-19T10:23:30.048069Z",
+      "duration_s": 70.802,
+      "best_off_nadir_deg": 23.2662,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-19T10:23:59.199025Z",
+      "end_utc": "2026-09-19T10:25:10.114657Z",
+      "duration_s": 70.916,
+      "best_off_nadir_deg": 20.2211,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T10:32:04.036998Z",
+      "end_utc": "2026-09-19T10:33:55.045115Z",
+      "duration_s": 111.008,
+      "best_off_nadir_deg": 28.0451,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-19T10:35:20.898379Z",
+      "end_utc": "2026-09-19T10:37:04.302338Z",
+      "duration_s": 103.404,
+      "best_off_nadir_deg": 40.0266,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-19T10:36:41.498295Z",
+      "end_utc": "2026-09-19T10:37:49.436743Z",
+      "duration_s": 67.938,
+      "best_off_nadir_deg": 23.6578,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-19T10:38:28.903447Z",
+      "end_utc": "2026-09-19T10:39:37.155094Z",
+      "duration_s": 68.252,
+      "best_off_nadir_deg": 24.3326,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T11:02:45.338165Z",
+      "end_utc": "2026-09-19T11:04:50.181179Z",
+      "duration_s": 124.843,
+      "best_off_nadir_deg": 29.5461,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T11:47:17.521749Z",
+      "end_utc": "2026-09-19T11:49:43.103067Z",
+      "duration_s": 145.581,
+      "best_off_nadir_deg": 25.2563,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T12:04:33.816822Z",
+      "end_utc": "2026-09-19T12:06:34.176191Z",
+      "duration_s": 120.359,
+      "best_off_nadir_deg": 21.2996,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T12:36:22.734038Z",
+      "end_utc": "2026-09-19T12:37:12.149480Z",
+      "duration_s": 49.415,
+      "best_off_nadir_deg": 27.6083,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T12:38:00.875372Z",
+      "end_utc": "2026-09-19T12:38:50.343983Z",
+      "duration_s": 49.469,
+      "best_off_nadir_deg": 31.5675,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T13:37:23.827079Z",
+      "end_utc": "2026-09-19T13:38:16.916580Z",
+      "duration_s": 53.09,
+      "best_off_nadir_deg": 42.8866,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-19T14:44:18.351533Z",
+      "end_utc": "2026-09-19T14:45:00.932090Z",
+      "duration_s": 42.581,
+      "best_off_nadir_deg": 20.6832,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-19T14:45:40.808510Z",
+      "end_utc": "2026-09-19T14:46:23.196613Z",
+      "duration_s": 42.388,
+      "best_off_nadir_deg": 33.1606,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T16:41:23.593009Z",
+      "end_utc": "2026-09-19T16:42:53.512212Z",
+      "duration_s": 89.919,
+      "best_off_nadir_deg": 36.6269,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-19T17:21:35.361955Z",
+      "end_utc": "2026-09-19T17:23:53.092066Z",
+      "duration_s": 137.73,
+      "best_off_nadir_deg": 33.9419,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-19T17:46:52.787468Z",
+      "end_utc": "2026-09-19T17:48:28.561534Z",
+      "duration_s": 95.774,
+      "best_off_nadir_deg": 40.2243,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T18:13:27.061666Z",
+      "end_utc": "2026-09-19T18:14:08.999862Z",
+      "duration_s": 41.938,
+      "best_off_nadir_deg": 26.8095,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T18:14:54.603001Z",
+      "end_utc": "2026-09-19T18:15:36.617233Z",
+      "duration_s": 42.014,
+      "best_off_nadir_deg": 24.1747,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-19T18:26:52.344894Z",
+      "end_utc": "2026-09-19T18:29:00.501260Z",
+      "duration_s": 128.156,
+      "best_off_nadir_deg": 32.464,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-19T19:00:37.248635Z",
+      "end_utc": "2026-09-19T19:03:08.636293Z",
+      "duration_s": 151.388,
+      "best_off_nadir_deg": 29.3395,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-19T19:12:03.654273Z",
+      "end_utc": "2026-09-19T19:12:54.350652Z",
+      "duration_s": 50.696,
+      "best_off_nadir_deg": 28.408,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-19T19:13:37.289340Z",
+      "end_utc": "2026-09-19T19:14:27.918053Z",
+      "duration_s": 50.629,
+      "best_off_nadir_deg": 21.6066,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-19T19:25:14.790371Z",
+      "end_utc": "2026-09-19T19:27:00.830520Z",
+      "duration_s": 106.04,
+      "best_off_nadir_deg": 39.1124,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-19T19:27:17.714421Z",
+      "end_utc": "2026-09-19T19:29:14.542175Z",
+      "duration_s": 116.828,
+      "best_off_nadir_deg": 37.2451,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-19T19:47:04.833032Z",
+      "end_utc": "2026-09-19T19:47:28.495982Z",
+      "duration_s": 23.663,
+      "best_off_nadir_deg": 44.5904,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-7",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-19T19:54:29.252541Z",
+      "end_utc": "2026-09-19T19:56:59.591818Z",
+      "duration_s": 150.339,
+      "best_off_nadir_deg": 30.3678,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-19T20:57:52.546946Z",
+      "end_utc": "2026-09-19T20:58:45.520613Z",
+      "duration_s": 52.974,
+      "best_off_nadir_deg": 22.9426,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-19T20:59:24.200111Z",
+      "end_utc": "2026-09-19T21:00:17.681489Z",
+      "duration_s": 53.481,
+      "best_off_nadir_deg": 28.4925,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-7",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-19T21:46:52.836486Z",
+      "end_utc": "2026-09-19T21:47:55.678324Z",
+      "duration_s": 62.842,
+      "best_off_nadir_deg": 27.592,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-7",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-19T21:48:51.686625Z",
+      "end_utc": "2026-09-19T21:49:54.604472Z",
+      "duration_s": 62.918,
+      "best_off_nadir_deg": 24.0848,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-7",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-19T21:49:05.346540Z",
+      "end_utc": "2026-09-19T21:51:55.490535Z",
+      "duration_s": 170.144,
+      "best_off_nadir_deg": 22.7969,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-19T22:25:01.919770Z",
+      "end_utc": "2026-09-19T22:27:11.641271Z",
+      "duration_s": 129.722,
+      "best_off_nadir_deg": 34.9693,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-19T22:49:12.231546Z",
+      "end_utc": "2026-09-19T22:51:38.454339Z",
+      "duration_s": 146.223,
+      "best_off_nadir_deg": 29.4187,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-20T00:26:55.266982Z",
+      "end_utc": "2026-09-20T00:27:53.011804Z",
+      "duration_s": 57.745,
+      "best_off_nadir_deg": 26.694,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-20T00:28:11.405787Z",
+      "end_utc": "2026-09-20T00:29:07.854038Z",
+      "duration_s": 56.448,
+      "best_off_nadir_deg": 24.5503,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-20T00:28:40.393950Z",
+      "end_utc": "2026-09-20T00:29:38.331692Z",
+      "duration_s": 57.938,
+      "best_off_nadir_deg": 29.9393,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-20T00:30:08.234328Z",
+      "end_utc": "2026-09-20T00:31:04.576879Z",
+      "duration_s": 56.343,
+      "best_off_nadir_deg": 26.693,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-20T00:43:28.960235Z",
+      "end_utc": "2026-09-20T00:45:17.164152Z",
+      "duration_s": 108.204,
+      "best_off_nadir_deg": 28.1651,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-20T00:50:45.126780Z",
+      "end_utc": "2026-09-20T00:52:53.112917Z",
+      "duration_s": 127.986,
+      "best_off_nadir_deg": 26.7527,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-20T00:52:40.539948Z",
+      "end_utc": "2026-09-20T00:53:29.943306Z",
+      "duration_s": 49.403,
+      "best_off_nadir_deg": 26.1025,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-20T00:54:14.261472Z",
+      "end_utc": "2026-09-20T00:55:03.669470Z",
+      "duration_s": 49.408,
+      "best_off_nadir_deg": 23.5501,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-20T02:19:10.308314Z",
+      "end_utc": "2026-09-20T02:20:07.978249Z",
+      "duration_s": 57.67,
+      "best_off_nadir_deg": 24.4275,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-20T02:21:06.662660Z",
+      "end_utc": "2026-09-20T02:22:05.250383Z",
+      "duration_s": 58.588,
+      "best_off_nadir_deg": 27.182,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-20T02:21:15.998649Z",
+      "end_utc": "2026-09-20T02:22:13.567269Z",
+      "duration_s": 57.569,
+      "best_off_nadir_deg": 27.4606,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-20T02:23:14.835659Z",
+      "end_utc": "2026-09-20T02:24:13.306300Z",
+      "duration_s": 58.471,
+      "best_off_nadir_deg": 22.9267,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-20T02:28:01.056685Z",
+      "end_utc": "2026-09-20T02:29:20.172913Z",
+      "duration_s": 79.116,
+      "best_off_nadir_deg": 38.2779,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-7",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-20T02:52:45.922521Z",
+      "end_utc": "2026-09-20T02:55:30.396569Z",
+      "duration_s": 164.474,
+      "best_off_nadir_deg": 23.2617,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T03:46:57.981810Z",
+      "end_utc": "2026-09-20T03:47:54.508529Z",
+      "duration_s": 56.527,
+      "best_off_nadir_deg": 27.6243,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T03:48:41.171098Z",
+      "end_utc": "2026-09-20T03:49:37.869626Z",
+      "duration_s": 56.699,
+      "best_off_nadir_deg": 29.7827,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T04:29:37.525809Z",
+      "end_utc": "2026-09-20T04:31:29.894502Z",
+      "duration_s": 112.369,
+      "best_off_nadir_deg": 34.1842,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-7",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-20T04:32:06.478345Z",
+      "end_utc": "2026-09-20T04:34:41.282679Z",
+      "duration_s": 154.804,
+      "best_off_nadir_deg": 26.8592,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-20T05:05:31.560730Z",
+      "end_utc": "2026-09-20T05:07:54.984932Z",
+      "duration_s": 143.424,
+      "best_off_nadir_deg": 23.069,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T05:21:36.381246Z",
+      "end_utc": "2026-09-20T05:24:01.569738Z",
+      "duration_s": 145.188,
+      "best_off_nadir_deg": 25.6149,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-20T05:31:45.935354Z",
+      "end_utc": "2026-09-20T05:32:43.310096Z",
+      "duration_s": 57.375,
+      "best_off_nadir_deg": 21.8849,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-20T05:33:41.756475Z",
+      "end_utc": "2026-09-20T05:34:39.486444Z",
+      "duration_s": 57.73,
+      "best_off_nadir_deg": 29.7376,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-20T05:44:32.180184Z",
+      "end_utc": "2026-09-20T05:45:07.716500Z",
+      "duration_s": 35.536,
+      "best_off_nadir_deg": 44.6661,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-20T05:49:26.877033Z",
+      "end_utc": "2026-09-20T05:51:29.171446Z",
+      "duration_s": 122.294,
+      "best_off_nadir_deg": 28.4534,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T06:03:22.580963Z",
+      "end_utc": "2026-09-20T06:04:13.064361Z",
+      "duration_s": 50.483,
+      "best_off_nadir_deg": 27.8202,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T06:04:58.465075Z",
+      "end_utc": "2026-09-20T06:05:48.885745Z",
+      "duration_s": 50.421,
+      "best_off_nadir_deg": 20.9384,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T06:56:13.660810Z",
+      "end_utc": "2026-09-20T06:57:54.523771Z",
+      "duration_s": 100.863,
+      "best_off_nadir_deg": 38.6024,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-20T07:21:34.971456Z",
+      "end_utc": "2026-09-20T07:22:30.006967Z",
+      "duration_s": 55.036,
+      "best_off_nadir_deg": 43.0489,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-20T07:23:14.626474Z",
+      "end_utc": "2026-09-20T07:25:06.149598Z",
+      "duration_s": 111.523,
+      "best_off_nadir_deg": 39.3108,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-20T07:24:09.745976Z",
+      "end_utc": "2026-09-20T07:25:13.828662Z",
+      "duration_s": 64.083,
+      "best_off_nadir_deg": 26.4352,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-20T07:26:05.952215Z",
+      "end_utc": "2026-09-20T07:27:10.102074Z",
+      "duration_s": 64.15,
+      "best_off_nadir_deg": 26.5321,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-20T07:26:26.024748Z",
+      "end_utc": "2026-09-20T07:27:20.952435Z",
+      "duration_s": 54.928,
+      "best_off_nadir_deg": 20.3578,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-20T07:27:45.624849Z",
+      "end_utc": "2026-09-20T07:28:40.161148Z",
+      "duration_s": 54.536,
+      "best_off_nadir_deg": 26.6428,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T07:37:25.412972Z",
+      "end_utc": "2026-09-20T07:39:09.867885Z",
+      "duration_s": 104.455,
+      "best_off_nadir_deg": 35.9567,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T08:30:20.554620Z",
+      "end_utc": "2026-09-20T08:32:08.311740Z",
+      "duration_s": 107.757,
+      "best_off_nadir_deg": 37.3954,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-20T08:46:02.175460Z",
+      "end_utc": "2026-09-20T08:47:42.103771Z",
+      "duration_s": 99.928,
+      "best_off_nadir_deg": 37.4354,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T09:11:12.953718Z",
+      "end_utc": "2026-09-20T09:12:25.487178Z",
+      "duration_s": 72.533,
+      "best_off_nadir_deg": 41.6449,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T09:52:58.733148Z",
+      "end_utc": "2026-09-20T09:53:30.157021Z",
+      "duration_s": 31.424,
+      "best_off_nadir_deg": 44.3034,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T10:04:16.004292Z",
+      "end_utc": "2026-09-20T10:06:47.910549Z",
+      "duration_s": 151.906,
+      "best_off_nadir_deg": 20.4145,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-20T10:33:52.017357Z",
+      "end_utc": "2026-09-20T10:34:57.346037Z",
+      "duration_s": 65.329,
+      "best_off_nadir_deg": 27.5966,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-20T10:35:43.174654Z",
+      "end_utc": "2026-09-20T10:36:48.854359Z",
+      "duration_s": 65.68,
+      "best_off_nadir_deg": 27.3458,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-20T10:35:51.063806Z",
+      "end_utc": "2026-09-20T10:36:56.406308Z",
+      "duration_s": 65.343,
+      "best_off_nadir_deg": 27.2232,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-20T10:37:43.277426Z",
+      "end_utc": "2026-09-20T10:38:48.969291Z",
+      "duration_s": 65.692,
+      "best_off_nadir_deg": 27.3411,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T10:44:24.541959Z",
+      "end_utc": "2026-09-20T10:46:19.309684Z",
+      "duration_s": 114.768,
+      "best_off_nadir_deg": 33.0245,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T11:24:54.144534Z",
+      "end_utc": "2026-09-20T11:25:36.148723Z",
+      "duration_s": 42.004,
+      "best_off_nadir_deg": 31.6255,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T11:26:21.639817Z",
+      "end_utc": "2026-09-20T11:27:03.533089Z",
+      "duration_s": 41.893,
+      "best_off_nadir_deg": 33.0341,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T11:38:51.908191Z",
+      "end_utc": "2026-09-20T11:41:22.892229Z",
+      "duration_s": 150.984,
+      "best_off_nadir_deg": 21.2902,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T12:17:52.750917Z",
+      "end_utc": "2026-09-20T12:18:41.046699Z",
+      "duration_s": 48.296,
+      "best_off_nadir_deg": 20.7259,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T12:19:32.923375Z",
+      "end_utc": "2026-09-20T12:20:21.282043Z",
+      "duration_s": 48.359,
+      "best_off_nadir_deg": 24.751,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-20T12:23:56.416857Z",
+      "end_utc": "2026-09-20T12:25:36.653862Z",
+      "duration_s": 100.237,
+      "best_off_nadir_deg": 35.1908,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-20T12:41:16.132294Z",
+      "end_utc": "2026-09-20T12:42:06.642737Z",
+      "duration_s": 50.51,
+      "best_off_nadir_deg": 22.8092,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-20T12:42:25.364337Z",
+      "end_utc": "2026-09-20T12:43:16.084765Z",
+      "duration_s": 50.72,
+      "best_off_nadir_deg": 27.0177,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T12:57:37.340555Z",
+      "end_utc": "2026-09-20T12:59:06.199141Z",
+      "duration_s": 88.859,
+      "best_off_nadir_deg": 36.4737,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T13:52:33.365141Z",
+      "end_utc": "2026-09-20T13:53:54.252084Z",
+      "duration_s": 80.887,
+      "best_off_nadir_deg": 40.5361,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T16:02:12.426217Z",
+      "end_utc": "2026-09-20T16:03:06.698858Z",
+      "duration_s": 54.273,
+      "best_off_nadir_deg": 42.4102,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-20T17:20:28.139482Z",
+      "end_utc": "2026-09-20T17:21:30.151261Z",
+      "duration_s": 62.012,
+      "best_off_nadir_deg": 25.0479,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-20T17:22:25.097298Z",
+      "end_utc": "2026-09-20T17:23:26.578818Z",
+      "duration_s": 61.482,
+      "best_off_nadir_deg": 27.3675,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T17:33:55.493227Z",
+      "end_utc": "2026-09-20T17:35:56.329753Z",
+      "duration_s": 120.837,
+      "best_off_nadir_deg": 20.5242,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-20T17:39:08.088738Z",
+      "end_utc": "2026-09-20T17:41:11.401301Z",
+      "duration_s": 123.313,
+      "best_off_nadir_deg": 36.1133,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-20T17:40:56.753761Z",
+      "end_utc": "2026-09-20T17:43:32.658348Z",
+      "duration_s": 155.905,
+      "best_off_nadir_deg": 24.8198,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-20T18:18:18.606489Z",
+      "end_utc": "2026-09-20T18:19:19.971740Z",
+      "duration_s": 61.365,
+      "best_off_nadir_deg": 28.8429,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-20T18:19:53.749293Z",
+      "end_utc": "2026-09-20T18:20:55.071702Z",
+      "duration_s": 61.322,
+      "best_off_nadir_deg": 22.5718,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-20T18:53:49.568971Z",
+      "end_utc": "2026-09-20T18:55:47.776457Z",
+      "duration_s": 118.207,
+      "best_off_nadir_deg": 32.0886,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-20T19:06:35.418292Z",
+      "end_utc": "2026-09-20T19:08:25.430486Z",
+      "duration_s": 110.012,
+      "best_off_nadir_deg": 29.506,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-20T19:22:27.492370Z",
+      "end_utc": "2026-09-20T19:23:28.765505Z",
+      "duration_s": 61.273,
+      "best_off_nadir_deg": 43.2979,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-7",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-20T19:51:52.069888Z",
+      "end_utc": "2026-09-20T19:52:53.503898Z",
+      "duration_s": 61.434,
+      "best_off_nadir_deg": 26.7554,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-7",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-20T19:53:49.600747Z",
+      "end_utc": "2026-09-20T19:54:51.251282Z",
+      "duration_s": 61.651,
+      "best_off_nadir_deg": 25.2327,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-20T20:39:48.651654Z",
+      "end_utc": "2026-09-20T20:41:32.328916Z",
+      "duration_s": 103.677,
+      "best_off_nadir_deg": 36.3651,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-7",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-20T21:44:50.842200Z",
+      "end_utc": "2026-09-20T21:47:18.504807Z",
+      "duration_s": 147.663,
+      "best_off_nadir_deg": 31.9804,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-7",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-20T21:47:10.319844Z",
+      "end_utc": "2026-09-20T21:49:15.738454Z",
+      "duration_s": 125.419,
+      "best_off_nadir_deg": 37.1221,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-20T22:23:47.534754Z",
+      "end_utc": "2026-09-20T22:24:46.218633Z",
+      "duration_s": 58.684,
+      "best_off_nadir_deg": 23.4039,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-20T22:25:44.115428Z",
+      "end_utc": "2026-09-20T22:26:42.762423Z",
+      "duration_s": 58.647,
+      "best_off_nadir_deg": 28.3935,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-20T22:43:40.960374Z",
+      "end_utc": "2026-09-20T22:44:45.113861Z",
+      "duration_s": 64.153,
+      "best_off_nadir_deg": 22.0855,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-20T22:45:24.288090Z",
+      "end_utc": "2026-09-20T22:46:28.308662Z",
+      "duration_s": 64.021,
+      "best_off_nadir_deg": 26.7524,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-21T00:15:43.176122Z",
+      "end_utc": "2026-09-21T00:17:25.940919Z",
+      "duration_s": 102.765,
+      "best_off_nadir_deg": 35.9298,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-21T00:17:29.433676Z",
+      "end_utc": "2026-09-21T00:19:44.488266Z",
+      "duration_s": 135.055,
+      "best_off_nadir_deg": 21.1056,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-21T00:21:29.650435Z",
+      "end_utc": "2026-09-21T00:23:55.739927Z",
+      "duration_s": 146.089,
+      "best_off_nadir_deg": 26.2668,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-21T00:22:55.675651Z",
+      "end_utc": "2026-09-21T00:25:31.752891Z",
+      "duration_s": 156.077,
+      "best_off_nadir_deg": 24.3748,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-21T01:37:21.138425Z",
+      "end_utc": "2026-09-21T01:39:05.644317Z",
+      "duration_s": 104.506,
+      "best_off_nadir_deg": 30.2251,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-21T02:13:40.913712Z",
+      "end_utc": "2026-09-21T02:14:45.919691Z",
+      "duration_s": 65.006,
+      "best_off_nadir_deg": 22.3323,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-21T02:15:24.008484Z",
+      "end_utc": "2026-09-21T02:16:29.951250Z",
+      "duration_s": 65.943,
+      "best_off_nadir_deg": 26.612,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-21T02:15:49.943641Z",
+      "end_utc": "2026-09-21T02:18:36.405861Z",
+      "duration_s": 166.462,
+      "best_off_nadir_deg": 20.3485,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-7",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-21T02:50:18.696061Z",
+      "end_utc": "2026-09-21T02:51:17.444500Z",
+      "duration_s": 58.748,
+      "best_off_nadir_deg": 29.3134,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-7",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-21T02:52:19.953690Z",
+      "end_utc": "2026-09-21T02:53:18.004813Z",
+      "duration_s": 58.051,
+      "best_off_nadir_deg": 20.027,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T03:38:36.416233Z",
+      "end_utc": "2026-09-21T03:39:36.950300Z",
+      "duration_s": 60.534,
+      "best_off_nadir_deg": 27.6915,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T03:40:13.148741Z",
+      "end_utc": "2026-09-21T03:41:13.853585Z",
+      "duration_s": 60.705,
+      "best_off_nadir_deg": 22.9675,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T04:11:19.784527Z",
+      "end_utc": "2026-09-21T04:12:39.493630Z",
+      "duration_s": 79.709,
+      "best_off_nadir_deg": 40.568,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-21T04:57:03.621538Z",
+      "end_utc": "2026-09-21T04:57:54.850335Z",
+      "duration_s": 51.229,
+      "best_off_nadir_deg": 29.0103,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-21T04:58:48.631356Z",
+      "end_utc": "2026-09-21T04:59:40.243289Z",
+      "duration_s": 51.612,
+      "best_off_nadir_deg": 26.9959,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T05:13:13.514190Z",
+      "end_utc": "2026-09-21T05:15:42.523756Z",
+      "duration_s": 149.01,
+      "best_off_nadir_deg": 23.2838,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-21T05:14:17.744057Z",
+      "end_utc": "2026-09-21T05:16:04.477013Z",
+      "duration_s": 106.733,
+      "best_off_nadir_deg": 34.7177,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-21T05:26:50.064882Z",
+      "end_utc": "2026-09-21T05:28:46.497533Z",
+      "duration_s": 116.433,
+      "best_off_nadir_deg": 37.4952,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-21T05:38:31.094338Z",
+      "end_utc": "2026-09-21T05:40:14.378981Z",
+      "duration_s": 103.285,
+      "best_off_nadir_deg": 40.0623,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T05:44:52.253658Z",
+      "end_utc": "2026-09-21T05:45:40.597700Z",
+      "duration_s": 48.344,
+      "best_off_nadir_deg": 20.4155,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T05:46:32.530677Z",
+      "end_utc": "2026-09-21T05:47:20.821488Z",
+      "duration_s": 48.291,
+      "best_off_nadir_deg": 25.0101,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T06:47:51.975275Z",
+      "end_utc": "2026-09-21T06:49:36.176145Z",
+      "duration_s": 104.201,
+      "best_off_nadir_deg": 38.0617,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-21T06:51:07.209008Z",
+      "end_utc": "2026-09-21T06:51:53.695124Z",
+      "duration_s": 46.486,
+      "best_off_nadir_deg": 29.1061,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-21T06:52:42.237089Z",
+      "end_utc": "2026-09-21T06:53:28.323274Z",
+      "duration_s": 46.086,
+      "best_off_nadir_deg": 31.5895,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-21T07:02:21.176035Z",
+      "end_utc": "2026-09-21T07:03:09.726512Z",
+      "duration_s": 48.55,
+      "best_off_nadir_deg": 26.3076,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-21T07:03:58.880564Z",
+      "end_utc": "2026-09-21T07:04:47.470623Z",
+      "duration_s": 48.59,
+      "best_off_nadir_deg": 20.7516,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-21T07:17:21.115992Z",
+      "end_utc": "2026-09-21T07:20:00.684610Z",
+      "duration_s": 159.569,
+      "best_off_nadir_deg": 27.4724,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-21T07:18:48.447514Z",
+      "end_utc": "2026-09-21T07:21:21.676575Z",
+      "duration_s": 153.229,
+      "best_off_nadir_deg": 29.8719,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T07:18:54.155586Z",
+      "end_utc": "2026-09-21T07:20:49.214896Z",
+      "duration_s": 115.059,
+      "best_off_nadir_deg": 33.302,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T08:22:01.995571Z",
+      "end_utc": "2026-09-21T08:23:46.607249Z",
+      "duration_s": 104.612,
+      "best_off_nadir_deg": 38.0117,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T08:52:48.096350Z",
+      "end_utc": "2026-09-21T08:54:00.674116Z",
+      "duration_s": 72.578,
+      "best_off_nadir_deg": 41.4325,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T09:55:56.187529Z",
+      "end_utc": "2026-09-21T09:58:25.151373Z",
+      "duration_s": 148.964,
+      "best_off_nadir_deg": 23.0263,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T10:26:03.823588Z",
+      "end_utc": "2026-09-21T10:27:47.958841Z",
+      "duration_s": 104.135,
+      "best_off_nadir_deg": 36.0847,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-21T10:33:03.797127Z",
+      "end_utc": "2026-09-21T10:34:15.833505Z",
+      "duration_s": 72.036,
+      "best_off_nadir_deg": 25.3336,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-21T10:34:45.109416Z",
+      "end_utc": "2026-09-21T10:35:57.542960Z",
+      "duration_s": 72.434,
+      "best_off_nadir_deg": 24.9603,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-21T10:35:28.301189Z",
+      "end_utc": "2026-09-21T10:37:38.124087Z",
+      "duration_s": 129.823,
+      "best_off_nadir_deg": 36.103,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T10:45:17.198065Z",
+      "end_utc": "2026-09-21T10:47:17.110059Z",
+      "duration_s": 119.912,
+      "best_off_nadir_deg": 21.4911,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T11:30:26.488681Z",
+      "end_utc": "2026-09-21T11:31:28.199848Z",
+      "duration_s": 61.711,
+      "best_off_nadir_deg": 23.2877,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T11:31:59.592116Z",
+      "end_utc": "2026-09-21T11:33:01.704112Z",
+      "duration_s": 62.112,
+      "best_off_nadir_deg": 20.1461,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-21T11:48:26.195598Z",
+      "end_utc": "2026-09-21T11:49:21.597076Z",
+      "duration_s": 55.401,
+      "best_off_nadir_deg": 20.5138,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-21T11:49:41.062881Z",
+      "end_utc": "2026-09-21T11:50:36.507384Z",
+      "duration_s": 55.445,
+      "best_off_nadir_deg": 28.4321,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T11:59:24.573934Z",
+      "end_utc": "2026-09-21T12:00:15.090370Z",
+      "duration_s": 50.516,
+      "best_off_nadir_deg": 28.9433,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T12:01:00.155843Z",
+      "end_utc": "2026-09-21T12:01:50.744729Z",
+      "duration_s": 50.589,
+      "best_off_nadir_deg": 31.5394,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-21T12:02:05.413810Z",
+      "end_utc": "2026-09-21T12:03:58.205942Z",
+      "duration_s": 112.792,
+      "best_off_nadir_deg": 25.177,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T12:17:51.096456Z",
+      "end_utc": "2026-09-21T12:19:45.390973Z",
+      "duration_s": 114.295,
+      "best_off_nadir_deg": 26.4435,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-5",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-21T12:21:40.897675Z",
+      "end_utc": "2026-09-21T12:23:11.023161Z",
+      "duration_s": 90.125,
+      "best_off_nadir_deg": 41.3997,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-3",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T13:33:43.003038Z",
+      "end_utc": "2026-09-21T13:35:35.977429Z",
+      "duration_s": 112.974,
+      "best_off_nadir_deg": 33.7862,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T13:50:43.622945Z",
+      "end_utc": "2026-09-21T13:51:21.305660Z",
+      "duration_s": 37.683,
+      "best_off_nadir_deg": 43.836,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-21T14:57:43.150531Z",
+      "end_utc": "2026-09-21T14:59:22.285607Z",
+      "duration_s": 99.135,
+      "best_off_nadir_deg": 32.8212,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-21T15:41:02.591843Z",
+      "end_utc": "2026-09-21T15:43:36.551070Z",
+      "duration_s": 153.959,
+      "best_off_nadir_deg": 26.6552,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T16:54:31.305529Z",
+      "end_utc": "2026-09-21T16:56:10.401031Z",
+      "duration_s": 99.096,
+      "best_off_nadir_deg": 33.2628,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-21T17:19:23.127992Z",
+      "end_utc": "2026-09-21T17:20:48.440775Z",
+      "duration_s": 85.313,
+      "best_off_nadir_deg": 41.8366,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-21T17:19:42.357025Z",
+      "end_utc": "2026-09-21T17:22:31.792108Z",
+      "duration_s": 169.435,
+      "best_off_nadir_deg": 20.4134,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-21T17:33:20.328674Z",
+      "end_utc": "2026-09-21T17:34:25.065658Z",
+      "duration_s": 64.737,
+      "best_off_nadir_deg": 22.0009,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-21T17:35:02.869263Z",
+      "end_utc": "2026-09-21T17:36:07.623415Z",
+      "duration_s": 64.754,
+      "best_off_nadir_deg": 27.2205,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-21T17:35:23.399959Z",
+      "end_utc": "2026-09-21T17:36:20.616353Z",
+      "duration_s": 57.216,
+      "best_off_nadir_deg": 20.3577,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-21T17:37:19.583839Z",
+      "end_utc": "2026-09-21T17:38:16.827299Z",
+      "duration_s": 57.243,
+      "best_off_nadir_deg": 20.2416,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-21T18:09:54.575077Z",
+      "end_utc": "2026-09-21T18:10:48.010211Z",
+      "duration_s": 53.435,
+      "best_off_nadir_deg": 24.8649,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-2",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-21T18:11:44.291915Z",
+      "end_utc": "2026-09-21T18:12:37.671978Z",
+      "duration_s": 53.38,
+      "best_off_nadir_deg": 29.1754,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T18:26:42.033097Z",
+      "end_utc": "2026-09-21T18:27:24.776855Z",
+      "duration_s": 42.744,
+      "best_off_nadir_deg": 23.5495,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-1",
+      "target": "Longyearbyen, NO",
+      "start_utc": "2026-09-21T18:28:07.855589Z",
+      "end_utc": "2026-09-21T18:28:50.675856Z",
+      "duration_s": 42.82,
+      "best_off_nadir_deg": 28.6925,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-7",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-21T19:50:17.469294Z",
+      "end_utc": "2026-09-21T19:51:38.244377Z",
+      "duration_s": 80.775,
+      "best_off_nadir_deg": 42.125,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-7",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-21T20:04:10.253325Z",
+      "end_utc": "2026-09-21T20:06:25.135989Z",
+      "duration_s": 134.883,
+      "best_off_nadir_deg": 34.9702,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-7",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-21T21:43:35.383734Z",
+      "end_utc": "2026-09-21T21:44:00.504855Z",
+      "duration_s": 25.121,
+      "best_off_nadir_deg": 44.8574,
+      "look_side": "Right",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-6",
+      "target": "Jakarta, ID",
+      "start_utc": "2026-09-21T22:23:46.111902Z",
+      "end_utc": "2026-09-21T22:25:01.811547Z",
+      "duration_s": 75.7,
+      "best_off_nadir_deg": 42.3952,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-21T22:37:52.880366Z",
+      "end_utc": "2026-09-21T22:38:28.526026Z",
+      "duration_s": 35.646,
+      "best_off_nadir_deg": 44.5982,
+      "look_side": "Right",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-21T22:38:15.359219Z",
+      "end_utc": "2026-09-21T22:39:12.023200Z",
+      "duration_s": 56.664,
+      "best_off_nadir_deg": 26.7786,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-8",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-21T22:40:11.898525Z",
+      "end_utc": "2026-09-21T22:41:08.426805Z",
+      "duration_s": 56.528,
+      "best_off_nadir_deg": 24.6599,
+      "look_side": "Left",
+      "pass_direction": "Descending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Mt. Aso, JP",
+      "start_utc": "2026-09-21T23:40:55.576294Z",
+      "end_utc": "2026-09-21T23:41:41.474636Z",
+      "duration_s": 45.898,
+      "best_off_nadir_deg": 43.6106,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    },
+    {
+      "satellite": "STRIX-4",
+      "target": "Tokyo, JP",
+      "start_utc": "2026-09-21T23:42:20.862497Z",
+      "end_utc": "2026-09-21T23:44:19.792316Z",
+      "duration_s": 118.93,
+      "best_off_nadir_deg": 30.5689,
+      "look_side": "Left",
+      "pass_direction": "Ascending"
+    }
+  ]
+}

@@ -6,9 +6,9 @@ An operator-style console for SAR satellite mission planning: acquisition footpr
 
 ## Purpose
 
-This repository explores one question: how do you turn the operational data around a SAR satellite acquisition — orbit, geometry, footprint, product metadata — into an interface an operator could actually work in?
+This repository explores one question: how do we turn the operational data around a SAR satellite acquisition — orbit, geometry, footprint, product metadata — into an interface an operator could actually work in?
 
-It is built in three layers, in the order you would really build them:
+It is built in three layers, in the order they would really be built:
 
 1. **Understand the data.** Jupyter notebooks that open a real StriX product, read its geometry and metadata, check those fields against Synspective's published SAR Data Product Format Manual, and plot the results.
 2. **Serve it.** A Go backend on GCP that exposes scenes, propagates orbits from TLE data, and computes access windows over a set of ground targets.
@@ -24,7 +24,7 @@ Rather than assert that I can do that, this repo does it, on their own published
 
 ```
   data/  (local only, gitignored)
-  StriX-3 GRD GeoTIFF + Format Manual PDF
+  one StriX-3 scene, 4 product levels + Format Manual PDF
                  │
                  ▼
   notebooks/  Python — rasterio, GeoPandas, sgp4, matplotlib
@@ -107,10 +107,18 @@ The whole thing is sized to sit inside GCP's free tier with Cloud Run scaling to
 
 ## Data
 
-The prototype runs on Synspective's public sample data plus open orbital data. **No Synspective product data is committed to this repository.**
+The prototype runs on Synspective's public sample data plus open orbital data. **The delivered product files are not committed to this repository.**
 
-- **Real product sample.** A StriX-3 GRD GeoTIFF product, obtained through Synspective's own sample-data request and kept in `data/`, which is gitignored. It is used for analysis and for deriving a small quicklook only. It is never redistributed here, and it is used within Synspective's published terms, with attribution.
-- **Format reference.** The Synspective SAR Data Product Format Manual (EN, v21-1), also local-only in `data/`. The notebooks use it as the authority for what each metadata field means; where the sample product and the manual disagree, the notebook records the discrepancy rather than papering over it.
+What the repository does carry from that product is derived: rendered figures in the notebooks, and metadata field values quoted in their outputs. The reconstructed orbit is treated differently again — it is operational data, so `fixtures/precise_ephemeris.json` is git-ignored and the notebooks print only quantities derived from it, never the state vectors themselves.
+
+That split is a judgement about Synspective's sample-data terms, not a licence to reuse. Anyone repeating this should read those terms rather than copy the line drawn here.
+
+- **Real product sample.** One StriX-3 acquisition over Mt. Aso, Kyushu, obtained through Synspective's own sample-data request and kept in `data/`, which is gitignored. All four delivered product levels are used: SLC in CEOS and SICD/NITF, GRD GeoTIFF, and ORT (CEOS-ARD gamma0 and sigma0, with local-incidence-angle and layover/shadow masks as Cloud Optimized GeoTIFFs). The files themselves stay local; the figures derived from them appear in the notebooks with attribution.
+
+  The scene: Sliding Spotlight, X-band at 9.65 GHz, VV, left-looking on an ascending pass, 34.3–35.2° incidence, 31.94° off-nadir, scene centre 32.8876 N / 131.0923 E at 2026-06-15T06:35:27Z, 1.41 s of acquisition, UTM zone 52N / WGS84.
+
+- **Precise ephemeris.** The GRD parameter file carries 28 ECEF state vectors at 22.2 s spacing across a 10-minute arc bracketing the acquisition, flagged `Precise` / `DEFINITIVE`. This is the ground truth the propagation code is measured against, and it stays local: notebook 03 works from it but publishes only the orbital elements it yields.
+- **Format reference.** The Synspective SAR Data Product Format Manual (EN, v21-1), also local-only in `data/`. The notebooks use it as the authority for what each metadata field means; where the product and the manual disagree, the notebook records the discrepancy rather than papering over it. One is already logged: the delivered metadata reports the mode as both `SP` and `SlidingSpotlight` depending on which file is read.
 - **Orbital data.** Public Two-Line Element sets from [Celestrak](https://celestrak.org/NORAD/elements/), fetched and cached server-side, used to propagate ground tracks and compute access windows.
 - **Synthetic scenes.** To have enough scenes for the catalog and filters to be worth building, the repo generates mock scenes whose field names and structure follow the Format Manual — product level, imaging mode, footprint, incidence angle, look direction, orbit direction, NESZ, orbit source. Values are illustrative, not measured, and are labeled as synthetic in the UI.
 
@@ -120,12 +128,12 @@ The prototype runs on Synspective's public sample data plus open orbital data. *
 
 | Notebook | What it establishes |
 | --- | --- |
-| `01-read-strix-product` | Open the GRD GeoTIFF, read its CRS, extent, dimensions, and embedded metadata; reconcile the filename convention and every field against the Format Manual |
-| `02-footprint-and-geometry` | Derive the scene footprint polygon, scene center, swath, incidence angle, look and orbit direction; plot them |
-| `03-tle-ground-track` | Propagate StriX TLEs with the Python `sgp4` reference implementation, plot the ground track, and emit fixtures the Go service is tested against |
-| `04-access-windows` | Work out the access-window geometry — look-angle limits, ascending and descending passes — before it is ported to Go |
+| `01-read-strix-product` | Read the delivered metadata against both shipped standards, the orbit state vectors and the raster headers; plot the gamma0 image and the pass geometry |
+| `02-acquisition-geometry-3d` | Reconstruct the viewing geometry in 3D from the orbit alone, and check the derived angles against the delivered ones |
+| `03-tle-ground-track` | Propagate the constellation's TLEs with the Python `sgp4` reference, plot the ground tracks, and measure the public orbit against the product's own precise ephemeris |
+| `04-access-windows` | Compute access windows over a horizon for every satellite and target, draw the planning timeline, and size the work the Go service has to do |
 
-Notebook 03 has a second job: it is the oracle. The Go SGP4 path is verified against the Python reference implementation, so the backend's orbit math is checked against something independent rather than trusted.
+Notebooks 03 and 04 have a second job: they are the oracle. The product ships its own precise ECEF state vectors, so TLE-derived positions can be differenced against the operator's real ephemeris over the same 10-minute arc, in metres. That gives an honest error figure for SGP4-from-TLE rather than an assertion, and the Go propagation code is then tested against the same fixtures. Checking orbit math against two independent sources — a Python reference implementation and the satellite's own definitive orbit — is the difference between code that runs and code worth letting near a plan.
 
 ## Repository layout
 
@@ -153,8 +161,10 @@ Notebook 03 has a second job: it is the oracle. The Go SGP4 path is verified aga
 │   │   ├── gen/                 # buf-generated Connect client
 │   │   └── lib/
 │   └── e2e/                     # Playwright
-├── notebooks/
+├── notebooks/                   # 01-04, committed with outputs
+├── fixtures/                    # TLE snapshot + JSON the Go tests assert against
 ├── infra/terraform/
+├── requirements.txt             # notebook environment
 ├── data/                        # gitignored — sample product + manual
 └── .github/workflows/
 ```
@@ -194,11 +204,12 @@ The repo is being built in public and is early. Nothing below is claimed as work
 
 - [x] Sample product and Format Manual acquired
 - [x] Scope, architecture, and stack decided
-- [ ] Notebooks 01–02: product read, footprint and geometry derived
+- [x] Python environment pinned (`requirements.txt`, `.venv`)
+- [x] Notebooks 01–02: product read, geometry derived and cross-checked in 3D
+- [x] Notebooks 03–04: SGP4 ground tracks, access windows, fixtures exported
 - [ ] `proto/` contract defined, `buf generate` wired up
 - [ ] `scene-service`: domain, usecases, Connect handlers, fixture repository
 - [ ] Frontend: Deck.gl map with footprint and metadata panel
-- [ ] Notebooks 03–04, with exported fixtures
 - [ ] `flightdyn-service`: SGP4 propagation, ground track, access windows, streaming RPC
 - [ ] D3 timeline of acquisition opportunities and ground-station passes
 - [ ] BigQuery and GCS repositories behind the existing ports

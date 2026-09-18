@@ -1,0 +1,20 @@
+# Python environment for the notebooks (notebooks/).
+# Install:  python -m venv .venv && .venv/Scripts/pip install -r requirements.txt
+# Linux/macOS: .venv/bin/pip install -r requirements.txt
+
+# --- core ---
+numpy==2.4.6
+pandas==2.3.3
+matplotlib==3.11.1
+
+# --- geospatial: read the StriX GeoTIFF products and their footprints ---
+rasterio==1.5.1
+shapely==2.1.2
+
+# --- orbits: SGP4 reference implementation, TLE fetch (notebooks 03-04) ---
+sgp4==2.25
+requests==2.32.5
+
+# --- notebook environment ---
+jupyterlab==4.6.2
+ipykernel==7.1.0
