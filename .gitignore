@@ -1,0 +1,45 @@
+# Synspective sample product + format manual — local only, never committed
+data/
+
+# Go
+bin/
+*.test
+coverage.out
+
+# Generated from proto/ — run `make generate`
+backend/gen/
+frontend/src/gen/
+
+# Node
+node_modules/
+frontend/dist/
+.vite/
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Playwright
+test-results/
+playwright-report/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+
+# Local config / credentials
+.env
+.env.local
+*-service-account.json
+gha-creds-*.json
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
