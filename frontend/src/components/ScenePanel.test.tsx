@@ -122,4 +122,24 @@ describe('ScenePanel', () => {
     expect(current).toHaveLength(1);
     expect(current[0]).toHaveTextContent(asoScene.satellite);
   });
+
+  // Before this, filtering out the selected scene made the sheet disappear with
+  // no explanation, which reads as the selection being lost rather than hidden.
+  it('keeps the sheet and flags it when the filters exclude the selection', () => {
+    render(
+      <ScenePanel
+        catalog={ready}
+        scenes={[]}
+        selected={asoScene}
+        onSelect={vi.fn()}
+        onRetry={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole('status')).toHaveTextContent(
+      `${asoScene.id} is outside the current filters`,
+    );
+    // The sheet itself is still there: the user does not lose what they were reading.
+    expect(screen.getByText('ObservationMode')).toBeInTheDocument();
+  });
 });

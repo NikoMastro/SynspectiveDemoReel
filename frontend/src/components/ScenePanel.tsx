@@ -31,6 +31,11 @@ export function ScenePanel({
   onSelect,
   onRetry,
 }: Props): React.JSX.Element {
+  // Derived rather than passed in. As a prop it could contradict `scenes` and
+  // `selected` - a caller was free to say "hidden" about a scene sitting in the
+  // list - and the only honest value is the one these two already determine.
+  const selectedHidden = selected !== null && !scenes.some((s) => s.id === selected.id);
+
   return (
     <section className="panel console__panel">
       <div className="panel__head">
@@ -80,6 +85,12 @@ export function ScenePanel({
             title="No scene selected"
             detail={`Pick one of the ${scenes.length} scenes above, or click its footprint on the map, to read its product sheet.`}
           />
+        )}
+
+        {selectedHidden && selected && (
+          <p className="panel__note panel__note--warn" role="status">
+            {selected.id} is outside the current filters. Its sheet is still below.
+          </p>
         )}
 
         {selected && <SceneSheet scene={selected} />}

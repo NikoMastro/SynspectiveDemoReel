@@ -111,4 +111,43 @@ describe.skipIf(!process.env.LIVE_BACKEND)('against a running backend', () => {
     expect(report.windows.length).toBeGreaterThan(NOTEBOOK_WINDOW_COUNT - 25);
     expect(report.windows.length).toBeLessThan(NOTEBOOK_WINDOW_COUNT + 25);
   });
+
+  // The regression this guards against is silent: interfaces/wire.ts once
+  // declared only the fields the UI happened to render, so everything else was
+  // fetched, paid for, and dropped on the floor by the mapper. Nothing failed -
+  // the values were simply never there. Asserting the mapped objects rather
+  // than the JSON is deliberate: it proves lib/mapping.ts admits each field,
+  // not merely that the backend sent it.
+  it('maps every field the backend sends, not just the ones drawn today', async () => {
+    const [scenes, satellites, report] = await Promise.all([
+      fetchScenes(),
+      fetchSatellites(),
+      fetchAccessWindows({ targetIds: ['aso'], days: 1 }),
+    ]);
+
+    const scene = scenes[0];
+    expect(scene).toBeDefined();
+    expect(scene?.durationS).toBeGreaterThan(0);
+    expect(scene?.mapProjection).toBeTruthy();
+    expect(scene?.resolutionAzimuthM).toBeGreaterThan(0);
+    expect(scene?.resolutionRangeM).toBeGreaterThan(0);
+
+    // The orbital elements are what lets a target explain its own reachability.
+    const satellite = satellites[0];
+    expect(satellite).toBeDefined();
+    expect(satellite?.raanDeg).toBeGreaterThanOrEqual(0);
+    expect(satellite?.periodMinutes).toBeGreaterThan(80);
+    expect(satellite?.meanAltitudeKm).toBeGreaterThan(300);
+    expect(satellite?.tleLine1).toMatch(/^1 /);
+    expect(satellite?.tleLine2).toMatch(/^2 /);
+    expect(['near-polar', 'mid-inclination']).toContain(satellite?.orbitFamily);
+
+    const window = report.windows[0];
+    expect(window).toBeDefined();
+    expect(window?.targetId).toBeTruthy();
+    // best_at_utc has to fall inside its own window, or it is not the instant
+    // worth tasking.
+    expect(window?.bestAtUtc.getTime()).toBeGreaterThanOrEqual(window!.startUtc.getTime());
+    expect(window?.bestAtUtc.getTime()).toBeLessThanOrEqual(window!.endUtc.getTime());
+  });
 });
