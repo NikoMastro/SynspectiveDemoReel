@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { brushToRange, layoutTimeline, MIN_BAR_PX, timelineRows } from './timeline';
+import {
+  brushToRange,
+  layoutTimeline,
+  MIN_BAR_PX,
+  rangeToPixels,
+  timelineRows,
+} from './timeline';
 import { sampleAccess } from '../testFixtures';
 
 const horizon = {
@@ -98,5 +104,45 @@ describe('brushToRange', () => {
   it('refuses a coordinate that is not a number instead of returning Invalid Dates', () => {
     expect(brushToRange(horizon, 600, Number.NaN, 400)).toBeNull();
     expect(brushToRange(horizon, 600, 100, Number.POSITIVE_INFINITY)).toBeNull();
+  });
+
+});
+
+describe('rangeToPixels', () => {
+  const horizon = {
+    from: new Date('2026-09-19T00:00:00Z'),
+    to: new Date('2026-09-22T00:00:00Z'),
+  };
+
+  it('is null when nothing is selected', () => {
+    expect(rangeToPixels(horizon, 600, null)).toBeNull();
+  });
+
+  it('places a range where the scale puts it', () => {
+    // The middle day of three, so exactly the middle third of the width.
+    const got = rangeToPixels(horizon, 600, {
+      from: new Date('2026-09-20T00:00:00Z'),
+      to: new Date('2026-09-21T00:00:00Z'),
+    });
+    expect(got?.x0).toBeCloseTo(200, 6);
+    expect(got?.x1).toBeCloseTo(400, 6);
+  });
+
+  it('round-trips a brush back to the pixels it came from', () => {
+    // The pair only means anything if they are inverses: the band drawn after a
+    // brush has to sit where the drag was.
+    const range = brushToRange(horizon, 600, 120, 330);
+    expect(range).not.toBeNull();
+    const back = rangeToPixels(horizon, 600, range);
+    expect(back?.x0).toBeCloseTo(120, 6);
+    expect(back?.x1).toBeCloseTo(330, 6);
+  });
+
+  it('orders the edges, so a right-to-left drag still draws', () => {
+    const got = rangeToPixels(horizon, 600, {
+      from: new Date('2026-09-21T00:00:00Z'),
+      to: new Date('2026-09-20T00:00:00Z'),
+    });
+    expect(got!.x0).toBeLessThan(got!.x1);
   });
 });

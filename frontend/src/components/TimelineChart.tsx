@@ -23,7 +23,10 @@ interface Props {
   colors: SatelliteColorScale;
   highlighted: string | null;
   selectedWindow: AccessWindow | null;
+  /** The live drag, drawn while the pointer is down. */
   brush: { x0: number; x1: number } | null;
+  /** The committed range, drawn until it is cleared. */
+  selection: { x0: number; x1: number } | null;
   onPickWindow: (window: AccessWindow) => void;
 }
 
@@ -46,6 +49,7 @@ export function TimelineChart({
   highlighted,
   selectedWindow,
   brush,
+  selection,
   onPickWindow,
 }: Props): React.JSX.Element {
   const height = CHART_MARGIN.top + layout.height + CHART_MARGIN.bottom;
@@ -102,6 +106,18 @@ export function TimelineChart({
             </text>
           </g>
         ))}
+
+        {/* Drawn under the bars, and before the live drag, so a new brush reads
+            on top of the range it is about to replace. */}
+        {selection && (
+          <rect
+            className="timeline__selection"
+            x={selection.x0}
+            y={0}
+            width={Math.max(selection.x1 - selection.x0, 1)}
+            height={layout.height}
+          />
+        )}
 
         {brush && (
           <rect

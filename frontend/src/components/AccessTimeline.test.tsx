@@ -233,4 +233,44 @@ describe('AccessTimeline', () => {
     setup({ sceneOnlyFilter: true });
     expect(screen.getByText(/imaging-mode filter does not narrow this view/)).toBeInTheDocument();
   });
+
+  // Before this the rectangle was drawn from live pointer state only, so the
+  // moment the pointer came up the chart went back to looking unbrushed and the
+  // only trace of the range was a number in the header.
+  it('keeps a band on the chart showing the brushed range', () => {
+    const { container } = render(
+      <AccessTimeline
+        report={sampleAccess}
+        colors={colors}
+        totalWindows={sampleAccess.windows.length}
+        sceneOnlyFilter={false}
+        highlighted={null}
+        onHighlight={vi.fn()}
+        range={{
+          from: new Date('2026-09-20T00:00:00Z'),
+          to: new Date('2026-09-21T00:00:00Z'),
+        }}
+        onRangeChange={vi.fn()}
+      />,
+    );
+
+    expect(container.querySelector('.timeline__selection')).toBeInTheDocument();
+  });
+
+  it('draws no band when no range is set', () => {
+    const { container } = render(
+      <AccessTimeline
+        report={sampleAccess}
+        colors={colors}
+        totalWindows={sampleAccess.windows.length}
+        sceneOnlyFilter={false}
+        highlighted={null}
+        onHighlight={vi.fn()}
+        range={null}
+        onRangeChange={vi.fn()}
+      />,
+    );
+
+    expect(container.querySelector('.timeline__selection')).not.toBeInTheDocument();
+  });
 });

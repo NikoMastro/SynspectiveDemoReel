@@ -50,7 +50,7 @@ function Group({
 export function SceneSheet({ scene }: { scene: Scene }): React.JSX.Element {
   return (
     <div className="sheet">
-      <div>
+      <div className="sheet__banner">
         <span
           className={`badge ${scene.synthetic ? 'badge--synthetic' : 'badge--real'}`}
           data-testid="scene-provenance"

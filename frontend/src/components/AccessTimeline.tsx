@@ -3,7 +3,7 @@ import type { AccessReport, AccessWindow, TimeRange } from '../interfaces';
 import type { SatelliteColorScale } from '../lib/colors';
 import { countWindowsBySatellite, windowsInRange } from '../lib/filters';
 import { formatUtcShort } from '../lib/format';
-import { brushToRange, layoutTimeline, timelineRows } from '../lib/timeline';
+import { brushToRange, layoutTimeline, rangeToPixels, timelineRows } from '../lib/timeline';
 import { SatelliteLegend } from './SatelliteLegend';
 import { CHART_MARGIN, TimelineChart } from './TimelineChart';
 import { useElementWidth } from './useElementWidth';
@@ -155,6 +155,7 @@ export function AccessTimeline({
           highlighted={highlighted}
           selectedWindow={picked}
           brush={drag}
+          selection={rangeToPixels(horizon, plotWidth, range)}
           onPickWindow={(w) => {
             setPicked(w);
             onHighlight(w.satellite);
