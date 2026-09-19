@@ -6,7 +6,7 @@
 #   cd infra/terraform
 #   terraform apply -target=google_artifact_registry_repository.images
 #   ../../scripts/push-images.sh
-#   terraform apply
+#   terraform apply -var image_tag=$(git rev-parse --short HEAD)
 #
 # The images are built for linux/amd64 explicitly, because Cloud Run runs amd64
 # and a build on an arm64 laptop would otherwise produce images that push fine
@@ -15,7 +15,13 @@ set -euo pipefail
 
 PROJECT="${PROJECT:-strix-scene-explorer}"
 REGION="${REGION:-asia-northeast1}"
-TAG="${TAG:-latest}"
+# The commit, not "latest".
+#
+# A moving tag leaves Terraform with nothing to diff. A deploy that changed no
+# configuration then reported three updates and created a new revision for only
+# the one service whose config had actually changed - the other two kept serving
+# the previous build, silently, while the plan said they had been updated.
+TAG="${TAG:-$(git -C "$(dirname "$0")/.." rev-parse --short HEAD)}"
 REGISTRY="${REGION}-docker.pkg.dev/${PROJECT}/strix"
 
 # Repository root, so the build context matches docker-compose: the services

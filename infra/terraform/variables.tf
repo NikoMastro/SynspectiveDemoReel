@@ -13,9 +13,16 @@ variable "region" {
 }
 
 variable "image_tag" {
-  description = "Tag of the three images in Artifact Registry. A commit SHA in CI; 'latest' by hand."
+  description = <<-EOT
+    Tag of the three images in Artifact Registry. A short commit SHA.
+
+    Not "latest", and the difference is not cosmetic: a moving tag gives
+    Terraform nothing to diff, so a deploy that changes no configuration plans
+    as an update, creates a revision only for services whose config genuinely
+    changed, and leaves the rest serving the previous build while reporting
+    success. push-images.sh defaults to the commit for the same reason.
+  EOT
   type        = string
-  default     = "latest"
 }
 
 variable "off_nadir_min_deg" {
