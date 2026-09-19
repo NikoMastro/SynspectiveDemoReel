@@ -76,17 +76,34 @@ the chart.
 **The basemap needs no API key.** A Deck.gl `TileLayer` over OpenStreetMap
 raster tiles, attributed in the map footer. Anyone who clones this can run it.
 
-**The radar image is drawn where it was taken, and the camera goes to it.** A
+**The radar image is drawn where it was taken, and the console opens on it.** A
 Sliding Spotlight scene is a few kilometres across, a dot at the opening zoom.
 Picking a scene from the list flies the camera to its footprint
 (`lib/viewport.ts` fits the bounds, a `FlyToInterpolator` moves it, and
-`prefers-reduced-motion` turns the flight into a cut). The quicklook is a
-`BitmapLayer` between the basemap and the vector layers, read as plain
-longitude/latitude because that is what the PNG is, and the footprint's fill
-goes transparent under it so the greys are not tinted by the satellite's
-colour. The map has a switch and an opacity slider for it; the sheet shows the
-same picture with a caption saying what black and white mean and where the
-pixels came from.
+`prefers-reduced-motion` turns the flight into a cut). The console does that
+once by itself on load, for the one delivered scene: eleven of the twelve seed
+scenes are synthetic, and asking a visitor to find the real one in a list spends
+the only moment their attention is guaranteed.
+
+The quicklook is a `BitmapLayer` between the basemap and the vector layers, read
+as plain longitude/latitude because that is what the PNG is. While it is on
+screen the footprint polygons lose both their fill and their outline: a
+translucent fill tints the greys the image exists to show, and an outline is a
+black line drawn across the terrain marking a boundary the image already has,
+since the valid pixels and the footprint come from the same raster. The
+polygons stay pickable and the scene dots stay drawn, so nothing becomes
+unreachable. It opens at 65% opacity rather than fully opaque, because the point
+of draping it on a basemap is to read the two together.
+
+**The camera is controlled, and that has one trap in it.** `viewState` plus
+`onViewStateChange` is what lets "Locate on map" move a camera the operator has
+already panned, which `initialViewState` cannot do. The cost is that deck.gl
+reports every interpolated frame of a fly-to back through that handler, and
+storing one re-renders with a view state carrying no transition props — which
+deck.gl reads as the caller taking the camera elsewhere, so it cancels its own
+flight. `interactionState.inTransition` is how it tells you a frame is its own,
+and dropping those is the whole fix. Before it, picking a scene flew the map
+about two times in three.
 
 **The colour scale is fixed, ordered, and never cycled.** Eight satellites,
 eight validated dark-surface hues assigned over a sorted domain, so filtering
