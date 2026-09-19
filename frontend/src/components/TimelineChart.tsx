@@ -135,7 +135,10 @@ export function TimelineChart({
               rx={1.5}
               fill={colors.hex(w.satellite)}
               opacity={dimmed ? 0.18 : 1}
-              stroke={isSelected ? '#ffffff' : 'none'}
+              // Same token the map footprints use. This was #ffffff, which was
+              // correct against a dark console and invisible the moment the
+              // theme went light - the bars sit on --surface-2.
+              stroke={isSelected ? 'var(--ink)' : 'none'}
               strokeWidth={isSelected ? 2 : 0}
               tabIndex={0}
               role="button"

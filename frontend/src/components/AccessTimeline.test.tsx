@@ -106,6 +106,20 @@ describe('AccessTimeline', () => {
     expect(onHighlight).toHaveBeenCalledWith('STRIX-5');
   });
 
+  // The light-theme sweep re-tuned every deck.gl constant and missed this SVG,
+  // leaving a white stroke on a light surface - selected bars looked unselected.
+  // Asserting the token rather than a hex keeps the test true through a repaint,
+  // and asserting "not white" is what actually guards the class of bug.
+  it('outlines the clicked bar with the ink token, not a hardcoded light colour', async () => {
+    setup();
+    const bar = screen.getAllByTestId('timeline-bar')[0];
+    await userEvent.click(bar!);
+
+    const stroke = bar!.getAttribute('stroke');
+    expect(stroke).toBe('var(--ink)');
+    expect(stroke).not.toMatch(/#fff|white|255,\s*255,\s*255/i);
+  });
+
   it('shows the brushed range and offers a way out of it', async () => {
     const range = {
       from: new Date('2026-09-19T00:00:00Z'),
