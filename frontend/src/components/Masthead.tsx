@@ -46,10 +46,21 @@ export function Masthead({ data }: { data: ConsoleData }): React.JSX.Element {
         constellation. Orbits from public Celestrak elements; one real StriX-3 scene over Mt. Aso,
         the rest synthetic and labelled as such.
       </p>
-      <span className={`pill ${MODIFIER[health]}`.trim()} data-testid="backend-health">
-        <span className="pill__dot" aria-hidden="true" />
-        {LABEL[health]}
-      </span>
+      <div className="masthead__meta">
+        <span className={`pill ${MODIFIER[health]}`.trim()} data-testid="backend-health">
+          <span className="pill__dot" aria-hidden="true" />
+          {LABEL[health]}
+        </span>
+        {/* The console shows what was built; the repository shows how, and
+            carries the notebooks the orbital maths was checked against. */}
+        <a
+          className="masthead__source"
+          href="https://github.com/NikoMastro/SynspectiveDemoReel"
+          rel="noreferrer"
+        >
+          Source and notebooks
+        </a>
+      </div>
     </header>
   );
 }

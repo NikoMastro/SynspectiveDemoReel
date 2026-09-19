@@ -89,12 +89,15 @@ export default function App(): React.JSX.Element {
     ) : null;
 
   return (
-    <div className="console">
-      <div className="console__header">
+    <>
+      {/* Outside the grid so the grid itself can be <main>. A landmark that
+          contained the page header would not be the main content. */}
+      <div className="console__masthead">
         <Masthead data={data} />
       </div>
 
-      <div className="console__filters">
+      <main className="console">
+        <div className="console__filters">
         <FilterBar
           options={options}
           filters={filters}
@@ -157,7 +160,8 @@ export default function App(): React.JSX.Element {
             onRangeChange={setRange}
           />
         )}
-      </div>
-    </div>
+        </div>
+      </main>
+    </>
   );
 }

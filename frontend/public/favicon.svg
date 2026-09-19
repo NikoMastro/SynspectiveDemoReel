@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- An inclined orbit around a body: the one shape the whole console is about. -->
+  <rect width="32" height="32" rx="7" fill="#f2f5f8"/>
+  <ellipse cx="16" cy="16" rx="13" ry="6" fill="none" stroke="#1b5e93" stroke-width="2"
+           transform="rotate(-28 16 16)"/>
+  <circle cx="16" cy="16" r="4.5" fill="#131c26"/>
+  <circle cx="26.2" cy="10.6" r="2.6" fill="#d95926"/>
+</svg>

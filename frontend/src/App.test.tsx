@@ -94,6 +94,29 @@ describe('App with the backend up', () => {
     expect(screen.getByText('No scene selected')).toBeInTheDocument();
   });
 
+  // Landmarks are how a screen reader user skips past the header to the thing
+  // they came for. Without <main> the whole console is one undifferentiated
+  // region and the only way in is to read from the top every time.
+  it('exposes the console as a main landmark, with the header outside it', async () => {
+    render(<App />);
+    await waitFor(() => expect(screen.getByTestId('backend-health')).toBeInTheDocument());
+
+    const main = screen.getByRole('main');
+    expect(main).toBeInTheDocument();
+    // The banner is the page header and must not be inside the main content.
+    expect(main).not.toContainElement(screen.getByRole('banner'));
+    // The parts someone navigates to are in it.
+    expect(within(main).getByTestId('deck-canvas')).toBeInTheDocument();
+  });
+
+  it('links to the repository, so the console is not a dead end', async () => {
+    render(<App />);
+    await waitFor(() => expect(screen.getByTestId('backend-health')).toBeInTheDocument());
+
+    const link = screen.getByRole('link', { name: /Source and notebooks/ });
+    expect(link).toHaveAttribute('href', 'https://github.com/NikoMastro/SynspectiveDemoReel');
+  });
+
   it('offers only the satellites the backend actually returned', async () => {
     render(<App />);
     await waitFor(() => expect(screen.getByLabelText('Satellite')).toBeInTheDocument());
