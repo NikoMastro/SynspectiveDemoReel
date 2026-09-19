@@ -1,0 +1,27 @@
+# The repository stores LF. Without this file, core.autocrlf=true hands Windows
+# checkouts CRLF working copies, and then `gofmt -l .` reports every Go file as
+# unformatted - all 34 of them - on a repository whose README tells reviewers to
+# run exactly that command.
+#
+# `text=auto` lets Git normalise anything it detects as text. The explicit rules
+# below are the files where the line ending is not cosmetic: Go tooling compares
+# bytes, and a shell script with CRLF fails outright with a confusing
+# "bad interpreter" error.
+
+* text=auto
+
+*.go        text eol=lf
+*.sh        text eol=lf
+*.mod       text eol=lf
+*.sum       text eol=lf
+Dockerfile  text eol=lf
+*.tf        text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+
+# Binary, so Git must never touch them.
+*.png  binary
+*.jpg  binary
+*.pdf  binary
+*.zip  binary
+*.tif  binary
