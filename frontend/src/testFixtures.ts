@@ -44,6 +44,14 @@ export const wireAsoScene: WireScene = {
     [131.06, 32.92],
     [131.06, 32.86],
   ],
+  // The values scripts/make_quicklook.py wrote for the real scene.
+  quicklook: {
+    bounds: [131.008775, 32.826288, 131.169492, 32.947299],
+    min_db: -12.85,
+    max_db: -2.27,
+    width_px: 1400,
+    height_px: 1054,
+  },
   duration_s: 1.41,
   map_projection: 'UTM zone 52N / WGS84',
   resolution_azimuth_m: 0.8,
@@ -64,6 +72,7 @@ export const wireSyntheticScene: WireScene = {
   orbit_source: 'Predicted',
   center_lat_deg: -6.2088,
   center_lon_deg: 106.8456,
+  quicklook: null,
   duration_s: 3.2,
   map_projection: 'UTM zone 48S / WGS84',
   resolution_azimuth_m: 1.0,

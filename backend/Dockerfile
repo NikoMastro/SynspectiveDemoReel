@@ -37,7 +37,10 @@ COPY --from=build /out/service /service
 
 # Seed data, baked in so the image runs with no volume. Both paths are then
 # pinned by environment variables because the defaults are relative to backend/.
+# The quicklook directory sits next to scenes.json because the catalog names
+# its images relative to itself.
 COPY backend/testdata/scenes.json /data/scenes.json
+COPY backend/testdata/quicklook/  /data/quicklook/
 COPY fixtures/tle_strix.txt       /data/tle_strix.txt
 ENV SCENE_FILE=/data/scenes.json \
     TLE_FILE=/data/tle_strix.txt

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
-import type { SceneFilters, TimeRange } from './interfaces';
+import type { LocateRequest, Scene, SceneFilters, SceneImagery, TimeRange } from './interfaces';
+import { quicklookUrl } from './lib/api';
 import { satelliteColorScale } from './lib/colors';
 import {
   applyFilters,
@@ -77,6 +78,30 @@ export default function App(): React.JSX.Element {
   // user was reading.
   const selectedScene = scenes.find((s) => s.id === selectedSceneId) ?? null;
 
+  // Bringing the map to a scene. Picking from the list does it on its own: the
+  // list is how an operator goes to a scene, and a Sliding Spotlight footprint
+  // is a dot at the opening zoom. Clicking a footprint on the map does not -
+  // the camera is already there, and yanking it would be rude. The sheet's
+  // button covers coming back after panning away.
+  const [locate, setLocate] = useState<LocateRequest | null>(null);
+  const locateScene = (scene: Scene) =>
+    setLocate((previous) => ({ footprint: scene.footprint, key: (previous?.key ?? 0) + 1 }));
+  const selectFromList = (id: string) => {
+    setSelectedSceneId(id);
+    const scene = scenes.find((s) => s.id === id);
+    if (scene) locateScene(scene);
+  };
+
+  // What the map drapes: the selected scene's quicklook, when it has one.
+  const imagery: SceneImagery | null =
+    selectedScene?.quicklook
+      ? {
+          sceneId: selectedScene.id,
+          quicklook: selectedScene.quicklook,
+          url: quicklookUrl(selectedScene.id),
+        }
+      : null;
+
   const mapOverlay = (() => {
     if (data.scenes.status === 'error' && data.scenes.error) {
       return <ErrorBlock what="the map data" failure={data.scenes.error} onRetry={() => setReloadKey((k) => k + 1)} />;
@@ -132,6 +157,8 @@ export default function App(): React.JSX.Element {
         colors={colors}
         selectedSceneId={selectedSceneId}
         highlightedSatellite={highlighted}
+        imagery={imagery}
+        locate={locate}
         onSelectScene={setSelectedSceneId}
         {...(mapOverlay ? { overlay: mapOverlay } : {})}
         {...(mapBanner ? { banner: mapBanner } : {})}
@@ -141,7 +168,10 @@ export default function App(): React.JSX.Element {
         catalog={data.scenes}
         scenes={visibleScenes}
         selected={selectedScene}
-        onSelect={setSelectedSceneId}
+        onSelect={selectFromList}
+        onLocate={() => {
+          if (selectedScene) locateScene(selectedScene);
+        }}
         onRetry={() => setReloadKey((k) => k + 1)}
       />
 

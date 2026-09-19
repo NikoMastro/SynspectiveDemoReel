@@ -10,11 +10,19 @@
  * Colours come from a SatelliteColorScale passed in, never from a lookup made
  * here, so the map and the timeline cannot drift apart.
  */
+import { COORDINATE_SYSTEM } from '@deck.gl/core';
 import type { Layer, PickingInfo } from '@deck.gl/core';
 import { TileLayer } from '@deck.gl/geo-layers';
 import { BitmapLayer, PathLayer, PolygonLayer, ScatterplotLayer, TextLayer } from '@deck.gl/layers';
 
-import type { GroundTrack, Position2D, Scene, SubSatellitePoint, Target } from '../interfaces';
+import type {
+  GroundTrack,
+  Position2D,
+  Scene,
+  SceneImagery,
+  SubSatellitePoint,
+  Target,
+} from '../interfaces';
 import type { SatelliteColorScale } from './colors';
 import { hexToRgb } from './colors';
 import { splitAtAntimeridian, trackPositions } from './tracks';
@@ -68,6 +76,29 @@ export function basemapLayer(): Layer {
         bounds: [box[0][0], box[0][1], box[1][0], box[1][1]],
       });
     },
+  });
+}
+
+export type ImageryOptions = SceneImagery & {
+  /** 0..1, from the slider on the map. */
+  opacity: number;
+};
+
+/**
+ * The delivered product itself, draped inside its footprint. The PNG carries
+ * alpha, so the corners of the raster's rectangle around the rotated swath
+ * show the basemap through rather than black.
+ */
+export function quicklookLayer(options: ImageryOptions): Layer {
+  return new BitmapLayer({
+    id: 'scene-quicklook',
+    image: options.url,
+    bounds: options.quicklook.bounds,
+    // The PNG is north-up in plain longitude/latitude (EPSG:4326), not Web
+    // Mercator. Over 0.12 degrees of latitude the two differ by well under a
+    // pixel, but it is the truth about the file and it costs one prop.
+    _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
+    opacity: options.opacity,
   });
 }
 
@@ -157,15 +188,26 @@ export interface FootprintOptions {
   scenes: Scene[];
   colors: SatelliteColorScale;
   selectedSceneId: string | null;
+  /**
+   * The scene whose imagery is drawn underneath. Its fill goes transparent so
+   * the picture is not tinted by the satellite's colour; the outline stays.
+   */
+  imagedSceneId: string | null;
   onSelect: (sceneId: string) => void;
 }
 
+/** Selection brightens the fill; imagery removes it. */
+function footprintFillAlpha(sceneId: string, selected: string | null, imaged: string | null): number {
+  if (sceneId === imaged) return 0;
+  return sceneId === selected ? 150 : 70;
+}
+
 /**
- * Scene footprints. The selected one gets a white outline rather than a
+ * Scene footprints. The selected one gets a dark outline rather than a
  * different fill, so selection never competes with satellite identity.
  */
 export function footprintLayer(options: FootprintOptions): Layer {
-  const { colors, selectedSceneId } = options;
+  const { colors, selectedSceneId, imagedSceneId } = options;
   return new PolygonLayer<Scene>({
     id: 'scene-footprints',
     data: options.scenes,
@@ -174,7 +216,8 @@ export function footprintLayer(options: FootprintOptions): Layer {
     stroked: true,
     lineWidthUnits: 'pixels',
     getPolygon: (d) => d.footprint,
-    getFillColor: (d) => withAlpha(colors.hex(d.satellite), d.id === selectedSceneId ? 150 : 70),
+    getFillColor: (d) =>
+      withAlpha(colors.hex(d.satellite), footprintFillAlpha(d.id, selectedSceneId, imagedSceneId)),
     getLineColor: (d) =>
       d.id === selectedSceneId ? SELECTED : withAlpha(colors.hex(d.satellite), 235),
     getLineWidth: (d) => (d.id === selectedSceneId ? 3 : 1.5),
@@ -183,7 +226,7 @@ export function footprintLayer(options: FootprintOptions): Layer {
       return true;
     },
     updateTriggers: {
-      getFillColor: [selectedSceneId, colors.domain.join()],
+      getFillColor: [selectedSceneId, imagedSceneId, colors.domain.join()],
       getLineColor: [selectedSceneId, colors.domain.join()],
       getLineWidth: [selectedSceneId],
     },
@@ -276,18 +319,22 @@ export interface MapLayerInput {
   colors: SatelliteColorScale;
   selectedSceneId: string | null;
   highlightedSatellite: string | null;
+  /** The imagery to drape, or null when the selected scene has none or it is switched off. */
+  imagery: ImageryOptions | null;
   onSelectScene: (sceneId: string) => void;
 }
 
 /**
- * The whole stack, bottom to top. deck.gl draws in array order, so the labels
- * and the tappable scene dots end up above the fills.
+ * The whole stack, bottom to top. deck.gl draws in array order, so the
+ * quicklook sits directly on the basemap and the labels and the tappable scene
+ * dots end up above the fills.
  */
 export function buildMapLayers(input: MapLayerInput): Layer[] {
   const footprints: FootprintOptions = {
     scenes: input.scenes,
     colors: input.colors,
     selectedSceneId: input.selectedSceneId,
+    imagedSceneId: input.imagery?.sceneId ?? null,
     onSelect: input.onSelectScene,
   };
   const targets: TargetOptions = {
@@ -302,6 +349,7 @@ export function buildMapLayers(input: MapLayerInput): Layer[] {
 
   return [
     basemapLayer(),
+    ...(input.imagery ? [quicklookLayer(input.imagery)] : []),
     groundTrackLayer({
       tracks: input.tracks,
       colors: input.colors,

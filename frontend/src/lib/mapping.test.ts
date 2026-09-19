@@ -40,6 +40,20 @@ describe('toScene', () => {
     expect(scene.synthetic).toBe(false);
     expect(toScene({ ...wireAsoScene, synthetic: true }).synthetic).toBe(true);
   });
+
+  // null is the backend saying "no product behind this scene", and the sheet
+  // and the map both branch on it. It must not become undefined or an empty
+  // object on the way through.
+  it('maps the quicklook block, and keeps null as null', () => {
+    expect(scene.quicklook).toEqual({
+      bounds: [131.008775, 32.826288, 131.169492, 32.947299],
+      minDb: -12.85,
+      maxDb: -2.27,
+      widthPx: 1400,
+      heightPx: 1054,
+    });
+    expect(toScene({ ...wireAsoScene, quicklook: null }).quicklook).toBeNull();
+  });
 });
 
 describe('toSatellite', () => {

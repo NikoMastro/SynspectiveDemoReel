@@ -123,6 +123,7 @@ That split is a judgement about Synspective's sample-data terms, not a licence t
 
   The scene: Sliding Spotlight, X-band at 9.65 GHz, VV, left-looking on an ascending pass, 34.3–35.2° incidence, 31.94° off-nadir, scene centre 32.8876 N / 131.0923 E at 2026-06-15T06:35:27Z, 1.41 s of acquisition, UTM zone 52N / WGS84.
 
+- **Quicklook.** The one picture the console shows is rendered from that product by `scripts/make_quicklook.py`: the float32 gamma0 band, averaged down to about 10 m per pixel, converted to decibels and stretched between the 2nd and 98th percentile exactly as notebook 01 does, then reprojected from UTM 52N to WGS84 and written as an 8-bit PNG with the nodata corners transparent. That is roughly one pixel in eight of the product in each direction, with no radiometric content left in it — a figure of the same kind as the ones in the notebooks, published on the same judgement. The script also replaces the scene's footprint with the convex hull of the raster's valid pixels, so the outline on the map and the image inside it come from the same file. `scene-service` serves the PNG from `/api/v1/scenes/{id}/quicklook.png`; the file-backed repository stands where a bucket would.
 - **Precise ephemeris.** The GRD parameter file carries 28 ECEF state vectors at 22.2 s spacing across a 10-minute arc bracketing the acquisition, flagged `Precise` / `DEFINITIVE`. This is the ground truth the propagation code is measured against, and it stays local: notebook 03 works from it but publishes only the orbital elements it yields.
 - **Format reference.** The Synspective SAR Data Product Format Manual (EN, v21-1), also local-only in `data/`. The notebooks use it as the authority for what each metadata field means; where the product and the manual disagree, the notebook records the discrepancy rather than papering over it. One is already logged: the delivered metadata reports the mode as both `SP` and `SlidingSpotlight` depending on which file is read.
 - **Orbital data.** Public Two-Line Element sets from [Celestrak](https://celestrak.org/NORAD/elements/), fetched and cached server-side, used to propagate ground tracks and compute access windows.
@@ -160,20 +161,25 @@ Notebooks 03 and 04 have a second job: they are the oracle. The product ships it
 │   │   │   ├── sgp4/            # the SGP4 library behind port.Propagator
 │   │   │   └── flightdyn/       # scene-service's client for flightdyn-service
 │   │   └── infra/               # config, logging, graceful shutdown
-│   └── testdata/scenes.json     # seed catalog: 1 real scene + 11 synthetic
+│   └── testdata/
+│       ├── scenes.json          # seed catalog: 1 real scene + 11 synthetic
+│       └── quicklook/           # the real scene's rendered preview, served by scene-service
 ├── frontend/
 │   ├── src/
 │   │   ├── interfaces/          # wire types, domain types, UI state - no logic
 │   │   ├── lib/                 # api client, mapping, Deck.gl layer factories,
-│   │   │                        # timeline geometry, colours, formatters
+│   │   │                        # camera fitting, timeline geometry, colours, formatters
 │   │   └── components/          # every UI component, plus two hooks
 ├── notebooks/                   # 01-04, committed with outputs
+├── scripts/                     # make_quicklook.py, push-images.sh
+├── infra/terraform/             # Cloud Run, Artifact Registry, IAM
+├── .github/workflows/           # CI: gofmt, vet, go test, tsc, vitest, image build
 ├── fixtures/                    # TLE snapshot + JSON the Go tests assert against
 ├── requirements.txt             # notebook environment
 └── data/                        # gitignored — sample product + manual
 ```
 
-That is the whole tree. There is no `infra/terraform/`, no `.github/workflows/` and no `frontend/e2e/` yet; they are on the build list below, unchecked.
+That is the whole tree. There is no `frontend/e2e/` yet; it is on the build list below, unchecked.
 
 ## Testing strategy
 
@@ -271,6 +277,7 @@ The repo is being built in public and is early. Nothing below is claimed as work
 - [x] `scene-service`: domain, usecases, HTTP handlers, file-backed repositories
 - [x] `flightdyn-service`: SGP4 propagation, ground track, access windows, `errgroup` fan-out
 - [x] Frontend: Deck.gl map with footprints, ground tracks and the product sheet
+- [x] The delivered scene's radar image draped inside its footprint, with its footprint derived from the same raster
 - [x] D3-scaled timeline of acquisition opportunities
 - [ ] Ground-station passes on the timeline
 - [ ] Server-streamed access windows (not needed at this scale - see Concurrency)

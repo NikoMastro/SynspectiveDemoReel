@@ -54,6 +54,22 @@ type Scene struct {
 	// Note carries any caveat that belongs with the scene itself, such as how
 	// an approximate footprint was derived.
 	Note string
+
+	// Quicklook is the rendered preview that exists for a delivered product:
+	// the raster in decibels, downsampled, georeferenced so the console can
+	// drape it inside the footprint. nil for every synthetic scene, which has
+	// no product behind it to render.
+	Quicklook *Quicklook
+}
+
+// Quicklook describes one rendered preview image. Its edges are lines of
+// constant longitude and latitude, so four numbers place it on a map, and the
+// stretch is kept so the console can say what black and white mean. The image
+// bytes themselves are a blob, not metadata, and come through the repository.
+type Quicklook struct {
+	West, South, East, North float64 // WGS84 degrees
+	MinDb, MaxDb             float64 // the gamma0 values rendered black and white
+	WidthPx, HeightPx        int
 }
 
 // SceneFilter is the set of optional catalog filters. An empty string means

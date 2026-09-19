@@ -195,6 +195,27 @@ describe('App with one feed down', () => {
     expect(screen.getByText('ObservationMode')).toBeInTheDocument();
     expect(screen.queryByText('No scene selected')).not.toBeInTheDocument();
   });
+
+  // The first row is the delivered product, so picking it is what turns the
+  // imagery on: the map grows its controls and the sheet shows the picture.
+  // The synthetic scene, picked next, takes both away again rather than
+  // leaving the last real image on screen under the wrong metadata.
+  it('shows the radar image for the delivered scene and not for a synthetic one', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await waitFor(() => expect(screen.getByText('No scene selected')).toBeInTheDocument());
+    const list = within(screen.getByRole('list', { name: /Scenes matching/ }));
+
+    await user.click(list.getByRole('button', { name: /STRIX-3/ }));
+    expect(screen.getByRole('checkbox', { name: 'Radar image' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /Radar backscatter/ })).toBeInTheDocument();
+
+    await user.click(list.getByRole('button', { name: /STRIX-5/ }));
+    expect(screen.queryByRole('checkbox', { name: 'Radar image' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('img', { name: /Radar backscatter/ })).not.toBeInTheDocument();
+    expect(screen.getByText(/No imagery/)).toBeInTheDocument();
+  });
 });
 
 describe('App with the backend down', () => {

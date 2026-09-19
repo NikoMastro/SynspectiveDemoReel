@@ -344,6 +344,46 @@ select:focus-visible,
   max-width: 240px;
 }
 
+/* The imagery controls sit bottom-left: opposite the attribution, and clear of
+   the error banner, which takes the top edge. Opaque for the same reason the
+   attribution is. */
+.map__controls {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 14px;
+  padding: 0 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  background: rgba(255, 255, 255, 0.97);
+  font-size: 12px;
+}
+
+.map__control {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  /* The 44px floor again: these are the only controls on the map itself. */
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.map__control input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.map__control input[type="range"] {
+  width: 96px;
+  accent-color: var(--accent);
+}
+
 /* -------------------------------------------------------------- timeline */
 
 .timeline svg { display: block; width: 100%; touch-action: pan-y; }
@@ -444,10 +484,47 @@ select:focus-visible,
 
 /* The provenance badge is about the whole scene, not about the first group, so
    it spans the columns instead of taking a cell and pushing Identification into
-   the right one. */
-.sheet__banner { grid-column: 1 / -1; }
+   the right one. The locate button sits at its other end. */
+.sheet__banner {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 
 .sheet__group { display: grid; gap: 2px; }
+
+/* The imagery group: a picture in half a column is a thumbnail. */
+.sheet__group--wide { grid-column: 1 / -1; }
+
+.sheet__figure {
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.sheet__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 300px;
+  object-fit: contain;
+  object-position: left top;
+  /* A mid grey behind the transparent corners, so the swath's edge reads as
+     the edge of the image rather than as the image ending. */
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.sheet__caption {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ink-3);
+}
 
 .sheet__group-title {
   font-size: 11px;

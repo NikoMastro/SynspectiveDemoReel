@@ -1,6 +1,8 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import userEvent from '@testing-library/user-event';
+import { describe, expect, it, vi } from 'vitest';
 import { SceneSheet } from './SceneSheet';
+import { formatDb } from '../lib/format';
 import { asoScene, syntheticScene } from '../testFixtures';
 
 describe('SceneSheet', () => {
@@ -45,5 +47,47 @@ describe('SceneSheet', () => {
   it('renders a dash rather than a blank cell for a missing value', () => {
     render(<SceneSheet scene={{ ...asoScene, orbitSource: '' }} />);
     expect(screen.getAllByText('--').length).toBeGreaterThan(0);
+  });
+
+  // The image is what an operator looks at first, and a SAR image is read
+  // differently from a photograph, so the caption has to say what the greys
+  // mean and where they came from.
+  it('shows the delivered product with its stretch and its source', () => {
+    const quicklook = asoScene.quicklook;
+    if (quicklook === null) throw new Error('the Aso fixture must carry a quicklook');
+
+    render(<SceneSheet scene={asoScene} />);
+
+    const image = screen.getByRole('img', { name: /Radar backscatter of STRIX-3/ });
+    expect(image).toHaveAttribute('src', expect.stringContaining(`/scenes/${asoScene.id}/quicklook.png`));
+
+    const caption = image.parentElement?.querySelector('figcaption');
+    expect(caption).toHaveTextContent(`Black is ${formatDb(quicklook.minDb)}`);
+    expect(caption).toHaveTextContent(`white ${formatDb(quicklook.maxDb)}`);
+    expect(caption).toHaveTextContent('2nd and 98th percentile');
+    expect(caption).toHaveTextContent(/about 1[01] m per pixel/);
+    expect(caption).toHaveTextContent('Synspective StriX-3 sample product');
+  });
+
+  // No placeholder picture, no broken image: the honest sentence.
+  it('says plainly that a synthetic scene has no imagery', () => {
+    render(<SceneSheet scene={syntheticScene} />);
+
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    expect(screen.getByText(/No imagery/)).toBeInTheDocument();
+  });
+
+  it('offers to bring the map to the scene', async () => {
+    const onLocate = vi.fn();
+    const user = userEvent.setup();
+    render(<SceneSheet scene={asoScene} onLocate={onLocate} />);
+
+    await user.click(screen.getByRole('button', { name: 'Locate on map' }));
+    expect(onLocate).toHaveBeenCalledTimes(1);
+  });
+
+  it('has no locate button when there is no map to bring', () => {
+    render(<SceneSheet scene={asoScene} />);
+    expect(screen.queryByRole('button', { name: 'Locate on map' })).not.toBeInTheDocument();
   });
 });

@@ -76,6 +76,15 @@ async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
   }
 }
 
+/**
+ * The preview image is a plain GET the browser makes itself, from an <img> or
+ * from a deck.gl BitmapLayer, so this returns the URL rather than fetching it.
+ * It lives here because this is the one module that knows where the backend is.
+ */
+export function quicklookUrl(sceneId: string): string {
+  return `${API_BASE}/scenes/${encodeURIComponent(sceneId)}/quicklook.png`;
+}
+
 export async function fetchScenes(signal?: AbortSignal): Promise<Scene[]> {
   const body = await getJson<WireScenesResponse>('/scenes', signal);
   return (body.scenes ?? []).map(toScene);

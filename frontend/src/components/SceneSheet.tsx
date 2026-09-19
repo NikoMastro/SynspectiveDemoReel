@@ -1,4 +1,5 @@
-import type { Scene } from '../interfaces';
+import type { Quicklook, Scene } from '../interfaces';
+import { quicklookUrl } from '../lib/api';
 import {
   formatDb,
   formatDeg,
@@ -8,6 +9,7 @@ import {
   formatUtc,
   orDash,
 } from '../lib/format';
+import { quicklookResolutionM } from '../lib/viewport';
 
 /**
  * The selected scene as a SAR product sheet.
@@ -47,7 +49,44 @@ function Group({
   );
 }
 
-export function SceneSheet({ scene }: { scene: Scene }): React.JSX.Element {
+/**
+ * The picture, and what its greys mean. An operator reads a SAR image
+ * differently from a photograph, so the caption says how: it is the same
+ * scale notebook 01 chose, and the same words.
+ */
+function Imagery({ scene, quicklook }: { scene: Scene; quicklook: Quicklook }): React.JSX.Element {
+  const metresPerPixel = Math.round(quicklookResolutionM(quicklook));
+  return (
+    <figure className="sheet__figure">
+      <img
+        className="sheet__image"
+        src={quicklookUrl(scene.id)}
+        width={quicklook.widthPx}
+        height={quicklook.heightPx}
+        loading="lazy"
+        decoding="async"
+        alt={`Radar backscatter of ${scene.satellite} scene ${scene.id}: gamma0 in decibels, brighter is a stronger return`}
+      />
+      <figcaption className="sheet__caption">
+        gamma0 backscatter, {orDash(scene.polarization)}, in decibels. Black is{' '}
+        {formatDb(quicklook.minDb)} and white {formatDb(quicklook.maxDb)}, the 2nd and 98th
+        percentile of the scene. Bright is a strong return: buildings, and slopes facing the
+        radar. Dark is a smooth surface, water and roads, or radar shadow behind a ridge.
+        Rendered at about {metresPerPixel} m per pixel; the delivered product resolves{' '}
+        {scene.resolutionRangeM.toFixed(2)} m in range and {scene.resolutionAzimuthM.toFixed(2)} m
+        in azimuth. Source: Synspective StriX-3 sample product.
+      </figcaption>
+    </figure>
+  );
+}
+
+interface Props {
+  scene: Scene;
+  /** Brings the map to this scene. Absent when there is no map to bring. */
+  onLocate?: () => void;
+}
+
+export function SceneSheet({ scene, onLocate }: Props): React.JSX.Element {
   return (
     <div className="sheet">
       <div className="sheet__banner">
@@ -57,7 +96,26 @@ export function SceneSheet({ scene }: { scene: Scene }): React.JSX.Element {
         >
           {scene.synthetic ? 'Synthetic scene' : 'Delivered product'}
         </span>
+        {onLocate && (
+          <button type="button" className="button" onClick={onLocate}>
+            Locate on map
+          </button>
+        )}
       </div>
+
+      {/* First, because it is what an operator looks at first. Full width: a
+          picture in half a column is a thumbnail, and this one has a caldera in it. */}
+      <section className="sheet__group sheet__group--wide">
+        <h3 className="sheet__group-title">Imagery</h3>
+        {scene.quicklook ? (
+          <Imagery scene={scene} quicklook={scene.quicklook} />
+        ) : (
+          <p className="sheet__caption">
+            No imagery. This scene is synthetic: no product was delivered, so there is nothing
+            to render.
+          </p>
+        )}
+      </section>
 
       <Group title="Identification">
         <Row label="Scene ID" value={orDash(scene.id)} />

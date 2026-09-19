@@ -24,6 +24,18 @@ export interface WireHealth {
 /** A closed footprint ring, [longitude, latitude] pairs in WGS84 degrees. */
 export type WireRing = [number, number][];
 
+/** The georeferenced preview of a delivered product. */
+export interface WireQuicklook {
+  /** west, south, east, north in WGS84 degrees: the image's edges. */
+  bounds: [number, number, number, number];
+  /** The gamma0 value rendered black, in dB. */
+  min_db: number;
+  /** The gamma0 value rendered white, in dB. */
+  max_db: number;
+  width_px: number;
+  height_px: number;
+}
+
 export interface WireScene {
   id: string;
   satellite: string;
@@ -48,6 +60,12 @@ export interface WireScene {
   center_lat_deg: number;
   center_lon_deg: number;
   footprint: WireRing;
+  /**
+   * Where the rendered preview sits and what its greys mean. null for a
+   * synthetic scene: nothing was delivered, so there is nothing to render.
+   * The image itself is at /scenes/{id}/quicklook.png - see lib/api.ts.
+   */
+  quicklook: WireQuicklook | null;
 
   /** Seconds of acquisition. 1.41 s for the real Sliding Spotlight scene. */
   duration_s: number;

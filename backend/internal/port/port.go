@@ -16,6 +16,13 @@ import (
 type SceneRepository interface {
 	List(ctx context.Context, filter domain.SceneFilter) ([]domain.Scene, error)
 	Get(ctx context.Context, id string) (domain.Scene, error)
+
+	// QuicklookImage returns the encoded PNG of a scene's preview, or a
+	// NotFoundError when the scene has none. The bytes come through the
+	// repository rather than riding on the Scene struct because they are a
+	// blob, not metadata: a bucket-backed implementation would fetch them on
+	// demand, and the catalog listing should not carry a megabyte per scene.
+	QuicklookImage(ctx context.Context, id string) ([]byte, error)
 }
 
 // SatelliteRepository is the constellation and its TLEs.

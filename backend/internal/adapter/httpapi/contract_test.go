@@ -141,7 +141,39 @@ func TestWireContractScenes(t *testing.T) {
 		"center_lat_deg",
 		"center_lon_deg",
 		"footprint",
+		"quicklook",
 	)
+}
+
+// TestWireContractQuicklook pins the block the map reads to place the image.
+// It is an object for the delivered scene and null for the synthetic ones, and
+// both halves matter: the console draws imagery for exactly the scenes that
+// have some, and a key that went missing would read as "none anywhere".
+func TestWireContractQuicklook(t *testing.T) {
+	handler := newSceneServer(t, &stubFlightDyn{})
+
+	rec := get(handler, "/api/v1/scenes/STRIX3-20260615T063527Z-SL1")
+	requireStatus(t, rec, http.StatusOK)
+	scene := decodeObject(t, rec.Body.Bytes())
+	requireKinds(t, "WireScene", scene, map[string]string{"quicklook": "object"})
+
+	quicklook, _ := scene["quicklook"].(map[string]any)
+	requireKeys(t, "WireQuicklook", quicklook, "bounds", "min_db", "max_db", "width_px", "height_px")
+	requireKinds(t, "WireQuicklook", quicklook, map[string]string{
+		"bounds":    "array",
+		"min_db":    "number",
+		"max_db":    "number",
+		"width_px":  "number",
+		"height_px": "number",
+	})
+	if bounds, _ := quicklook["bounds"].([]any); len(bounds) != 4 {
+		t.Errorf("bounds has %d numbers, want 4: west, south, east, north", len(bounds))
+	}
+
+	rec = get(handler, "/api/v1/scenes/SYN-S1-20260702-01")
+	requireStatus(t, rec, http.StatusOK)
+	requireKinds(t, "WireScene (synthetic)", decodeObject(t, rec.Body.Bytes()),
+		map[string]string{"quicklook": "null"})
 }
 
 func TestWireContractSatellites(t *testing.T) {

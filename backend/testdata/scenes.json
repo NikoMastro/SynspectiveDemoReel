@@ -26,31 +26,60 @@
       },
       "footprint": [
         [
-          131.013264,
-          32.828434
+          131.05458,
+          32.832602
         ],
         [
-          131.17124,
-          32.828434
+          131.158586,
+          32.854531
         ],
         [
-          131.17124,
-          32.946836
+          131.158815,
+          32.858205
         ],
         [
-          131.013264,
-          32.946836
+          131.136086,
+          32.943395
         ],
         [
-          131.013264,
-          32.828434
+          131.026799,
+          32.920318
+        ],
+        [
+          131.027028,
+          32.909181
+        ],
+        [
+          131.034605,
+          32.87669
+        ],
+        [
+          131.041607,
+          32.854876
+        ],
+        [
+          131.05458,
+          32.832602
         ]
       ],
       "duration_s": 1.41,
       "map_projection": "UTM 52N / WGS84 (EPSG:32652)",
       "resolution_azimuth_m": 0.44,
       "resolution_range_m": 0.8,
-      "note": "Real Synspective sample product over Mt. Aso, Kyushu. Every field above is delivered metadata read off the product in notebook 01, except the footprint, which is the axis-aligned extent of the orthorectified raster (14.78 x 13.13 km, from its UTM 52N bounds) placed on the scene centre - not the delivered slant-range polygon. NESZ is null because the delivered metadata does not state it."
+      "quicklook": {
+        "file": "quicklook/STRIX3-20260615T063527Z-SL1.png",
+        "bounds": [
+          131.008775,
+          32.826288,
+          131.169492,
+          32.947299
+        ],
+        "min_db": -12.85,
+        "max_db": -2.27,
+        "width_px": 1400,
+        "height_px": 1054
+      },
+      "note": "Real Synspective sample product over Mt. Aso, Kyushu. Every field above is delivered metadata read off the product in notebook 01. The footprint is the convex hull of the valid pixels of the orthorectified gamma0 raster, reprojected from UTM 52N to WGS84 by scripts/make_quicklook.py, which also renders the quicklook from that raster in decibels at reduced resolution. NESZ is null because the delivered metadata does not state it."
     },
     {
       "id": "SYN-S1-20260702-01",

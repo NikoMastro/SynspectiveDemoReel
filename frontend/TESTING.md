@@ -28,11 +28,14 @@ each have to arrive at the UI as something an operator can act on.
 the legend, the timeline SVG and the loading / empty / error states. The
 timeline is drawn as React SVG elements with d3 supplying only the scale, so
 its bars *are* queryable DOM — that was the reason for the split. `MapPanel`
-has no component test on purpose: everything it decides lives in level 1, and
-what is left is a `<DeckGL>` element and a tooltip. `App.test.tsx` mounts the
-whole console twice over a mocked `fetch` - backend up, backend down - with
-`@deck.gl/react` stubbed out, because the point of those two tests is the
-wiring and the error state, not the canvas.
+gets one small test of its own for the two imagery controls, with
+`@deck.gl/react` replaced by a stub that reports the layer ids it was handed:
+ticking "Radar image" off has to take the quicklook layer away and nothing
+else, and the opacity slider has to reach the layer as a number. Everything
+else the panel decides lives in level 1, and what is left is a `<DeckGL>`
+element and a tooltip. `App.test.tsx` mounts the whole console over the same
+kind of stub - backend up, backend down - because the point of those tests is
+the wiring and the error state, not the canvas.
 
 **The canvas is not the only way in, and that is a testing decision as much as
 an accessibility one.** Selecting a scene by clicking a footprint happens inside

@@ -28,6 +28,7 @@ func (s *SceneServer) Handler(allowedOrigin string) http.Handler {
 	mux.HandleFunc("GET /api/v1/healthz", healthHandler("scene-service", s.Log))
 	mux.HandleFunc("GET /api/v1/scenes", s.handleScenes)
 	mux.HandleFunc("GET /api/v1/scenes/{id}", s.handleScene)
+	mux.HandleFunc("GET /api/v1/scenes/{id}/quicklook.png", s.handleQuicklook)
 	mux.HandleFunc("GET /api/v1/satellites", s.handleSatellites)
 	mux.HandleFunc("GET /api/v1/targets", s.handleTargets)
 	mux.HandleFunc("GET /api/v1/ground-track", s.handleGroundTrack)
@@ -63,6 +64,28 @@ func (s *SceneServer) handleScene(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, s.Log, http.StatusOK, wire.SceneFromDomain(scene))
+}
+
+// handleQuicklook answers GET /api/v1/scenes/{id}/quicklook.png with the
+// rendered preview, or 404 when the scene has none. The only non-JSON endpoint,
+// which is why it does not go through writeJSON.
+func (s *SceneServer) handleQuicklook(w http.ResponseWriter, r *http.Request) {
+	png, err := s.Catalog.QuicklookImage(r.Context(), r.PathValue("id"))
+	if err != nil {
+		writeError(w, s.Log, err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "image/png")
+	// Rendered once from the product and never edited in place: a new rendering
+	// would be a new scene id. A day is long enough to spare the browser the
+	// megabyte on every reload and short enough to be harmless if that changes.
+	w.Header().Set("Cache-Control", "public, max-age=86400")
+	w.WriteHeader(http.StatusOK)
+	if _, err := w.Write(png); err != nil {
+		// Same situation as writeJSON: the status is gone, only the log is left.
+		s.Log.Error("writing the quicklook failed", "error", err)
+	}
 }
 
 // handleSatellites answers GET /api/v1/satellites.

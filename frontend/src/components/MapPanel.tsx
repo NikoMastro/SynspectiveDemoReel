@@ -1,16 +1,18 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import DeckGL from '@deck.gl/react';
-import { MapView } from '@deck.gl/core';
+import { FlyToInterpolator, MapView } from '@deck.gl/core';
 import type { MapViewState, PickingInfo } from '@deck.gl/core';
-import type { Scene, SubSatellitePoint, Target } from '../interfaces';
+import type { LocateRequest, Scene, SceneImagery, SubSatellitePoint, Target } from '../interfaces';
 import { formatDeg, formatKm, formatUtc } from '../lib/format';
 import { BASEMAP_ATTRIBUTION, buildMapLayers } from '../lib/layers';
 import type { MapLayerInput } from '../lib/layers';
+import { fitFootprint } from '../lib/viewport';
 
 /**
- * The deck.gl map. This component is deliberately thin: it owns the camera and
- * the tooltip, and hands everything else to buildMapLayers in lib/, which is
- * where the layers are actually decided and where they are tested.
+ * The deck.gl map. This component is deliberately thin: it owns the camera,
+ * the tooltip and the two imagery controls, and hands everything else to
+ * buildMapLayers in lib/, which is where the layers are actually decided and
+ * where they are tested.
  */
 
 /**
@@ -34,7 +36,17 @@ export const INITIAL_VIEW: MapViewState = {
   bearing: 0,
 };
 
-type Props = MapLayerInput & {
+/** Long enough to read as travel rather than a cut, short enough not to be waited for. */
+const FLY_MS = 900;
+
+type Props = Omit<MapLayerInput, 'imagery'> & {
+  /**
+   * The selected scene's imagery, or null when it has none. The panel decides
+   * whether it is drawn and how opaque: those are viewing choices, not data.
+   */
+  imagery: SceneImagery | null;
+  /** Set to bring the camera to a footprint; a new key brings it again. */
+  locate: LocateRequest | null;
   /** Covers the canvas when there is nothing to draw or the map data failed. */
   overlay?: React.ReactNode;
   /** Sits over the top of the canvas when one feed failed but the rest drew. */
@@ -59,8 +71,52 @@ function tooltipText(object: unknown): string | null {
   return null;
 }
 
-export function MapPanel({ overlay, banner, ...layerInput }: Props): React.JSX.Element {
+/** Honours the OS setting the stylesheet already honours for CSS transitions. */
+function prefersReducedMotion(): boolean {
+  return typeof window.matchMedia === 'function'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+export function MapPanel({
+  overlay,
+  banner,
+  imagery,
+  locate,
+  ...layerInput
+}: Props): React.JSX.Element {
   const [hover, setHover] = useState<{ text: string; x: number; y: number } | null>(null);
+
+  // Controlled rather than initialViewState. "Locate" has to move a camera the
+  // operator has already panned, and deck.gl re-reads initialViewState only
+  // when the object changes - which a second request for the same scene, after
+  // panning away, would not be.
+  const [viewState, setViewState] = useState<MapViewState>(INITIAL_VIEW);
+  const [showImagery, setShowImagery] = useState(true);
+  const [opacityPct, setOpacityPct] = useState(100);
+  const canvasRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!locate) return;
+    const canvas = canvasRef.current;
+    const target = fitFootprint(locate.footprint, {
+      width: canvas?.clientWidth ?? 0,
+      height: canvas?.clientHeight ?? 0,
+    });
+    if (!target) return;
+
+    setViewState({
+      ...target,
+      pitch: 0,
+      bearing: 0,
+      transitionDuration: prefersReducedMotion() ? 0 : FLY_MS,
+      transitionInterpolator: new FlyToInterpolator(),
+    });
+  }, [locate]);
+
+  const layers = buildMapLayers({
+    ...layerInput,
+    imagery: imagery && showImagery ? { ...imagery, opacity: opacityPct / 100 } : null,
+  });
 
   return (
     <section className="panel console__map" aria-label="Map">
@@ -72,13 +128,15 @@ export function MapPanel({ overlay, banner, ...layerInput }: Props): React.JSX.E
           {layerInput.scenes.length} scene footprints, {layerInput.tracks.length} ground tracks and{' '}
           {layerInput.targets.length} targets. The scene list in the metadata panel is the keyboard
           equivalent of clicking a footprint.
+          {imagery && ' The selected scene’s radar image is drawn inside its footprint.'}
         </p>
-        <div className="map__canvas">
+        <div className="map__canvas" ref={canvasRef}>
           <DeckGL
             views={MAP_VIEW}
-            initialViewState={INITIAL_VIEW}
+            viewState={viewState}
+            onViewStateChange={(params) => setViewState(params.viewState as MapViewState)}
             controller={{ dragRotate: false }}
-            layers={buildMapLayers(layerInput)}
+            layers={layers}
             onHover={(info: PickingInfo) => {
               const text = info.object ? tooltipText(info.object) : null;
               setHover(text === null ? null : { text, x: info.x, y: info.y });
@@ -91,6 +149,31 @@ export function MapPanel({ overlay, banner, ...layerInput }: Props): React.JSX.E
             {hover.text.split('\n').map((line) => (
               <div key={line}>{line}</div>
             ))}
+          </div>
+        )}
+
+        {imagery && (
+          <div className="map__controls" role="group" aria-label="Radar imagery">
+            <label className="map__control">
+              <input
+                type="checkbox"
+                checked={showImagery}
+                onChange={(event) => setShowImagery(event.target.checked)}
+              />
+              Radar image
+            </label>
+            <label className="map__control">
+              <span>Opacity</span>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                step={5}
+                value={opacityPct}
+                disabled={!showImagery}
+                onChange={(event) => setOpacityPct(Number(event.target.value))}
+              />
+            </label>
           </div>
         )}
 
