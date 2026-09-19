@@ -4,7 +4,7 @@
  * that the two imagery controls do what they say without a WebGL context; what
  * each layer draws is covered by lib/layers.test.ts.
  */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { Layer } from '@deck.gl/core';
@@ -12,8 +12,21 @@ import { MapPanel } from './MapPanel';
 import { satelliteColorScale } from '../lib/colors';
 import { asoScene, sampleAccess, sampleScenes } from '../testFixtures';
 
+interface StubDeckProps {
+  layers: Layer[];
+  viewState: { zoom: number };
+  onViewStateChange: (params: {
+    viewState: { zoom: number };
+    interactionState: { inTransition?: boolean };
+  }) => void;
+}
+
+/** The last props the map handed to deck.gl, so a test can call back into it. */
+const deck = vi.hoisted(() => ({ props: null as StubDeckProps | null }));
+
 vi.mock('@deck.gl/react', () => ({
-  default: (props: { layers: Layer[] }) => {
+  default: (props: StubDeckProps) => {
+    deck.props = props;
     const quicklook = props.layers.find((l) => l.id === 'scene-quicklook');
     const opacity = quicklook ? (quicklook.props as { opacity?: number }).opacity : undefined;
     return (
@@ -21,6 +34,7 @@ vi.mock('@deck.gl/react', () => ({
         data-testid="deck-canvas"
         data-layers={props.layers.map((l) => l.id).join(' ')}
         data-quicklook-opacity={opacity === undefined ? '' : String(opacity)}
+        data-view-zoom={String(props.viewState.zoom)}
       />
     );
   },
@@ -86,5 +100,47 @@ describe('MapPanel imagery controls', () => {
     expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
     expect(screen.queryByRole('slider')).not.toBeInTheDocument();
     expect(drawnLayers()).not.toContain('scene-quicklook');
+  });
+});
+
+/**
+ * The camera is controlled, which is what lets "Locate on map" move a map the
+ * operator has already panned. The cost of controlling it is this: deck.gl
+ * reports every interpolated frame of a fly-to back through onViewStateChange,
+ * and storing one re-renders with a view state carrying no transition props -
+ * which deck.gl reads as the caller taking the camera somewhere else, so it
+ * cancels the flight mid-air.
+ *
+ * It was a race, not a certainty: it survived whenever React re-rendered fast
+ * enough for deck.gl to still recognise the frame as its own echo. Measured
+ * against the running console, picking a scene flew the map in two rounds out
+ * of three on the dev server and in none out of four on the built one.
+ */
+describe('MapPanel camera', () => {
+  const frame = (zoom: number, inTransition: boolean) =>
+    act(() => {
+      deck.props?.onViewStateChange({
+        viewState: { zoom },
+        interactionState: { inTransition },
+      });
+    });
+
+  const zoom = () => screen.getByTestId('deck-canvas').dataset.viewZoom;
+
+  it('ignores deck.gl’s own frames while it is flying the camera', () => {
+    render(<MapPanel {...base} imagery={imagery} />);
+    const opening = zoom();
+
+    frame(7.5, true);
+
+    expect(zoom()).toBe(opening);
+  });
+
+  it('stores the camera the operator moves', () => {
+    render(<MapPanel {...base} imagery={imagery} />);
+
+    frame(7.5, false);
+
+    expect(zoom()).toBe('7.5');
   });
 });

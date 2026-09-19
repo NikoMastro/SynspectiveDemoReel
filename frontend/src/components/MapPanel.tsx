@@ -134,7 +134,25 @@ export function MapPanel({
           <DeckGL
             views={MAP_VIEW}
             viewState={viewState}
-            onViewStateChange={(params) => setViewState(params.viewState as MapViewState)}
+            onViewStateChange={({ viewState: next, interactionState }) => {
+              // Ignore deck.gl's own frames while it is flying the camera.
+              //
+              // A fly-to reports every interpolated frame through here. Storing
+              // one re-renders with a view state that carries no transition
+              // props, and deck.gl reads that as the caller having moved the
+              // camera somewhere else, so it cancels the flight it is in the
+              // middle of. It survived only when React re-rendered fast enough
+              // for deck.gl to still recognise the frame as its own echo, which
+              // made picking a scene fly the map about two times in three and
+              // freeze it the third.
+              //
+              // Nothing is lost by dropping them: the flight's end state was
+              // put into this same state when the flight was requested. And an
+              // interrupted flight clears inTransition, so a drag part-way
+              // through one is stored like any other.
+              if (interactionState.inTransition) return;
+              setViewState(next as MapViewState);
+            }}
             controller={{ dragRotate: false }}
             layers={layers}
             onHover={(info: PickingInfo) => {
