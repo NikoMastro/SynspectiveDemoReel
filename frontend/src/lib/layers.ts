@@ -60,6 +60,16 @@ function identityAlpha(satellite: string, highlighted: string | null, full: numb
 export const BASEMAP_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 export const BASEMAP_ATTRIBUTION = '© OpenStreetMap contributors';
 
+/**
+ * Shown beside the basemap credit whenever a radar image is drawn.
+ *
+ * The picture is a rendering of somebody else's sample product, so it is
+ * credited wherever it appears. It used to be credited in the product sheet's
+ * caption; the sheet stopped repeating the picture, so the credit follows the
+ * picture onto the map rather than disappearing with the caption.
+ */
+export const IMAGERY_ATTRIBUTION = 'Synspective StriX-3 sample product';
+
 export function basemapLayer(): Layer {
   return new TileLayer<ImageBitmap>({
     id: 'basemap',

@@ -4,7 +4,7 @@ import { FlyToInterpolator, MapView } from '@deck.gl/core';
 import type { MapViewState, PickingInfo } from '@deck.gl/core';
 import type { LocateRequest, Scene, SceneImagery, SubSatellitePoint, Target } from '../interfaces';
 import { formatDeg, formatKm, formatUtc } from '../lib/format';
-import { BASEMAP_ATTRIBUTION, buildMapLayers } from '../lib/layers';
+import { BASEMAP_ATTRIBUTION, IMAGERY_ATTRIBUTION, buildMapLayers } from '../lib/layers';
 import type { MapLayerInput } from '../lib/layers';
 import { fitFootprint } from '../lib/viewport';
 
@@ -206,7 +206,9 @@ export function MapPanel({
         )}
 
         {banner && <div className="map__banner">{banner}</div>}
-        <div className="map__attribution">{BASEMAP_ATTRIBUTION}</div>
+        <div className="map__attribution">
+          {imagery ? `${IMAGERY_ATTRIBUTION} · ${BASEMAP_ATTRIBUTION}` : BASEMAP_ATTRIBUTION}
+        </div>
         {overlay && <div className="map__overlay">{overlay}</div>}
       </div>
     </section>

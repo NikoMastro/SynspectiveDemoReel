@@ -317,6 +317,10 @@ select:focus-visible,
   background: rgba(255, 255, 255, 0.94);
   color: var(--ink-2);
   font-size: 11px;
+  /* It carries the radar image's credit as well as the basemap's when a picture
+     is drawn, which is too long for a phone-width map on one line. */
+  max-width: calc(100% - 12px);
+  text-align: right;
 }
 
 .map__overlay {
@@ -517,36 +521,6 @@ select:focus-visible,
 }
 
 .sheet__group { display: grid; gap: 2px; }
-
-/* The imagery group: a picture in half a column is a thumbnail. */
-.sheet__group--wide { grid-column: 1 / -1; }
-
-.sheet__figure {
-  margin: 0;
-  display: grid;
-  gap: 6px;
-}
-
-.sheet__image {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-height: 300px;
-  object-fit: contain;
-  object-position: left top;
-  /* A mid grey behind the transparent corners, so the swath's edge reads as
-     the edge of the image rather than as the image ending. */
-  background: var(--surface-3);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-}
-
-.sheet__caption {
-  margin: 0;
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--ink-3);
-}
 
 .sheet__group-title {
   font-size: 11px;

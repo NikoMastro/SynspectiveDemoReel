@@ -104,6 +104,19 @@ describe('MapPanel imagery controls', () => {
     expect(screen.queryByRole('slider')).not.toBeInTheDocument();
     expect(drawnLayers()).not.toContain('scene-quicklook');
   });
+
+  // The picture is a rendering of somebody else's sample product. It used to be
+  // credited in the sheet's caption; the sheet no longer repeats the picture, so
+  // the credit has to sit where the picture is.
+  it('credits the radar image beside the basemap, and only while one is drawn', () => {
+    const { rerender } = render(<MapPanel {...base} imagery={imagery} />);
+    expect(screen.getByText(/Synspective StriX-3 sample product/)).toBeInTheDocument();
+    expect(screen.getByText(/OpenStreetMap contributors/)).toBeInTheDocument();
+
+    rerender(<MapPanel {...base} imagery={null} />);
+    expect(screen.queryByText(/Synspective StriX-3 sample product/)).not.toBeInTheDocument();
+    expect(screen.getByText(/OpenStreetMap contributors/)).toBeInTheDocument();
+  });
 });
 
 /**

@@ -1,5 +1,4 @@
 import type { Quicklook, Scene } from '../interfaces';
-import { quicklookUrl } from '../lib/api';
 import {
   formatDb,
   formatDeg,
@@ -50,34 +49,20 @@ function Group({
 }
 
 /**
- * The picture, and what its greys mean. An operator reads a SAR image
- * differently from a photograph, so the caption says how: it is the same
- * scale notebook 01 chose, and the same words.
+ * What the greys on the map mean, as a value rather than a caption.
+ *
+ * The picture itself is on the map, drawn inside the footprint it was taken
+ * over, so the sheet no longer repeats it. These two numbers do not survive
+ * anywhere else, and without them the image on the map is a grey rectangle: the
+ * first says which gamma0 values became black and white, the second says how
+ * far the rendering is from the product it came from.
  */
-function Imagery({ scene, quicklook }: { scene: Scene; quicklook: Quicklook }): React.JSX.Element {
-  const metresPerPixel = Math.round(quicklookResolutionM(quicklook));
-  return (
-    <figure className="sheet__figure">
-      <img
-        className="sheet__image"
-        src={quicklookUrl(scene.id)}
-        width={quicklook.widthPx}
-        height={quicklook.heightPx}
-        loading="lazy"
-        decoding="async"
-        alt={`Radar backscatter of ${scene.satellite} scene ${scene.id}: gamma0 in decibels, brighter is a stronger return`}
-      />
-      <figcaption className="sheet__caption">
-        gamma0 backscatter, {orDash(scene.polarization)}, in decibels. Black is{' '}
-        {formatDb(quicklook.minDb)} and white {formatDb(quicklook.maxDb)}, the 2nd and 98th
-        percentile of the scene. Bright is a strong return: buildings, and slopes facing the
-        radar. Dark is a smooth surface, water and roads, or radar shadow behind a ridge.
-        Rendered at about {metresPerPixel} m per pixel; the delivered product resolves{' '}
-        {scene.resolutionRangeM.toFixed(2)} m in range and {scene.resolutionAzimuthM.toFixed(2)} m
-        in azimuth. Source: Synspective StriX-3 sample product.
-      </figcaption>
-    </figure>
-  );
+function stretchOf(quicklook: Quicklook): string {
+  return `${quicklook.minDb.toFixed(1)} to ${quicklook.maxDb.toFixed(1)} dB`;
+}
+
+function samplingOf(quicklook: Quicklook): string {
+  return `${Math.round(quicklookResolutionM(quicklook))} m/px`;
 }
 
 interface Props {
@@ -102,20 +87,6 @@ export function SceneSheet({ scene, onLocate }: Props): React.JSX.Element {
           </button>
         )}
       </div>
-
-      {/* First, because it is what an operator looks at first. Full width: a
-          picture in half a column is a thumbnail, and this one has a caldera in it. */}
-      <section className="sheet__group sheet__group--wide">
-        <h3 className="sheet__group-title">Imagery</h3>
-        {scene.quicklook ? (
-          <Imagery scene={scene} quicklook={scene.quicklook} />
-        ) : (
-          <p className="sheet__caption">
-            No imagery. This scene is synthetic: no product was delivered, so there is nothing
-            to render.
-          </p>
-        )}
-      </section>
 
       <Group title="Identification">
         <Row label="Scene ID" value={orDash(scene.id)} />
@@ -147,6 +118,16 @@ export function SceneSheet({ scene, onLocate }: Props): React.JSX.Element {
         <Row label="NESZ" value={formatDb(scene.neszDb)} />
         <Row label="OrbitDataSource" value={orDash(scene.orbitSource)} />
         <Row label="Footprint vertices" value={String(scene.footprint.length)} />
+        {/* Both are "--" for a synthetic scene, which has no product to render
+            and therefore nothing on the map either. */}
+        <Row
+          label="Quicklook stretch"
+          value={scene.quicklook ? stretchOf(scene.quicklook) : '--'}
+        />
+        <Row
+          label="Quicklook sampling"
+          value={scene.quicklook ? samplingOf(scene.quicklook) : '--'}
+        />
       </Group>
     </div>
   );
