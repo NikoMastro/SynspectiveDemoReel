@@ -524,3 +524,12 @@ select:focus-visible,
   border-radius: 3px;
   padding: 0 4px;
 }
+
+/* The selected scene is still shown when a filter excludes it, flagged rather
+   than dropped. Warn tone, not danger: nothing is broken. */
+.panel__note--warn {
+  color: var(--warn);
+  border-left: 2px solid var(--warn);
+  padding-left: 8px;
+  margin: 8px 0 0;
+}

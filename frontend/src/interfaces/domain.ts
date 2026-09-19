@@ -30,6 +30,12 @@ export interface Scene {
   centerLatDeg: number;
   centerLonDeg: number;
   footprint: Position2D[];
+  durationS: number;
+  mapProjection: string;
+  resolutionAzimuthM: number;
+  resolutionRangeM: number;
+  /** Absent rather than empty when the product carries no note. */
+  note?: string;
 }
 
 export interface Satellite {
@@ -38,6 +44,12 @@ export interface Satellite {
   inclinationDeg: number;
   orbitFamily: string;
   tleEpochUtc: Date;
+  raanDeg: number;
+  eccentricity: number;
+  periodMinutes: number;
+  meanAltitudeKm: number;
+  tleLine1: string;
+  tleLine2: string;
 }
 
 export interface TrackPoint {
@@ -45,12 +57,14 @@ export interface TrackPoint {
   latDeg: number;
   lonDeg: number;
   altKm: number;
+  speedKmS: number;
 }
 
 export interface GroundTrack {
   satellite: string;
   startUtc: Date;
   stepS: number;
+  minutes: number;
   points: TrackPoint[];
 }
 
@@ -74,11 +88,16 @@ export interface Target {
 
 export interface AccessWindow {
   satellite: string;
+  /** Display name; the timeline rows key on it. */
   target: string;
+  /** Stable id, for filtering without matching display strings. */
+  targetId: string;
   startUtc: Date;
   endUtc: Date;
   durationS: number;
   bestOffNadirDeg: number;
+  /** The instant inside the window where the geometry is best. */
+  bestAtUtc: Date;
   lookSide: string;
   passDirection: string;
 }

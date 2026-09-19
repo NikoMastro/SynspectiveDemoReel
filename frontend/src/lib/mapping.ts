@@ -45,6 +45,13 @@ export function toScene(w: WireScene): Scene {
     centerLatDeg: w.center_lat_deg,
     centerLonDeg: w.center_lon_deg,
     footprint: (w.footprint ?? []).map(([lon, lat]) => [lon, lat] as Position2D),
+    durationS: w.duration_s,
+    mapProjection: w.map_projection,
+    resolutionAzimuthM: w.resolution_azimuth_m,
+    resolutionRangeM: w.resolution_range_m,
+    // Spread rather than assigned, because exactOptionalPropertyTypes makes
+    // `note: undefined` a different type from an absent `note`.
+    ...(w.note === undefined ? {} : { note: w.note }),
   };
 }
 
@@ -55,6 +62,12 @@ export function toSatellite(w: WireSatellite): Satellite {
     inclinationDeg: w.inclination_deg,
     orbitFamily: w.orbit_family,
     tleEpochUtc: new Date(w.tle_epoch_utc),
+    raanDeg: w.raan_deg,
+    eccentricity: w.eccentricity,
+    periodMinutes: w.period_minutes,
+    meanAltitudeKm: w.mean_altitude_km,
+    tleLine1: w.tle_line1,
+    tleLine2: w.tle_line2,
   };
 }
 
@@ -64,6 +77,7 @@ export function toTrackPoint(w: WireTrackPoint): TrackPoint {
     latDeg: w.lat_deg,
     lonDeg: w.lon_deg,
     altKm: w.alt_km,
+    speedKmS: w.speed_km_s,
   };
 }
 
@@ -72,6 +86,7 @@ export function toGroundTrack(w: WireGroundTrack): GroundTrack {
     satellite: w.satellite,
     startUtc: new Date(w.start_utc),
     stepS: w.step_s,
+    minutes: w.minutes,
     points: w.points.map(toTrackPoint),
   };
 }
@@ -84,10 +99,12 @@ export function toAccessWindow(w: WireAccessWindow): AccessWindow {
   return {
     satellite: w.satellite,
     target: w.target,
+    targetId: w.target_id,
     startUtc: new Date(w.start_utc),
     endUtc: new Date(w.end_utc),
     durationS: w.duration_s,
     bestOffNadirDeg: w.best_off_nadir_deg,
+    bestAtUtc: new Date(w.best_at_utc),
     lookSide: w.look_side,
     passDirection: w.pass_direction,
   };

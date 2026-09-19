@@ -56,7 +56,12 @@ export default function App(): React.JSX.Element {
     [access, range],
   );
 
-  const selectedScene = visibleScenes.find((s) => s.id === selectedSceneId) ?? null;
+  // Resolved against the whole catalog, not the filtered subset: a filter that
+  // excludes the selected scene should say so, not silently drop the sheet the
+  // user was reading.
+  const selectedScene = scenes.find((s) => s.id === selectedSceneId) ?? null;
+  const selectedHidden =
+    selectedScene !== null && !visibleScenes.some((s) => s.id === selectedScene.id);
 
   const mapOverlay = (() => {
     if (data.scenes.status === 'error' && data.scenes.error) {
@@ -119,6 +124,7 @@ export default function App(): React.JSX.Element {
         catalog={data.scenes}
         scenes={visibleScenes}
         selected={selectedScene}
+        selectedHidden={selectedHidden}
         onSelect={setSelectedSceneId}
         onRetry={() => setReloadKey((k) => k + 1)}
       />

@@ -43,17 +43,40 @@ describe('toScene', () => {
 });
 
 describe('toSatellite', () => {
+  const satellite = toSatellite({
+    name: 'STRIX-1',
+    norad_id: 53815,
+    inclination_deg: 97.4388,
+    orbit_family: 'near-polar',
+    tle_epoch_utc: '2026-09-18T06:06:48Z',
+    raan_deg: 325.1536,
+    eccentricity: 0.0002292,
+    period_minutes: 93.28,
+    mean_altitude_km: 435.1,
+    tle_line1: '1 53815U 22113A   26261.25472743  .00023958  00000+0  53137-3 0  9990',
+    tle_line2: '2 53815  97.4388 325.1536 0002292 242.5114 117.5901 15.43734873221781',
+  });
+
   it('maps the fleet entry', () => {
-    const satellite = toSatellite({
-      name: 'STRIX-1',
-      norad_id: 53815,
-      inclination_deg: 97.4388,
-      orbit_family: 'near-polar',
-      tle_epoch_utc: '2026-09-18T06:06:48Z',
-    });
     expect(satellite.noradId).toBe(53815);
     expect(satellite.inclinationDeg).toBe(97.4388);
     expect(satellite.tleEpochUtc.getUTCFullYear()).toBe(2026);
+  });
+
+  // These are what makes a target able to explain its own reachability: an
+  // inclination of 41.9 degrees cannot see 78N, and the orbit family says so
+  // without the reader having to know that.
+  it('carries the orbital elements the UI needs to explain reachability', () => {
+    expect(satellite.orbitFamily).toBe('near-polar');
+    expect(satellite.raanDeg).toBe(325.1536);
+    expect(satellite.eccentricity).toBeCloseTo(0.0002292, 7);
+    expect(satellite.periodMinutes).toBeCloseTo(93.28, 2);
+    expect(satellite.meanAltitudeKm).toBeCloseTo(435.1, 1);
+  });
+
+  it('keeps both TLE lines, so the orbit can be shown as its source', () => {
+    expect(satellite.tleLine1).toMatch(/^1 53815U/);
+    expect(satellite.tleLine2).toMatch(/^2 53815 /);
   });
 });
 
@@ -63,14 +86,17 @@ describe('toGroundTrack', () => {
       satellite: 'STRIX-3',
       start_utc: '2026-09-19T00:00:00Z',
       step_s: 20,
+      minutes: 100,
       points: [
-        { time_utc: '2026-09-19T00:00:00Z', lat_deg: 1, lon_deg: 2, alt_km: 505 },
-        { time_utc: '2026-09-19T00:00:20Z', lat_deg: 3, lon_deg: 4, alt_km: 506 },
+        { time_utc: '2026-09-19T00:00:00Z', lat_deg: 1, lon_deg: 2, alt_km: 505, speed_km_s: 7.61 },
+        { time_utc: '2026-09-19T00:00:20Z', lat_deg: 3, lon_deg: 4, alt_km: 506, speed_km_s: 7.6 },
       ],
     });
     expect(track.stepS).toBe(20);
+    expect(track.minutes).toBe(100);
     expect(track.points).toHaveLength(2);
     expect(track.points[1]?.altKm).toBe(506);
+    expect(track.points[0]?.speedKmS).toBeCloseTo(7.61, 2);
   });
 });
 

@@ -44,6 +44,10 @@ export const wireAsoScene: WireScene = {
     [131.06, 32.92],
     [131.06, 32.86],
   ],
+  duration_s: 1.41,
+  map_projection: 'UTM zone 52N / WGS84',
+  resolution_azimuth_m: 0.8,
+  resolution_range_m: 0.44,
 };
 
 export const wireSyntheticScene: WireScene = {
@@ -60,6 +64,10 @@ export const wireSyntheticScene: WireScene = {
   orbit_source: 'Predicted',
   center_lat_deg: -6.2088,
   center_lon_deg: 106.8456,
+  duration_s: 3.2,
+  map_projection: 'UTM zone 48S / WGS84',
+  resolution_azimuth_m: 1.0,
+  resolution_range_m: 1.0,
 };
 
 export const asoScene: Scene = toScene(wireAsoScene);
@@ -73,6 +81,12 @@ export const sampleSatellites: Satellite[] = [
     inclinationDeg: 97.6725,
     orbitFamily: 'near-polar',
     tleEpochUtc: new Date('2026-09-18T04:41:20Z'),
+    raanDeg: 238.3792,
+    eccentricity: 0.0014712,
+    periodMinutes: 94.7,
+    meanAltitudeKm: 504.0,
+    tleLine1: '1 59224U 24047A   26261.19537414  .00006259  00000+0  28783-3 0  9992',
+    tleLine2: '2 59224  97.6725 238.3792 0014712  98.1271 262.1634 15.20624473138872',
   },
   {
     name: 'STRIX-5',
@@ -80,6 +94,12 @@ export const sampleSatellites: Satellite[] = [
     inclinationDeg: 41.9271,
     orbitFamily: 'mid-inclination',
     tleEpochUtc: new Date('2026-09-17T08:48:24Z'),
+    raanDeg: 136.0223,
+    eccentricity: 0.0037288,
+    periodMinutes: 95.68,
+    meanAltitudeKm: 551.5,
+    tleLine1: '1 65971U 25229A   26260.36695047  .00003165  00000+0  22945-3 0  9993',
+    tleLine2: '2 65971  41.9271 136.0223 0037288 296.5900  63.1108 15.04994457 50866',
   },
 ];
 
@@ -88,6 +108,7 @@ const trackPoint = (minutes: number, lonDeg: number, latDeg: number) => ({
   latDeg,
   lonDeg,
   altKm: 505,
+  speedKmS: 7.61,
 });
 
 /** Two points, no antimeridian crossing. */
@@ -95,6 +116,7 @@ export const straightTrack: GroundTrack = {
   satellite: 'STRIX-3',
   startUtc: new Date('2026-09-19T00:00:00Z'),
   stepS: 20,
+  minutes: 100,
   points: [trackPoint(0, 130, 30), trackPoint(1, 135, 34), trackPoint(2, 140, 38)],
 };
 
@@ -103,6 +125,7 @@ export const wrappingTrack: GroundTrack = {
   satellite: 'STRIX-5',
   startUtc: new Date('2026-09-19T00:00:00Z'),
   stepS: 20,
+  minutes: 100,
   points: [trackPoint(0, 175, 10), trackPoint(1, 179, 12), trackPoint(2, -178, 14)],
 };
 
@@ -123,30 +146,36 @@ export const wireAccess: WireAccessResponse = {
     {
       satellite: 'STRIX-5',
       target: 'Jakarta, ID',
+      target_id: 'jakarta',
       start_utc: '2026-09-19T00:33:08.539737Z',
       end_utc: '2026-09-19T00:34:30.946495Z',
       duration_s: 82.407,
       best_off_nadir_deg: 41.579,
+      best_at_utc: '2026-09-19T00:33:49Z',
       look_side: 'Left',
       pass_direction: 'Ascending',
     },
     {
       satellite: 'STRIX-3',
       target: 'Mt. Aso, JP',
+      target_id: 'aso',
       start_utc: '2026-09-20T12:00:00Z',
       end_utc: '2026-09-20T12:01:25Z',
       duration_s: 85,
       best_off_nadir_deg: 31.9,
+      best_at_utc: '2026-09-20T12:00:42Z',
       look_side: 'Right',
       pass_direction: 'Descending',
     },
     {
       satellite: 'STRIX-3',
       target: 'Nowhere, XX',
+      target_id: 'nowhere',
       start_utc: '2026-09-21T06:00:00Z',
       end_utc: '2026-09-21T06:01:00Z',
       duration_s: 60,
       best_off_nadir_deg: 22,
+      best_at_utc: '2026-09-21T06:00:30Z',
       look_side: 'Left',
       pass_direction: 'Ascending',
     },

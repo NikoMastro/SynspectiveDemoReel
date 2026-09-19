@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { AccessReport, AccessWindow, TimeRange } from '../interfaces';
 import type { SatelliteColorScale } from '../lib/colors';
 import { countWindowsBySatellite, windowsInRange } from '../lib/filters';
@@ -62,24 +62,39 @@ export function AccessTimeline({
   const [drag, setDrag] = useState<{ x0: number; x1: number } | null>(null);
   const [picked, setPicked] = useState<AccessWindow | null>(null);
 
-  const horizon: TimeRange = {
-    from: report.horizon.startUtc,
-    to: new Date(report.horizon.startUtc.getTime() + report.horizon.days * 86_400_000),
-  };
+  // Memoised because a pointer drag re-renders this component on every move,
+  // and laying out every window again for each frame is work the brush does not
+  // need. Cheap today at 219 windows; not cheap once a sortable table and a
+  // ticking countdown share the same render.
+  const horizon: TimeRange = useMemo(
+    () => ({
+      from: report.horizon.startUtc,
+      to: new Date(report.horizon.startUtc.getTime() + report.horizon.days * 86_400_000),
+    }),
+    [report.horizon],
+  );
 
-  const rows = timelineRows(report.windows, report.targets.map((t) => t.name));
+  const rows = useMemo(
+    () => timelineRows(report.windows, report.targets.map((t) => t.name)),
+    [report.windows, report.targets],
+  );
+
   const gutter = labelGutter(rows, hostWidth);
   const plotWidth = Math.max(hostWidth - gutter - CHART_MARGIN.right, 120);
-  const layout = layoutTimeline({
-    windows: report.windows,
-    rows,
-    horizon,
-    width: plotWidth,
-    rowHeight: ROW_HEIGHT,
-  });
 
-  const inRange = windowsInRange(report.windows, range);
-  const counts = countWindowsBySatellite(inRange);
+  const layout = useMemo(
+    () => layoutTimeline({
+      windows: report.windows,
+      rows,
+      horizon,
+      width: plotWidth,
+      rowHeight: ROW_HEIGHT,
+    }),
+    [report.windows, rows, horizon, plotWidth],
+  );
+
+  const inRange = useMemo(() => windowsInRange(report.windows, range), [report.windows, range]);
+  const counts = useMemo(() => countWindowsBySatellite(inRange), [inRange]);
 
   /** Pixel x inside the plot area, from a pointer event anywhere on the host. */
   const localX = (event: React.PointerEvent<HTMLDivElement>): number =>
