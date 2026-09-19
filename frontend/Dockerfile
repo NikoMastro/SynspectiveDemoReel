@@ -20,12 +20,18 @@ ENV VITE_API_BASE=$VITE_API_BASE
 RUN npm run build
 
 # ----------------------------------------------------------------- run stage
-FROM nginx:1.27-alpine
+# The unprivileged variant: the official nginx image runs its master process as
+# root to bind port 80, which this container has no need to do. This one runs as
+# uid 101 throughout and listens on 8080 instead.
+FROM nginxinc/nginx-unprivileged:1.27-alpine
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Anything in /etc/nginx/templates is run through envsubst at container start by
 # the official image's entrypoint, so SCENE_URL is resolved then rather than
 # baked in here. One image, two environments.
 COPY frontend/nginx.conf.template /etc/nginx/templates/default.conf.template
+# Not under templates/: the entrypoint runs envsubst over everything in there,
+# and this file contains $ characters that are nginx variables, not shell ones.
+COPY frontend/security-headers.conf /etc/nginx/security-headers.conf
 ENV SCENE_URL=http://scene:8080
-EXPOSE 80
+EXPOSE 8080

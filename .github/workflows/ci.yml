@@ -5,6 +5,11 @@ on:
     branches: ['**']
   pull_request:
 
+# This workflow builds and tests; it never writes to the repository. The default
+# token is broader than that, and narrowing it costs two lines.
+permissions:
+  contents: read
+
 # A new push to the same branch makes the previous run irrelevant.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

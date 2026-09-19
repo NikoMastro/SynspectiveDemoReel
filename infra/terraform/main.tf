@@ -191,7 +191,7 @@ resource "google_cloud_run_v2_service" "web" {
 
     containers {
       image = "${local.registry}/web:${var.image_tag}"
-      ports { container_port = 80 }
+      ports { container_port = 8080 }
 
       # Resolved by envsubst when the container starts, which is why the same
       # image runs under docker-compose with http://scene:8080.

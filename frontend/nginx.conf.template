@@ -9,11 +9,12 @@
 # start rather than at build also means proxy_pass ends up with a literal host,
 # so nginx does not need a `resolver` directive.
 server {
-    listen 80;
+    listen 8080;
     server_name _;
     root /usr/share/nginx/html;
 
     location /api/ {
+        include /etc/nginx/security-headers.conf;
         proxy_pass ${SCENE_URL};
 
         # Cloud Run routes on the Host header, so it has to match the target
@@ -30,12 +31,15 @@ server {
 
     # Hashed filenames, so these can be cached hard.
     location /assets/ {
-        expires 1y;
-        add_header Cache-Control "public, immutable";
+        include /etc/nginx/security-headers.conf;
+        # One directive, not two: `expires` emits its own Cache-Control, so
+        # pairing it with add_header sent the header twice with different values.
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
     }
 
     # Single-page app: unknown paths are routes, not missing files.
     location / {
+        include /etc/nginx/security-headers.conf;
         try_files $uri $uri/ /index.html;
     }
 }
