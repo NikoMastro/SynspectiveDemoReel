@@ -77,14 +77,19 @@ a { color: var(--accent); }
   /* Phone first: one column, everything stacked, nothing side by side. */
   grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
-    "header"
     "filters"
     "map"
     "panel"
     "timeline";
 }
 
-.console__header   { grid-area: header; }
+/* The masthead sits above the grid rather than in it, so that .console can be
+   the <main> landmark without swallowing the page header. */
+.console__masthead {
+  max-width: 1800px;
+  margin-inline: auto;
+  padding: 12px var(--gutter) 0;
+}
 .console__filters  { grid-area: filters; }
 .console__map      { grid-area: map; min-height: 320px; }
 .console__panel    { grid-area: panel; }
@@ -100,9 +105,8 @@ a { color: var(--accent); }
 @media (min-width: 1100px) {
   .console {
     grid-template-columns: minmax(0, 1fr) 380px;
-    grid-template-rows: auto auto minmax(420px, 1fr) auto;
+    grid-template-rows: auto minmax(420px, 1fr) auto;
     grid-template-areas:
-      "header  header"
       "filters filters"
       "map     panel"
       "timeline timeline";
@@ -544,4 +548,19 @@ select:focus-visible,
   border-left: 2px solid var(--warn);
   padding-left: 8px;
   margin: 8px 0 0;
+}
+
+.masthead__meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.masthead__source {
+  font-size: 12.5px;
+  /* 44px is the touch floor the selects and buttons already hold to. */
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
 }
