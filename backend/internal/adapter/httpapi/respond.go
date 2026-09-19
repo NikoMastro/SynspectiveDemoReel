@@ -4,6 +4,7 @@
 package httpapi
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -52,6 +53,11 @@ func writeError(w http.ResponseWriter, log *slog.Logger, err error) {
 		writeJSON(w, log, http.StatusBadRequest, errorBody{Error: err.Error()})
 	case errors.Is(err, errBadRequest):
 		writeJSON(w, log, http.StatusBadRequest, errorBody{Error: err.Error()})
+	case errors.Is(err, context.Canceled):
+		// The caller hung up. Nothing failed, there is nobody to answer, and
+		// writing a body here would only be discarded. Logged at info so a
+		// browser reload does not read as a server fault in the dashboard.
+		log.Info("request cancelled by the caller", "error", err)
 	default:
 		log.Error("request failed", "error", err)
 		writeJSON(w, log, http.StatusInternalServerError, errorBody{Error: "internal error"})

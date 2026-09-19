@@ -56,18 +56,18 @@ func Load() (Config, error) {
 		AllowedOrigin:     env("ALLOWED_ORIGIN", "*"),
 	}
 
-	min, err := envFloat("OFF_NADIR_MIN_DEG", domain.DefaultOffNadirMinDeg)
+	minDeg, err := envFloat("OFF_NADIR_MIN_DEG", domain.DefaultOffNadirMinDeg)
 	if err != nil {
 		return Config{}, err
 	}
-	max, err := envFloat("OFF_NADIR_MAX_DEG", domain.DefaultOffNadirMaxDeg)
+	maxDeg, err := envFloat("OFF_NADIR_MAX_DEG", domain.DefaultOffNadirMaxDeg)
 	if err != nil {
 		return Config{}, err
 	}
-	if min < 0 || max <= min || max > 90 {
-		return Config{}, fmt.Errorf("off-nadir envelope %.2f-%.2f degrees is not a usable range", min, max)
+	if minDeg < 0 || maxDeg <= minDeg || maxDeg > 90 {
+		return Config{}, fmt.Errorf("off-nadir envelope %.2f-%.2f degrees is not a usable range", minDeg, maxDeg)
 	}
-	cfg.Envelope = domain.OffNadirEnvelope{MinDeg: min, MaxDeg: max}
+	cfg.Envelope = domain.OffNadirEnvelope{MinDeg: minDeg, MaxDeg: maxDeg}
 
 	return cfg, nil
 }

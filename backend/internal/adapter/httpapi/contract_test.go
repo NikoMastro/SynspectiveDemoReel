@@ -3,6 +3,8 @@ package httpapi_test
 import (
 	"encoding/json"
 	"net/http"
+	"slices"
+	"strings"
 	"testing"
 )
 
@@ -38,6 +40,53 @@ func requireKeys(t *testing.T, what string, object map[string]any, keys ...strin
 	for _, key := range keys {
 		if _, ok := object[key]; !ok {
 			t.Errorf("%s is missing %q, which frontend/src/interfaces/wire.ts declares", what, key)
+		}
+	}
+}
+
+// requireKinds pins the JSON *types* of the fields where getting the type wrong
+// would be as damaging as getting the name wrong, and just as invisible.
+//
+// requireKeys catches a rename. It does not catch a Go change that turns a
+// float64 into a string: the key is still there, wire.ts still declares
+// `number`, and the frontend gets "31.94" where it expected 31.94 - which
+// formats fine, sorts wrongly, and breaks arithmetic silently. Only the
+// numeric and nullable fields are listed, because those are the ones where a
+// type change is both plausible and quiet.
+func requireKinds(t *testing.T, what string, object map[string]any, kinds map[string]string) {
+	t.Helper()
+
+	for key, want := range kinds {
+		value, ok := object[key]
+		if !ok {
+			t.Errorf("%s is missing %q", what, key)
+			continue
+		}
+
+		var got string
+		switch value.(type) {
+		case nil:
+			got = "null"
+		case string:
+			got = "string"
+		case float64:
+			got = "number"
+		case bool:
+			got = "bool"
+		case []any:
+			got = "array"
+		case map[string]any:
+			got = "object"
+		default:
+			got = "unknown"
+		}
+
+		// "number|null" is how a *float64 arrives: a real value or an absent
+		// one, never a zero standing in for "not stated".
+		allowed := strings.Split(want, "|")
+		if !slices.Contains(allowed, got) {
+			t.Errorf("%s.%s is %s, but frontend/src/interfaces/wire.ts declares %s",
+				what, key, got, want)
 		}
 	}
 }
@@ -102,8 +151,19 @@ func TestWireContractSatellites(t *testing.T) {
 	body := decodeObject(t, rec.Body.Bytes())
 	requireKeys(t, "WireSatellitesResponse", body, "satellites")
 
-	requireKeys(t, "WireSatellite", firstObject(t, "satellites", body["satellites"]),
+	satellite := firstObject(t, "satellites", body["satellites"])
+	requireKeys(t, "WireSatellite", satellite,
 		"name", "norad_id", "inclination_deg", "orbit_family", "tle_epoch_utc")
+	requireKinds(t, "WireSatellite", satellite, map[string]string{
+		"norad_id":         "number",
+		"inclination_deg":  "number",
+		"raan_deg":         "number",
+		"eccentricity":     "number",
+		"period_minutes":   "number",
+		"mean_altitude_km": "number",
+		"tle_epoch_utc":    "string",
+		"orbit_family":     "string",
+	})
 }
 
 func TestWireContractGroundTrack(t *testing.T) {
@@ -113,8 +173,15 @@ func TestWireContractGroundTrack(t *testing.T) {
 	body := decodeObject(t, rec.Body.Bytes())
 	requireKeys(t, "WireGroundTrack", body, "satellite", "start_utc", "step_s", "points")
 
-	requireKeys(t, "WireTrackPoint", firstObject(t, "points", body["points"]),
-		"time_utc", "lat_deg", "lon_deg", "alt_km")
+	point := firstObject(t, "points", body["points"])
+	requireKeys(t, "WireTrackPoint", point, "time_utc", "lat_deg", "lon_deg", "alt_km")
+	requireKinds(t, "WireTrackPoint", point, map[string]string{
+		"time_utc":   "string",
+		"lat_deg":    "number",
+		"lon_deg":    "number",
+		"alt_km":     "number",
+		"speed_km_s": "number",
+	})
 }
 
 // TestWireContractAccessWindows also pins the fact that the access response has
@@ -146,9 +213,18 @@ func TestWireContractAccessWindows(t *testing.T) {
 	requireKeys(t, "WireTarget", firstObject(t, "targets", body["targets"]),
 		"id", "name", "lat_deg", "lon_deg")
 
-	requireKeys(t, "WireAccessWindow", firstObject(t, "windows", body["windows"]),
+	window := firstObject(t, "windows", body["windows"])
+	requireKeys(t, "WireAccessWindow", window,
 		"satellite", "target", "start_utc", "end_utc",
 		"duration_s", "best_off_nadir_deg", "look_side", "pass_direction")
+	requireKinds(t, "WireAccessWindow", window, map[string]string{
+		"target_id":          "string",
+		"start_utc":          "string",
+		"end_utc":            "string",
+		"best_at_utc":        "string",
+		"duration_s":         "number",
+		"best_off_nadir_deg": "number",
+	})
 }
 
 // TestNESZStaysNullForTheRealScene guards one specific honesty. The delivered

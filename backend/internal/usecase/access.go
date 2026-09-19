@@ -19,6 +19,12 @@ const (
 	maxAccessDays  = 7.0
 	minAccessStepS = 1
 	maxAccessStepS = 120
+
+	// The sweep costs len(satellites) * len(targets) * horizon/step evaluations,
+	// so the target count is a multiplier on everything else and belongs under a
+	// limit like the rest. Four standing targets exist; a request asking for more
+	// than twice that is not a planner.
+	maxAccessTargets = 8
 )
 
 // AccessWindows computes, for every satellite and every requested target, the
@@ -159,6 +165,8 @@ func validateAccessRequest(req port.AccessRequest) error {
 	switch {
 	case len(req.Targets) == 0:
 		return reject("at least one target is required")
+	case len(req.Targets) > maxAccessTargets:
+		return reject("at most %d targets per request, got %d", maxAccessTargets, len(req.Targets))
 	case req.Days <= 0 || req.Days > maxAccessDays:
 		return reject("days must be between 0 and %.0f, got %.2f", maxAccessDays, req.Days)
 	case req.StepS < minAccessStepS || req.StepS > maxAccessStepS:

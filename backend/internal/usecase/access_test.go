@@ -275,6 +275,12 @@ func TestAccessWindowsRejectsBadRequests(t *testing.T) {
 		{"step too small", port.AccessRequest{Targets: []domain.Target{target}, Start: start, Days: 1, StepS: 0}},
 		{"step too large", port.AccessRequest{Targets: []domain.Target{target}, Start: start, Days: 1, StepS: 600}},
 		{"no start", port.AccessRequest{Targets: []domain.Target{target}, Days: 1, StepS: 20}},
+
+		// The target count multiplies everything else: the sweep is
+		// len(satellites) * len(targets) * horizon/step. Without this bound a
+		// caller could send the same id hundreds of times and pay for one
+		// query string what the service pays for in CPU.
+		{"too many targets", port.AccessRequest{Targets: manyTargets(target, 9), Start: start, Days: 1, StepS: 20}},
 	}
 
 	for _, c := range cases {
@@ -465,4 +471,14 @@ func TestAccessWindowsReproduceTheWholeFixture(t *testing.T) {
 	t.Logf("%d windows reproduced in %s across %d workers, %s with MaxParallel=1; worst edge gap %s (tolerance %s)",
 		len(got), elapsed.Round(time.Millisecond), runtime.NumCPU(),
 		serialElapsed.Round(time.Millisecond), worstEdge, edgeTolerance)
+}
+
+// manyTargets repeats one target n times, which is the shape an amplification
+// attempt takes: a short query string that costs the sweep n times as much.
+func manyTargets(t domain.Target, n int) []domain.Target {
+	out := make([]domain.Target, 0, n)
+	for i := 0; i < n; i++ {
+		out = append(out, t)
+	}
+	return out
 }
