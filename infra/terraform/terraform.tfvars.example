@@ -1,0 +1,4 @@
+# Copy to terraform.tfvars and set your own project.
+project_id = "strix-scene-explorer"
+# region     = "asia-northeast1"
+# image_tag  = "latest"

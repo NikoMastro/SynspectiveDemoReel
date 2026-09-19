@@ -2,6 +2,8 @@
 
 An operator-style console for SAR satellite mission planning: acquisition footprints, TLE-derived ground tracks, access windows, and scene metadata. Python notebooks to understand the data, a Go service on GCP to serve it, a React and Deck.gl frontend to fly it.
 
+**Live: https://web-g7vdca6wsq-an.a.run.app**
+
 > Working title. Independent portfolio project. Not affiliated with Synspective.
 
 ## Purpose
@@ -41,41 +43,45 @@ Rather than assert that I can do that, this repo does it, on their own published
    ┌─────────────┴──────────────┐
    │  Go, Cloud Run             │
    │                            │
-   │  scene-service ──gRPC──▶ flightdyn-service
+   │  scene-service ──HTTP──▶ flightdyn-service
+   │  :8080                    :8081
    │  (catalog, query)         (SGP4 propagation,
    │                            access windows)
    └─────────────┬──────────────┘
-                 │  Connect / gRPC-Web / JSON
+                 │  JSON over HTTP
                  ▼
    React + TypeScript + Vite
    Deck.gl (map, footprints, ground track)
    D3 (opportunity + pass timeline)
 ```
 
-Two Go services, not one. `scene-service` owns the catalog and is the frontend's entry point; `flightdyn-service` owns orbit propagation and access-window computation and is called over gRPC. The split is real rather than decorative: propagation is CPU-bound and fans out, the catalog is I/O-bound against BigQuery, and they scale differently on Cloud Run.
+Two Go services, not one. `scene-service` owns the catalog and is the frontend's entry point; `flightdyn-service` owns orbit propagation and access-window computation and is called over HTTP. The split is real rather than decorative: propagation is CPU-bound and fans out, the catalog is I/O-bound against BigQuery, and they scale differently on Cloud Run.
 
-Browsers cannot speak raw gRPC, so the edge is served with [Connect](https://connectrpc.com) — one Go handler serves the Connect, gRPC, and gRPC-Web protocols from the same `.proto` definitions, and the frontend gets a generated, typed TypeScript client with no separate REST layer to keep in sync.
+**The transport is a JSON API over HTTP, not gRPC, and that was a decision rather than a shortcut.** An earlier draft of this README specified Connect-Go over protobuf. What got built is `net/http` and `encoding/json`, because the whole surface is six read-only `GET` endpoints, the only client is one browser, and protobuf would have added a code-generation step, a `buf` toolchain and a generated client to a contract that fits on one screen.
+
+The cost of that choice is real, and it is paid where the two halves meet: nothing in TypeScript can check `frontend/src/interfaces/wire.ts` against the Go structs, so `backend/internal/adapter/httpapi/contract_test.go` pins every field name the frontend reads. That is a hand-written stand-in for `buf breaking`, and it is worth saying plainly that it is a weaker one — it catches a rename, it does not catch a type change. If this grew a second client, write operations, or a streaming endpoint, the trade would flip.
 
 ### Clean Architecture
 
-The Go code is layered so that dependencies point inward only. `domain` knows nothing about protobuf, BigQuery, or HTTP; adapters depend on ports, never the reverse.
+The Go code is layered so that dependencies point inward only. `domain` knows nothing about JSON, BigQuery, HTTP or SGP4; adapters depend on ports, never the reverse. The payoff shows up in the tests: the fakes are twenty lines of hand-written Go each, and there is no mocking library anywhere in the backend.
 
 | Layer | Contains | May import |
 | --- | --- | --- |
-| `domain` | Scene, Orbit, AccessWindow, Plan — entities and rules | nothing internal |
+| `domain` | Scene, Satellite, Target, AccessWindow, and the access geometry | nothing internal |
 | `usecase` | application services, orchestration | `domain`, `port` |
 | `port` | interfaces the usecases require | `domain` |
-| `adapter` | Connect handlers, BigQuery/GCS/Celestrak repositories | `usecase`, `port`, `domain` |
+| `adapter` | HTTP handlers, the wire shapes, the SGP4 library, file/BigQuery/GCS repositories | `usecase`, `port`, `domain` |
 | `infra` | config, logging, tracing, dependency wiring | all of the above |
 
 ### Concurrency
 
 Access-window computation is where Go earns its place. Given N satellites, M ground targets, and a horizon of several days at a fixed time step, the work is a wide independent fan-out with a natural merge at the end.
 
-- A bounded worker pool sized to `GOMAXPROCS`, fed from a job channel of `(satellite, target, time-slice)` tuples.
-- `errgroup.WithContext` for fan-out and first-error cancellation.
-- `context` cancellation propagated from the Connect handler, so closing the browser tab stops the compute.
-- Server-streaming RPC so the UI paints windows as they are found instead of blocking on the whole horizon.
+- `errgroup.WithContext` with `SetLimit(runtime.NumCPU())` over the `(satellite, target)` pairs. The work is CPU-bound, so the useful ceiling is the number of cores.
+- Results collected into a slice indexed by pair, sized before any goroutine starts. No mutex and no channel: each worker writes to its own element, and the output order does not depend on who finished first.
+- `context` cancellation propagated from the HTTP handler. A browser that reloads or navigates away aborts its fetch — `frontend/src/components/useConsoleData.ts` holds an `AbortController` and aborts it on effect cleanup — the connection closes, and the cancellation reaches the sweep through the request context instead of leaving it running for an answer nobody will read.
+
+Deliberately **not** a worker-pool abstraction and **not** a job channel: `errgroup` already is the pool, and a layer on top would be one more thing to explain. Streaming results as they are found is not implemented either — the full three-day sweep over eight satellites and four targets finishes in about 80 ms, so there is nothing worth streaming around. That figure is measured and logged by `TestAccessWindowsReproduceTheWholeFixture` on every run, so it stops being true out loud if it ever stops being true. The same test then re-runs the identical sweep with `MaxParallel=1` and logs both numbers side by side — 69 ms across 24 workers against 817 ms serial on this machine — so the claim that the fan-out is what makes it fast has a baseline under it rather than a single figure with nothing to compare against. It also asserts the two results are identical, which is the check that the concurrency changes the speed and nothing else.
 
 ### Cloud
 
@@ -83,11 +89,11 @@ Access-window computation is where Go earns its place. Given N satellites, M gro
 | --- | --- |
 | Product and derived artifact storage | Cloud Storage |
 | Scene metadata catalog | BigQuery |
-| Service hosting | Cloud Run (gRPC and server streaming supported) |
+| Service hosting | Cloud Run, one revision per service |
 | Container images | Artifact Registry |
 | Notebook environment | Vertex AI Workbench, or local Jupyter |
 | Infrastructure as code | Terraform |
-| CI/CD | GitHub Actions — lint, test, `buf breaking`, build, deploy |
+| CI/CD | GitHub Actions — `go vet`, `go test`, `tsc`, `vitest`, build, deploy |
 | Frontend hosting | static build on Cloud Storage behind Cloud CDN |
 
 The whole thing is sized to sit inside GCP's free tier with Cloud Run scaling to zero.
@@ -96,14 +102,14 @@ The whole thing is sized to sit inside GCP's free tier with Cloud Run scaling to
 
 | Area | Choice |
 | --- | --- |
-| Backend | Go 1.23+, Connect-Go, protobuf, Buf for codegen and lint |
+| Backend | Go 1.24+, standard library for HTTP, JSON and logging (`net/http`, `encoding/json`, `log/slog`). Two external modules: `golang.org/x/sync` for `errgroup`, and `github.com/joshuaferrara/go-satellite` for SGP4 — whose measured deviation from the Python reference, and its cause, are documented in [backend/README.md](./backend/README.md) |
 | Orbit math | SGP4 propagation from Celestrak TLE data |
 | Data exploration | Python, JupyterLab, rasterio, GeoPandas, Shapely, sgp4, matplotlib |
 | Frontend | React, TypeScript, Vite |
 | Visualization | Deck.gl and WebGL for geospatial layers, D3 for the timeline |
-| Generated client | `@connectrpc/connect-web` with buf-generated TypeScript types |
-| Testing | Go table-driven tests, Vitest, React Testing Library, Playwright |
-| Deploy | Docker, Cloud Run, Terraform, GitHub Actions |
+| API client | a hand-written `fetch` client in `frontend/src/lib/api.ts`, with one wire-to-domain mapping in `lib/mapping.ts` |
+| Testing | Go table-driven tests, Vitest, React Testing Library |
+| Deploy | Not yet built — Cloud Run, Terraform and GitHub Actions are the intended targets (see Build status) |
 
 ## Data
 
@@ -139,64 +145,112 @@ Notebooks 03 and 04 have a second job: they are the oracle. The product ships it
 
 ```
 .
-├── proto/strix/v1/              # scene.proto, flightdyn.proto — the contract
 ├── backend/
 │   ├── cmd/
-│   │   ├── scene-service/
-│   │   └── flightdyn-service/
-│   └── internal/
-│       ├── domain/              # scene, orbit, access, plan
-│       ├── usecase/
-│       ├── port/                # repository + propagator interfaces
-│       ├── adapter/
-│       │   ├── connect/         # handlers, proto <-> domain mapping
-│       │   └── repo/            # bigquery, gcs, celestrak
-│       └── infra/               # config, logging, wiring
+│   │   ├── scene-service/       # :8080 - catalog, the browser's entry point
+│   │   └── flightdyn-service/   # :8081 - SGP4, ground tracks, access windows
+│   ├── internal/
+│   │   ├── domain/              # scene, satellite, target, access, geometry
+│   │   ├── usecase/             # catalog, ground track, the access fan-out
+│   │   ├── port/                # repository + propagator interfaces
+│   │   ├── adapter/
+│   │   │   ├── httpapi/         # handlers, routing, error mapping, contract test
+│   │   │   ├── wire/            # the JSON shapes, hand-written
+│   │   │   ├── repo/            # file-backed; bigquery/gcs would sit here
+│   │   │   ├── sgp4/            # the SGP4 library behind port.Propagator
+│   │   │   └── flightdyn/       # scene-service's client for flightdyn-service
+│   │   └── infra/               # config, logging, graceful shutdown
+│   └── testdata/scenes.json     # seed catalog: 1 real scene + 11 synthetic
 ├── frontend/
 │   ├── src/
-│   │   ├── features/
-│   │   │   ├── map/             # Deck.gl layers
-│   │   │   ├── timeline/        # D3
-│   │   │   └── scene-detail/
-│   │   ├── gen/                 # buf-generated Connect client
-│   │   └── lib/
-│   └── e2e/                     # Playwright
+│   │   ├── interfaces/          # wire types, domain types, UI state - no logic
+│   │   ├── lib/                 # api client, mapping, Deck.gl layer factories,
+│   │   │                        # timeline geometry, colours, formatters
+│   │   └── components/          # every UI component, plus two hooks
 ├── notebooks/                   # 01-04, committed with outputs
 ├── fixtures/                    # TLE snapshot + JSON the Go tests assert against
-├── infra/terraform/
 ├── requirements.txt             # notebook environment
-├── data/                        # gitignored — sample product + manual
-└── .github/workflows/
+└── data/                        # gitignored — sample product + manual
 ```
+
+That is the whole tree. There is no `infra/terraform/`, no `.github/workflows/` and no `frontend/e2e/` yet; they are on the build list below, unchecked.
 
 ## Testing strategy
 
 Three levels, because the interesting failures live at different ones.
 
-**Backend.** Table-driven unit tests on `domain` and `usecase` with ports faked — no cloud, no network, fast. Orbit propagation is checked against the fixtures exported from notebook 03. Adapters are tested separately against emulators. `buf breaking` runs in CI so the proto contract cannot regress silently.
+**Backend.** Table-driven unit tests on `domain` and `usecase` with the ports faked by hand — no cloud, no network, no mocking library, fast. Orbit propagation is checked against the fixtures exported from notebook 03, and the full access sweep reproduces all 219 windows from notebook 04, pair for pair, in the same order. Handlers run through `httptest`; one test starts both services and has one call the other for real. `contract_test.go` pins every JSON field name the frontend reads, which is the hand-rolled stand-in for `buf breaking` described under Architecture.
+
+Every tolerance in those tests is a number that was measured first and then written down, with the measurement in the comment — including the one documenting how far the Go SGP4 library sits from the Python reference, and why that is not hidden. See [backend/README.md](./backend/README.md).
 
 **Frontend units.** Vitest and React Testing Library for state, filters, formatting, and panel behavior.
 
 **The WebGL problem.** A Deck.gl canvas is opaque to DOM assertions — there is nothing to query. Three things are done about it:
 
 - Layer construction is pulled out into pure functions that take scene data and return Deck.gl layer configuration. Those are unit-tested directly, which covers most of what can actually break.
-- Playwright drives the real app end to end and asserts on the DOM shell around the canvas: tooltips, the metadata panel, the timeline, URL state.
-- Deck.gl's `onAfterRender` plus a deterministic camera give a stable screenshot for visual regression on a small set of key views.
+- The canvas is not the only way in. Every footprint on the map is also a row in a keyboard-reachable scene list in the metadata panel, and every timeline bar is a focusable element with its own label, so the DOM tests reach the same selections an operator does.
+- Not done, and named rather than hidden: the assembled app in a real browser. Playwright driving the DOM around the canvas, and `onAfterRender` plus a fixed camera for screenshot regression, are on the build list below.
 
 ## Running it locally
 
-Prerequisites: Go 1.23+, Node 20+, Python 3.11+, Docker, and the `buf` CLI.
+Prerequisites: Go 1.24+, Node 20+, Python 3.11+. No code generation, no `buf`.
+
+Or, with only Docker installed:
 
 ```sh
-make bootstrap        # go mod download, npm ci, python venv + requirements
-make generate         # buf generate — Go and TypeScript from proto/
-make dev              # docker compose: both services + vite dev server
-make test             # go test ./... && npm test
-make e2e              # playwright
-make notebooks        # jupyter lab
+docker compose up --build        # then open http://localhost:8088
 ```
 
-`make dev` runs against a local fixture dataset and needs no GCP credentials. Pointing it at real Cloud Storage and BigQuery is opt-in through `.env`.
+That path exists for two reasons: a reviewer with neither Go nor Node can still run the whole
+thing, and Cloud Run deploys containers and nothing else, so the images are on the critical path
+regardless. Development does not go through it — `go run` rebuilds in a second and Vite
+hot-reloads, and a container rebuild in that loop buys nothing.
+
+Three terminals:
+
+```sh
+cd backend  && go run ./cmd/flightdyn-service    # :8081 - start this one first
+cd backend  && go run ./cmd/scene-service        # :8080
+cd frontend && npm install && npm run dev        # :5173, proxies /api to :8080
+```
+
+None of that needs GCP credentials: both services read `fixtures/` and `backend/testdata/`. Pointing them at real Cloud Storage and BigQuery would be a new repository implementation behind the ports that already exist.
+
+```sh
+cd backend  && go build ./... && go vet ./... && go test ./...
+cd frontend && npm run typecheck && npm test -- --run
+cd backend  && go test -race ./...               # needs cgo and a C compiler; see backend/README.md
+# the live test needs both services up, and VITE_API_BASE because vitest has no dev-server proxy
+cd frontend && LIVE_BACKEND=1 VITE_API_BASE=http://localhost:8080/api/v1 npm test -- --run src/live.integration.test.ts
+jupyter lab notebooks/
+```
+
+## Deployment
+
+Three Cloud Run services in `asia-northeast1`, provisioned by Terraform in `infra/terraform/`.
+All three scale to zero and allocate CPU only while a request is in flight, so an idle day costs
+nothing and the images sit inside Artifact Registry's free tier.
+
+`web` and `scene-service` are public. `flightdyn-service` is not: it accepts only the runtime
+service account, and `scene-service` proves it is that account with an identity token fetched
+from the Cloud Run metadata server on each call.
+
+That last part was not the first design. `flightdyn-service` originally used internal-only
+ingress, on the assumption that one Cloud Run service calling another stays inside Google's
+network. It does not — a call over a `run.app` URL is external traffic, and internal ingress
+answered it with a 404. Making that route genuinely internal would mean Direct VPC egress and a
+subnet, which is a lot of infrastructure for two services. Moving the control from the network to
+IAM costs about twenty lines in the client and is the shape Cloud Run is designed around.
+
+```sh
+cd infra/terraform
+terraform apply -target=google_artifact_registry_repository.images   # registry first
+../../scripts/push-images.sh                                        # Cloud Run needs the images
+terraform apply                                                     # then the services
+```
+
+The two passes are not ceremony: Cloud Run will not create a service whose image does not exist
+yet, and Terraform cannot push one.
 
 ## Build status
 
@@ -207,15 +261,19 @@ The repo is being built in public and is early. Nothing below is claimed as work
 - [x] Python environment pinned (`requirements.txt`, `.venv`)
 - [x] Notebooks 01–02: product read, geometry derived and cross-checked in 3D
 - [x] Notebooks 03–04: SGP4 ground tracks, access windows, fixtures exported
-- [ ] `proto/` contract defined, `buf generate` wired up
-- [ ] `scene-service`: domain, usecases, Connect handlers, fixture repository
-- [ ] Frontend: Deck.gl map with footprint and metadata panel
-- [ ] `flightdyn-service`: SGP4 propagation, ground track, access windows, streaming RPC
-- [ ] D3 timeline of acquisition opportunities and ground-station passes
+- [x] JSON/HTTP contract defined and pinned by a contract test (protobuf deliberately not used - see Architecture)
+- [x] `scene-service`: domain, usecases, HTTP handlers, file-backed repositories
+- [x] `flightdyn-service`: SGP4 propagation, ground track, access windows, `errgroup` fan-out
+- [x] Frontend: Deck.gl map with footprints, ground tracks and the product sheet
+- [x] D3-scaled timeline of acquisition opportunities
+- [ ] Ground-station passes on the timeline
+- [ ] Server-streamed access windows (not needed at this scale - see Concurrency)
 - [ ] BigQuery and GCS repositories behind the existing ports
-- [ ] Terraform, GitHub Actions, Cloud Run deploy
+- [x] Dockerfiles and `docker compose up` for the whole stack
+- [x] GitHub Actions: gofmt, vet, `go test -race`, typecheck, vitest, image build
+- [x] Terraform, Artifact Registry, Cloud Run, service-to-service auth by ID token
 - [ ] Playwright suite and visual regression
-- [ ] Deployed link
+- [x] Deployed link
 
 ## What this project exercises
 
@@ -224,13 +282,13 @@ Honestly, including where it falls short.
 | Area | Where it shows up |
 | --- | --- |
 | Go backend services | Two services, `backend/`, layered and tested |
-| gRPC and microservices | Connect-Go over protobuf; service-to-service gRPC; Buf-managed contract |
+| RESTful API, microservices | Two services, JSON over HTTP, the service-to-service call behind an interface, the contract pinned by test |
 | Clean Architecture | `domain` / `usecase` / `port` / `adapter` / `infra`, dependencies inward only |
-| Concurrency patterns | Bounded worker pool, `errgroup`, context cancellation, streaming results |
-| Modern frontend | React, TypeScript, Vite, typed generated client |
+| Concurrency patterns | `errgroup` fan-out bounded to `NumCPU`, results indexed by pair, context cancellation |
+| Modern frontend | React 19, TypeScript in strict mode, Vite, a hand-written typed fetch client |
 | Data visualization | Deck.gl and WebGL layers, D3 timeline |
 | Satellite visualization from TLE | SGP4 ground tracks and access windows, verified against a Python reference |
-| UI testing strategy | Pure layer functions, Vitest, Playwright, visual regression on the canvas |
+| UI testing strategy | Layer construction pulled into pure functions and unit-tested directly; Vitest and React Testing Library; browser-level e2e not yet written |
 | GCP | Cloud Run, Cloud Storage, BigQuery, Artifact Registry, Terraform, GitHub Actions |
 | Domain understanding | Notebooks reading a real StriX product against the published Format Manual |
 
