@@ -39,6 +39,16 @@ export const INITIAL_VIEW: MapViewState = {
 /** Long enough to read as travel rather than a cut, short enough not to be waited for. */
 const FLY_MS = 900;
 
+/**
+ * The radar image opens at 65%, not at full strength.
+ *
+ * The reason to drape it on a basemap at all is to read the two together: the
+ * caldera against the crater lake, the bright returns against the streets that
+ * produced them. At 100% the basemap underneath is simply gone and the map is
+ * an image viewer. The slider still reaches both ends.
+ */
+const DEFAULT_IMAGERY_OPACITY_PCT = 65;
+
 type Props = Omit<MapLayerInput, 'imagery'> & {
   /**
    * The selected scene's imagery, or null when it has none. The panel decides
@@ -92,7 +102,7 @@ export function MapPanel({
   // panning away, would not be.
   const [viewState, setViewState] = useState<MapViewState>(INITIAL_VIEW);
   const [showImagery, setShowImagery] = useState(true);
-  const [opacityPct, setOpacityPct] = useState(100);
+  const [opacityPct, setOpacityPct] = useState(DEFAULT_IMAGERY_OPACITY_PCT);
   const canvasRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

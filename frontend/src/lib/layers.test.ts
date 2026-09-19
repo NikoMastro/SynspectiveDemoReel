@@ -184,22 +184,25 @@ describe('footprintLayer', () => {
   // scene in the seed catalog covers 95% of the Mt. Aso quicklook. Its
   // translucent polygon washed a second satellite's hue across almost the whole
   // picture. So the assertion is about every scene, not about the imaged one.
-  it('drops every fill while imagery is drawn, so no other scene can tint it', () => {
+  it('lays nothing over the picture: no fill and no outline, for any scene', () => {
     const layer = footprintLayer({ ...options, imagedSceneId: asoScene.id });
 
     expect(call<typeof asoScene, number[]>(props(layer).getFillColor, asoScene)[3]).toBe(0);
     expect(call<typeof asoScene, number[]>(props(layer).getFillColor, syntheticScene)[3]).toBe(0);
+    // An outline over a radar image is a black line drawn across the terrain,
+    // and it marks a boundary the image already shows.
+    expect(props(layer).stroked).toBe(false);
 
-    // The outlines stay, so identity survives the fill going away.
-    expect(call<typeof asoScene, number[]>(props(layer).getLineColor, asoScene)[3]).toBe(255);
-    expect(call<typeof asoScene, number[]>(props(layer).getLineColor, syntheticScene)[3]).toBe(235);
+    // Still pickable, because clicking a footprint is how the map selects.
+    expect(props(layer).pickable).toBe(true);
   });
 
-  it('keeps the fills when there is no imagery to protect', () => {
+  it('keeps the fills and the outlines when there is no picture to protect', () => {
     const layer = footprintLayer({ ...options, imagedSceneId: null });
 
     expect(call<typeof asoScene, number[]>(props(layer).getFillColor, asoScene)[3]).toBe(150);
     expect(call<typeof asoScene, number[]>(props(layer).getFillColor, syntheticScene)[3]).toBe(70);
+    expect(props(layer).stroked).toBe(true);
   });
 
   it('calls onSelect with the clicked scene id', () => {

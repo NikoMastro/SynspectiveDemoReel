@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { LocateRequest, Scene, SceneFilters, SceneImagery, TimeRange } from './interfaces';
 import { quicklookUrl } from './lib/api';
 import { satelliteColorScale } from './lib/colors';
@@ -92,11 +92,34 @@ export default function App(): React.JSX.Element {
     if (scene) locateScene(scene);
   };
 
+  // The console opens on the delivered product, flown to and drawn, rather than
+  // on an empty sheet and a view of half of Japan. Eleven of the twelve scenes
+  // are synthetic; the one real acquisition is the thing worth seeing first,
+  // and asking a visitor to find it themselves wastes the only moment their
+  // attention is guaranteed.
+  //
+  // Once per mount, and only while nothing is selected, so it can never pull
+  // the map away from a scene someone has already chosen. locateScene is left
+  // out of the dependencies deliberately: it is rebuilt on every render, and
+  // the guard below is what makes this run once.
+  const [openedOnDelivered, setOpenedOnDelivered] = useState(false);
+  useEffect(() => {
+    if (openedOnDelivered || selectedSceneId !== null) return;
+
+    const delivered = scenes.find((s) => !s.synthetic && s.quicklook !== null);
+    if (!delivered) return;
+
+    setSelectedSceneId(delivered.id);
+    locateScene(delivered);
+    setOpenedOnDelivered(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scenes, openedOnDelivered, selectedSceneId]);
+
   // What the map drapes: the selected scene's quicklook, when it has one and
   // the filters have not excluded it. The sheet keeps showing the picture for
   // an excluded scene, because that is the scene being read; the map must not,
-  // because it has already dropped that scene's footprint and an image floating
-  // with no outline around it belongs to nothing on screen.
+  // because it has already dropped that scene's footprint and an image drawn
+  // where the map says there is no scene belongs to nothing on screen.
   const selectedIsVisible =
     selectedScene !== null && visibleScenes.some((s) => s.id === selectedScene.id);
 

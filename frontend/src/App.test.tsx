@@ -91,7 +91,22 @@ describe('App with the backend up', () => {
     expect(screen.getByTestId('deck-canvas')).toBeInTheDocument();
     expect(screen.getByText('2 of 2 scenes')).toBeInTheDocument();
     expect(screen.getAllByTestId('timeline-bar')).toHaveLength(wireAccess.windows.length);
-    expect(screen.getByText('No scene selected')).toBeInTheDocument();
+  });
+
+  // This is a demo, and eleven of the twelve seed scenes are synthetic. The one
+  // real acquisition is what a visitor should be looking at in the first second,
+  // not something they have to go and find in a list.
+  it('opens on the delivered product, already drawn, rather than on an empty sheet', async () => {
+    render(<App />);
+
+    await waitFor(() =>
+      expect(screen.getByTestId('scene-provenance')).toHaveTextContent('Delivered product'),
+    );
+
+    expect(screen.getByText(wireAsoScene.id)).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /Radar backscatter/ })).toBeInTheDocument();
+    expect(screen.getByRole('checkbox', { name: 'Radar image' })).toBeInTheDocument();
+    expect(screen.queryByText('No scene selected')).not.toBeInTheDocument();
   });
 
   // Landmarks are how a screen reader user skips past the header to the thing
@@ -187,13 +202,15 @@ describe('App with one feed down', () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await waitFor(() => expect(screen.getByText('No scene selected')).toBeInTheDocument());
+    // The console opens on the delivered scene, so the assertion is that the
+    // list moves the sheet off it, not that the sheet appears at all.
+    await waitFor(() => expect(screen.getByText(wireAsoScene.id)).toBeInTheDocument());
 
     const list = within(screen.getByRole('list', { name: /Scenes matching/ }));
-    await user.click(list.getAllByRole('button')[0]!);
+    await user.click(list.getByRole('button', { name: /STRIX-5/ }));
 
-    expect(screen.getByText('ObservationMode')).toBeInTheDocument();
-    expect(screen.queryByText('No scene selected')).not.toBeInTheDocument();
+    expect(screen.getByText(wireSyntheticScene.id)).toBeInTheDocument();
+    expect(screen.queryByText(wireAsoScene.id)).not.toBeInTheDocument();
   });
 
   // The first row is the delivered product, so picking it is what turns the
@@ -204,13 +221,11 @@ describe('App with one feed down', () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await waitFor(() => expect(screen.getByText('No scene selected')).toBeInTheDocument());
-    const list = within(screen.getByRole('list', { name: /Scenes matching/ }));
-
-    await user.click(list.getByRole('button', { name: /STRIX-3/ }));
-    expect(screen.getByRole('checkbox', { name: 'Radar image' })).toBeInTheDocument();
+    // Opens on the delivered scene, so the image is already there.
+    await waitFor(() => expect(screen.getByRole('checkbox', { name: 'Radar image' })).toBeInTheDocument());
     expect(screen.getByRole('img', { name: /Radar backscatter/ })).toBeInTheDocument();
 
+    const list = within(screen.getByRole('list', { name: /Scenes matching/ }));
     await user.click(list.getByRole('button', { name: /STRIX-5/ }));
     expect(screen.queryByRole('checkbox', { name: 'Radar image' })).not.toBeInTheDocument();
     expect(screen.queryByRole('img', { name: /Radar backscatter/ })).not.toBeInTheDocument();
@@ -226,10 +241,7 @@ describe('App with one feed down', () => {
     const user = userEvent.setup();
     render(<App />);
 
-    await waitFor(() => expect(screen.getByText('No scene selected')).toBeInTheDocument());
-    const list = within(screen.getByRole('list', { name: /Scenes matching/ }));
-    await user.click(list.getByRole('button', { name: /STRIX-3/ }));
-    expect(screen.getByRole('checkbox', { name: 'Radar image' })).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole('checkbox', { name: 'Radar image' })).toBeInTheDocument());
 
     // The real scene is Sliding Spotlight; this leaves only the synthetic one.
     await user.selectOptions(screen.getByLabelText('Imaging mode'), 'Stripmap');

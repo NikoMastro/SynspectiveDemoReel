@@ -66,12 +66,15 @@ const drawnLayers = () => screen.getByTestId('deck-canvas').dataset.layers ?? ''
 const drawnOpacity = () => screen.getByTestId('deck-canvas').dataset.quicklookOpacity;
 
 describe('MapPanel imagery controls', () => {
-  it('draws the quicklook, switched on, when the selected scene has one', () => {
+  // Not at full strength: the point of draping the image on a basemap is to
+  // read the two together, and at 100% the basemap underneath is simply gone.
+  it('draws the quicklook, switched on and part-transparent, when the scene has one', () => {
     render(<MapPanel {...base} imagery={imagery} />);
 
     expect(drawnLayers()).toContain('scene-quicklook');
     expect(screen.getByRole('checkbox', { name: 'Radar image' })).toBeChecked();
-    expect(drawnOpacity()).toBe('1');
+    expect(drawnOpacity()).toBe('0.65');
+    expect(screen.getByRole('slider', { name: 'Opacity' })).toHaveValue('65');
   });
 
   it('takes the layer away when the operator unticks it, and brings it back', async () => {

@@ -217,15 +217,23 @@ function footprintFillAlpha(sceneId: string, selected: string | null, imaged: st
 /**
  * Scene footprints. The selected one gets a dark outline rather than a
  * different fill, so selection never competes with satellite identity.
+ *
+ * While a picture is on screen the outlines come off with the fills. An outline
+ * over a radar image is a hard black line drawn across terrain, and it marks a
+ * boundary the image already shows: the edge of the valid pixels IS the
+ * footprint, since both come from the same raster. Nothing becomes unfindable,
+ * because sceneCenterLayer still puts a dot on every scene at any zoom.
  */
 export function footprintLayer(options: FootprintOptions): Layer {
   const { colors, selectedSceneId, imagedSceneId } = options;
   return new PolygonLayer<Scene>({
     id: 'scene-footprints',
     data: options.scenes,
+    // Still picked, and still filled, at zero alpha: clicking a footprint is
+    // how the map selects a scene, and that must keep working under the image.
     pickable: true,
     filled: true,
-    stroked: true,
+    stroked: imagedSceneId === null,
     lineWidthUnits: 'pixels',
     getPolygon: (d) => d.footprint,
     getFillColor: (d) =>
