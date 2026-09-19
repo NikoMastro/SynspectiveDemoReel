@@ -104,14 +104,18 @@ a { color: var(--accent); }
 /* Desktop: map and metadata panel side by side, timeline across the bottom. */
 @media (min-width: 1100px) {
   .console {
-    grid-template-columns: minmax(0, 1fr) 380px;
+    /* Wider than it was: the product sheet holds four groups of label/value
+       pairs, and at 380px they had to stack one per row. */
+    grid-template-columns: minmax(0, 1fr) 460px;
     grid-template-rows: auto minmax(420px, 1fr) auto;
     grid-template-areas:
       "filters filters"
       "map     panel"
       "timeline timeline";
   }
-  .console__panel { max-height: none; }
+  /* The panel fills its grid row and scrolls inside, rather than growing the
+     row when a scene is selected. */
+  .console__panel { min-height: 0; }
 }
 
 /* ---------------------------------------------------------------- panels */
@@ -121,6 +125,14 @@ a { color: var(--accent); }
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
+
+  /* Column, so the head keeps its height and the body is the part that gives.
+     Without this a long product sheet grew the panel instead of scrolling, and
+     on desktop that stretched the whole grid row - selecting a scene resized
+     the map next to it. */
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .panel__head {
@@ -146,7 +158,13 @@ a { color: var(--accent); }
   margin-left: auto;
 }
 
-.panel__body { padding: 14px; }
+.panel__body {
+  padding: 14px;
+  /* min-height:0 is what lets a flex child actually shrink below its content
+     and scroll, rather than pushing the parent taller. */
+  min-height: 0;
+  overflow-y: auto;
+}
 
 /* ---------------------------------------------------------------- header */
 
@@ -322,6 +340,15 @@ select:focus-visible,
 
 .timeline svg { display: block; width: 100%; touch-action: pan-y; }
 
+/* Brushing a range is a drag across text - the axis ticks and the target row
+   labels - and the browser's default is to select that text, which leaves the
+   chart littered with blue highlight after every brush. The bars stay
+   focusable and clickable; only the selection is suppressed. */
+.timeline {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 .timeline__row-label {
   font-size: 12px;
   fill: var(--ink-2);
@@ -386,7 +413,17 @@ select:focus-visible,
 
 /* ---------------------------------------------------------- product sheet */
 
-.sheet { display: grid; gap: 14px; }
+.sheet {
+  display: grid;
+  gap: 14px 18px;
+  /* Two by two once there is room for it. Below that the groups stack, which
+     is the only thing that fits on a phone. */
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1100px) {
+  .sheet { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 
 .sheet__group { display: grid; gap: 2px; }
 
@@ -402,7 +439,10 @@ select:focus-visible,
 
 .sheet__row {
   display: grid;
-  grid-template-columns: minmax(96px, 42%) minmax(0, 1fr);
+  /* The label column is content-sized with a ceiling rather than a fixed
+     percentage: in a half-width group, 42% left the monospace values too
+     narrow to read. */
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
   gap: 8px;
   padding: 3px 0;
   align-items: baseline;

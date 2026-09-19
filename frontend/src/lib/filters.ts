@@ -23,6 +23,30 @@ export function applyFilters(scenes: Scene[], filters: SceneFilters): Scene[] {
   );
 }
 
+/**
+ * The filters that mean something for an opportunity.
+ *
+ * Three of the four carry over: an access window names its satellite, which
+ * side the radar would look and whether the pass is ascending. Imaging mode
+ * does not - it is chosen when an acquisition is ordered, and an opportunity is
+ * the chance to order one. Filtering by mode therefore narrows the catalog and
+ * leaves this view alone, which the timeline says out loud rather than leaving
+ * the reader to wonder why the bars did not move.
+ */
+export function filterWindows(windows: AccessWindow[], filters: SceneFilters): AccessWindow[] {
+  return windows.filter(
+    (w) =>
+      (filters.satellite === null || w.satellite === filters.satellite) &&
+      (filters.passDirection === null || w.passDirection === filters.passDirection) &&
+      (filters.lookSide === null || w.lookSide === filters.lookSide),
+  );
+}
+
+/** True when a filter is set that the access-window view cannot honour. */
+export function hasSceneOnlyFilter(filters: SceneFilters): boolean {
+  return filters.imagingMode !== null;
+}
+
 export function countActiveFilters(filters: SceneFilters): number {
   return Object.values(filters).filter((v) => v !== null).length;
 }
