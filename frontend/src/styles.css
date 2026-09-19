@@ -1,0 +1,526 @@
+/*
+ * One stylesheet, plain CSS, no framework. The palette lives in custom
+ * properties at the top so a colour is changed in one place, and the layout is
+ * a single CSS Grid with two breakpoints.
+ *
+ * The console is dark by design: it is meant to be read in a dim operations
+ * room, and a dark surface is also what the data-viz palette below was
+ * validated against (--surface-1 is the surface the categorical hues were
+ * checked for contrast on).
+ */
+
+:root {
+  color-scheme: dark;
+
+  --bg: #0b0e13;
+  --surface-1: #12161c;
+  --surface-2: #181d25;
+  --surface-3: #1f2630;
+  --border: #29313d;
+  --border-strong: #3a4553;
+
+  --ink: #e8edf5;
+  --ink-2: #a8b3c4;
+  --ink-3: #78849a;
+
+  --accent: #4da3ff;
+  --warn: #e8ba4a;
+  --danger: #e66767;
+  --good: #35c08b;
+
+  --radius: 8px;
+  --gutter: 16px;
+  --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-text-size-adjust: 100%;
+}
+
+h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -0.01em; }
+
+a { color: var(--accent); }
+
+/* ---------------------------------------------------------------- layout */
+
+.console {
+  display: grid;
+  gap: 12px;
+  padding: 12px var(--gutter) 24px;
+  min-height: 100%;
+  max-width: 1800px;
+  margin-inline: auto;
+
+  /* Phone first: one column, everything stacked, nothing side by side. */
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "header"
+    "filters"
+    "map"
+    "panel"
+    "timeline";
+}
+
+.console__header   { grid-area: header; }
+.console__filters  { grid-area: filters; }
+.console__map      { grid-area: map; min-height: 320px; }
+.console__panel    { grid-area: panel; }
+.console__timeline { grid-area: timeline; }
+
+/* Tablet: the timeline gets the full width under a wider map. */
+@media (min-width: 720px) {
+  .console { gap: 14px; padding: 14px 20px 28px; }
+  .console__map { min-height: 420px; }
+}
+
+/* Desktop: map and metadata panel side by side, timeline across the bottom. */
+@media (min-width: 1100px) {
+  .console {
+    grid-template-columns: minmax(0, 1fr) 380px;
+    grid-template-rows: auto auto minmax(420px, 1fr) auto;
+    grid-template-areas:
+      "header  header"
+      "filters filters"
+      "map     panel"
+      "timeline timeline";
+  }
+  .console__panel { max-height: none; }
+}
+
+/* ---------------------------------------------------------------- panels */
+
+.panel {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.panel__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.panel__title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-2);
+}
+
+.panel__note {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-left: auto;
+}
+
+.panel__body { padding: 14px; }
+
+/* ---------------------------------------------------------------- header */
+
+.masthead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
+
+.masthead__title { font-size: 18px; }
+
+.masthead__subtitle {
+  color: var(--ink-2);
+  font-size: 13px;
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  font-size: 12px;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.pill__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ink-3);
+  flex: none;
+}
+
+.pill--ok    .pill__dot { background: var(--good); }
+.pill--warn  .pill__dot { background: var(--warn); }
+.pill--error .pill__dot { background: var(--danger); }
+
+/* --------------------------------------------------------------- filters */
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.filters__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 150px;
+  min-width: 0;
+}
+
+.filters__label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ink-3);
+}
+
+select,
+.button {
+  font: inherit;
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  /* 44px is the touch target floor; the console has to be usable on a phone. */
+  min-height: 44px;
+  padding: 0 10px;
+  width: 100%;
+}
+
+.button {
+  cursor: pointer;
+  flex: 0 0 auto;
+  width: auto;
+  padding: 0 14px;
+  white-space: nowrap;
+}
+
+.button:hover,
+select:hover { border-color: var(--accent); }
+
+select:focus-visible,
+.button:focus-visible,
+.legend__chip:focus-visible,
+.timeline__bar:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.filters__summary {
+  flex: 1 1 100%;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+/* ------------------------------------------------------------------- map */
+
+.map {
+  position: relative;
+  height: 100%;
+  min-height: inherit;
+  background: var(--surface-1);
+}
+
+.map__canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.map__attribution {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  z-index: 2;
+  padding: 2px 8px;
+  border-radius: 4px;
+  /* The tiles underneath are light, so a translucent panel composites bright
+     and --ink-3 lands near 2.9:1. A denser panel and the brighter ink reach
+     about 5.2:1, which the OSM attribution has to hold to stay legible. */
+  background: rgba(11, 14, 19, 0.92);
+  color: var(--ink-2);
+  font-size: 11px;
+}
+
+.map__overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  text-align: center;
+  background: rgba(11, 14, 19, 0.88);
+}
+
+/* A partial failure, over the top of a map that still has something to draw. */
+.map__banner {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  z-index: 3;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  background: rgba(18, 22, 28, 0.96);
+}
+
+.map__tooltip {
+  position: absolute;
+  z-index: 4;
+  pointer-events: none;
+  padding: 6px 9px;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  background: rgba(18, 22, 28, 0.96);
+  font-size: 12px;
+  max-width: 240px;
+}
+
+/* -------------------------------------------------------------- timeline */
+
+.timeline svg { display: block; width: 100%; touch-action: pan-y; }
+
+.timeline__row-label {
+  font-size: 12px;
+  fill: var(--ink-2);
+}
+
+.timeline__tick-label {
+  font-size: 11px;
+  fill: var(--ink-3);
+}
+
+.timeline__grid { stroke: var(--border); }
+
+.timeline__band { fill: var(--surface-2); }
+
+.timeline__bar { cursor: pointer; }
+
+.timeline__brush { fill: rgba(77, 163, 255, 0.14); stroke: var(--accent); }
+
+.timeline__hint { font-size: 12px; color: var(--ink-3); }
+
+/* ---------------------------------------------------------------- legend */
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 14px 10px;
+  border-top: 1px solid var(--border);
+}
+
+.legend__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  /* Same 44px touch floor as the selects: isolating a satellite is the main
+     thing a thumb does on this console. Eight chips still wrap onto three rows
+     at 360px. */
+  min-height: 44px;
+  padding: 2px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.legend__chip[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+.legend__swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  flex: none;
+}
+
+.legend__count { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+/* ---------------------------------------------------------- product sheet */
+
+.sheet { display: grid; gap: 14px; }
+
+.sheet__group { display: grid; gap: 2px; }
+
+.sheet__group-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ink-3);
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
+.sheet__row {
+  display: grid;
+  grid-template-columns: minmax(96px, 42%) minmax(0, 1fr);
+  gap: 8px;
+  padding: 3px 0;
+  align-items: baseline;
+}
+
+.sheet__key { color: var(--ink-3); font-size: 12px; }
+
+.sheet__value {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid;
+}
+
+.badge--synthetic { color: var(--warn); border-color: var(--warn); }
+.badge--real { color: var(--good); border-color: var(--good); }
+
+/* ---------------------------------------------------------------- states */
+
+.state {
+  display: grid;
+  gap: 8px;
+  padding: 18px 14px;
+  text-align: center;
+  color: var(--ink-2);
+}
+
+.state__title { color: var(--ink); font-weight: 600; }
+
+.state__detail { font-size: 12.5px; color: var(--ink-3); }
+
+.state__detail code {
+  font-family: var(--mono);
+  background: var(--surface-3);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.state--error { border-left: 3px solid var(--danger); text-align: left; }
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  margin: 0 auto;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  border-top-color: var(--accent);
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation: none; }
+  * { transition: none !important; }
+}
+
+/* Screen-reader-only text, for labels that must exist but not be drawn. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ scene list */
+
+/* The keyboard and touch route to a scene. The map's footprints are inside a
+   WebGL canvas, so without these rows the product sheet has no way in. */
+.scene-list {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  max-height: 190px;
+  overflow-y: auto;
+}
+
+.scene-list__item {
+  width: 100%;
+  min-height: 44px;
+  text-align: left;
+  display: grid;
+  gap: 2px;
+  padding: 6px 10px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--ink-2);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.scene-list__item:hover { border-color: var(--accent); }
+
+.scene-list__item[aria-current="true"] {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+.scene-list__item:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.scene-list__sat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink);
+}
+
+.scene-list__tag {
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  border: 1px solid var(--border-strong);
+  border-radius: 3px;
+  padding: 0 4px;
+}
