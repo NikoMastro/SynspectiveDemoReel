@@ -20,12 +20,6 @@ interface Props {
   /** The scenes left after the filters: what the list offers and the map draws. */
   scenes: Scene[];
   selected: Scene | null;
-  /**
-   * True when the selected scene exists but the current filters exclude it.
-   * Without this the sheet would simply vanish on a filter change, which reads
-   * as the selection being lost rather than hidden.
-   */
-  selectedHidden: boolean;
   onSelect: (id: string) => void;
   onRetry: () => void;
 }
@@ -34,10 +28,14 @@ export function ScenePanel({
   catalog,
   scenes,
   selected,
-  selectedHidden,
   onSelect,
   onRetry,
 }: Props): React.JSX.Element {
+  // Derived rather than passed in. As a prop it could contradict `scenes` and
+  // `selected` - a caller was free to say "hidden" about a scene sitting in the
+  // list - and the only honest value is the one these two already determine.
+  const selectedHidden = selected !== null && !scenes.some((s) => s.id === selected.id);
+
   return (
     <section className="panel console__panel">
       <div className="panel__head">

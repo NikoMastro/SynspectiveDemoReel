@@ -16,7 +16,6 @@ describe('ScenePanel', () => {
         catalog={loading}
         scenes={[]}
         selected={null}
-        selectedHidden={false}
         onSelect={vi.fn()}
         onRetry={vi.fn()}
       />,
@@ -34,7 +33,6 @@ describe('ScenePanel', () => {
         }}
         scenes={[]}
         selected={null}
-        selectedHidden={false}
         onSelect={vi.fn()}
         onRetry={vi.fn()}
       />,
@@ -48,7 +46,6 @@ describe('ScenePanel', () => {
         catalog={ready}
         scenes={sampleScenes}
         selected={null}
-        selectedHidden={false}
         onSelect={vi.fn()}
         onRetry={vi.fn()}
       />,
@@ -63,7 +60,6 @@ describe('ScenePanel', () => {
         catalog={ready}
         scenes={[]}
         selected={null}
-        selectedHidden={false}
         onSelect={vi.fn()}
         onRetry={vi.fn()}
       />,
@@ -78,7 +74,6 @@ describe('ScenePanel', () => {
         catalog={ready}
         scenes={sampleScenes}
         selected={asoScene}
-        selectedHidden={false}
         onSelect={vi.fn()}
         onRetry={vi.fn()}
       />,
@@ -99,7 +94,6 @@ describe('ScenePanel', () => {
         catalog={ready}
         scenes={sampleScenes}
         selected={null}
-        selectedHidden={false}
         onSelect={onSelect}
         onRetry={vi.fn()}
       />,
@@ -119,7 +113,6 @@ describe('ScenePanel', () => {
         catalog={ready}
         scenes={sampleScenes}
         selected={asoScene}
-        selectedHidden={false}
         onSelect={vi.fn()}
         onRetry={vi.fn()}
       />,
@@ -138,7 +131,6 @@ describe('ScenePanel', () => {
         catalog={ready}
         scenes={[]}
         selected={asoScene}
-        selectedHidden
         onSelect={vi.fn()}
         onRetry={vi.fn()}
       />,
