@@ -127,13 +127,22 @@ describe('footprintLayer', () => {
     expect(call(props(layer).getPolygon, asoScene)).toEqual(asoScene.footprint);
   });
 
-  it('outlines the selected scene in white and leaves the others their own colour', () => {
+  // The assertion is that selection reads as selection, not that it is any
+  // particular colour: this used to expect white, which was correct against a
+  // dark console and invisible the moment the theme went light over light map
+  // tiles. What has to hold is that the outline differs from the satellite's
+  // own hue and is dark enough to separate from the basemap.
+  it('outlines the selected scene distinctly from its own satellite colour', () => {
     const layer = footprintLayer(options);
-    expect(call(props(layer).getLineColor, asoScene)).toEqual([255, 255, 255, 255]);
-    expect(call(props(layer).getLineColor, syntheticScene)).toEqual([
-      ...colors.rgb('STRIX-5'),
-      235,
-    ]);
+    const selected = call(props(layer).getLineColor, asoScene) as number[];
+    const unselected = call(props(layer).getLineColor, syntheticScene);
+
+    expect(selected).not.toEqual([...colors.rgb('STRIX-3'), 235]);
+    expect(unselected).toEqual([...colors.rgb('STRIX-5'), 235]);
+
+    // Dark enough to hold against OpenStreetMap raster, which is a light surface.
+    const [r, g, b] = selected as [number, number, number];
+    expect((r + g + b) / 3).toBeLessThan(80);
   });
 
   it('calls onSelect with the clicked scene id', () => {
