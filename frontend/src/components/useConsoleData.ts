@@ -64,20 +64,33 @@ export function useConsoleData(reloadKey: number): ConsoleData {
     fetchSatellites(signal)
       .then(async (satellites) => {
         settle('satellites', ready(satellites));
-        // One ground-track request per satellite, in parallel. The endpoint is
-        // per-satellite by contract, and eight small requests is cheaper than
-        // teaching the backend a batch mode nobody else needs.
-        const tracks = await Promise.all(
-          satellites.map((s) =>
-            fetchGroundTrack(
-              { sat: s.name, minutes: TRACK_MINUTES, stepS: TRACK_STEP_S },
-              signal,
+
+        // The ground-track failure is caught in here, not by the outer catch.
+        // These are two resources from two services: /satellites is the fleet,
+        // /ground-track comes from flightdyn-service. Letting one catch cover
+        // both meant a single failed track wiped the satellite list as well,
+        // and with it the colour scale - every satellite went grey and the
+        // legend emptied, while the scenes were still on screen.
+        try {
+          // One request per satellite, in parallel. The endpoint is
+          // per-satellite by contract, and eight small requests is cheaper
+          // than teaching the backend a batch mode nobody else needs.
+          const tracks = await Promise.all(
+            satellites.map((s) =>
+              fetchGroundTrack(
+                { sat: s.name, minutes: TRACK_MINUTES, stepS: TRACK_STEP_S },
+                signal,
+              ),
             ),
-          ),
-        );
-        settle('tracks', ready(tracks));
+          );
+          settle('tracks', ready(tracks));
+        } catch (e: unknown) {
+          settle('tracks', failed<GroundTrack[]>(e, '/ground-track'));
+        }
       })
       .catch((e: unknown) => {
+        // Only reached when /satellites itself failed. Without the fleet there
+        // is nothing to request a track for, so both are down together.
         settle('satellites', failed<Satellite[]>(e, '/satellites'));
         settle('tracks', failed<GroundTrack[]>(e, '/ground-track'));
       });

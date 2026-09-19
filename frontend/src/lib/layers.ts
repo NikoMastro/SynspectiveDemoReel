@@ -68,7 +68,7 @@ export function basemapLayer(): Layer {
         bounds: [box[0][0], box[0][1], box[1][0], box[1][1]],
       });
     },
-  }) as unknown as Layer;
+  });
 }
 
 export interface GroundTrackSegment {
@@ -107,7 +107,7 @@ export function groundTrackLayer(options: GroundTrackOptions): Layer {
     getPath: (d) => d.path,
     getColor: (d) => withAlpha(colors.hex(d.satellite), identityAlpha(d.satellite, highlighted, 230)),
     updateTriggers: { getColor: [highlighted, colors.domain.join()] },
-  }) as unknown as Layer;
+  });
 }
 
 export interface SubSatelliteOptions {
@@ -133,7 +133,7 @@ export function subSatelliteLayer(options: SubSatelliteOptions): Layer {
     getFillColor: (d) =>
       withAlpha(colors.hex(d.satellite), identityAlpha(d.satellite, highlighted, 255)),
     updateTriggers: { getFillColor: [highlighted, colors.domain.join()] },
-  }) as unknown as Layer;
+  });
 }
 
 export function subSatelliteLabelLayer(options: SubSatelliteOptions): Layer {
@@ -150,7 +150,7 @@ export function subSatelliteLabelLayer(options: SubSatelliteOptions): Layer {
     outlineColor: LABEL_HALO,
     outlineWidth: 3,
     fontSettings: { sdf: true },
-  }) as unknown as Layer;
+  });
 }
 
 export interface FootprintOptions {
@@ -187,7 +187,7 @@ export function footprintLayer(options: FootprintOptions): Layer {
       getLineColor: [selectedSceneId, colors.domain.join()],
       getLineWidth: [selectedSceneId],
     },
-  }) as unknown as Layer;
+  });
 }
 
 /**
@@ -219,7 +219,7 @@ export function sceneCenterLayer(options: FootprintOptions): Layer {
       getLineColor: [selectedSceneId],
       getFillColor: [colors.domain.join()],
     },
-  }) as unknown as Layer;
+  });
 }
 
 export interface TargetOptions {
@@ -248,7 +248,7 @@ export function targetLayer(options: TargetOptions): Layer {
     getRadius: (d) => targetRadiusPx(windowCounts.get(d.name) ?? 0),
     getFillColor: TARGET_FILL,
     updateTriggers: { getRadius: [windowCounts] },
-  }) as unknown as Layer;
+  });
 }
 
 export function targetLabelLayer(options: TargetOptions): Layer {
@@ -264,7 +264,7 @@ export function targetLabelLayer(options: TargetOptions): Layer {
     outlineColor: LABEL_HALO,
     outlineWidth: 3,
     fontSettings: { sdf: true },
-  }) as unknown as Layer;
+  });
 }
 
 export interface MapLayerInput {

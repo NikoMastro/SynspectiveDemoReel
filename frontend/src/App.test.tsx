@@ -10,13 +10,15 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App';
+import type { WireGroundTrack, WireSatellitesResponse } from './interfaces';
 import { wireAccess, wireAsoScene, wireSyntheticScene } from './testFixtures';
 
 vi.mock('@deck.gl/react', () => ({
   default: () => <div data-testid="deck-canvas" />,
 }));
 
-const wireSatellites = {
+const wireSatellites: WireSatellitesResponse = {
+  count: 2,
   satellites: [
     {
       name: 'STRIX-3',
@@ -24,6 +26,12 @@ const wireSatellites = {
       inclination_deg: 97.6725,
       orbit_family: 'near-polar',
       tle_epoch_utc: '2026-09-18T04:41:20Z',
+      raan_deg: 238.3792,
+      eccentricity: 0.0014712,
+      period_minutes: 94.7,
+      mean_altitude_km: 504,
+      tle_line1: '1 59224U 24047A   26261.19537414  .00006259  00000+0  28783-3 0  9992',
+      tle_line2: '2 59224  97.6725 238.3792 0014712  98.1271 262.1634 15.20624473138872',
     },
     {
       name: 'STRIX-5',
@@ -31,17 +39,24 @@ const wireSatellites = {
       inclination_deg: 41.9271,
       orbit_family: 'mid-inclination',
       tle_epoch_utc: '2026-09-17T08:48:24Z',
+      raan_deg: 136.0223,
+      eccentricity: 0.0037288,
+      period_minutes: 95.68,
+      mean_altitude_km: 551.5,
+      tle_line1: '1 65971U 25229A   26260.36695047  .00003165  00000+0  22945-3 0  9993',
+      tle_line2: '2 65971  41.9271 136.0223 0037288 296.5900  63.1108 15.04994457 50866',
     },
   ],
 };
 
-const wireTrack = (sat: string) => ({
+const wireTrack = (sat: string): WireGroundTrack => ({
   satellite: sat,
   start_utc: '2026-09-19T00:00:00Z',
   step_s: 20,
+  minutes: 100,
   points: [
-    { time_utc: '2026-09-19T00:00:00Z', lat_deg: 30, lon_deg: 130, alt_km: 505 },
-    { time_utc: '2026-09-19T00:00:20Z', lat_deg: 31, lon_deg: 131, alt_km: 505 },
+    { time_utc: '2026-09-19T00:00:00Z', lat_deg: 30, lon_deg: 130, alt_km: 505, speed_km_s: 7.6 },
+    { time_utc: '2026-09-19T00:00:20Z', lat_deg: 31, lon_deg: 131, alt_km: 505, speed_km_s: 7.6 },
   ],
 });
 
@@ -111,6 +126,19 @@ describe('App with one feed down', () => {
     // A banner, not the full-cover overlay: the footprints are still real.
     expect(screen.getByText('2 of 2 scenes')).toBeInTheDocument();
     expect(screen.queryByText('Nothing to draw')).not.toBeInTheDocument();
+
+    // The fleet came back fine - only the tracks did not. One catch used to
+    // cover both, so a failed track also marked /satellites as failed, and the
+    // colour scale is built from that list. The legend emptied and every
+    // satellite went grey, which reads as the constellation having vanished
+    // rather than one endpoint having failed.
+    //
+    // Asserting the legend rather than the satellite filter matters: the filter
+    // options are derived from the scenes, so they survive this failure either
+    // way and would make the test pass with the bug still in place.
+    const legend = within(screen.getByRole('group', { name: 'Satellites' }));
+    expect(legend.getByRole('button', { name: /STRIX-3/ })).toBeInTheDocument();
+    expect(legend.getByRole('button', { name: /STRIX-5/ })).toBeInTheDocument();
   });
 
   // Every footprint is also a row in the metadata panel, which is the only

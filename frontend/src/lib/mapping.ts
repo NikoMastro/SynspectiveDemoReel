@@ -1,6 +1,12 @@
 /**
  * The one place the backend's snake_case JSON becomes the camelCase shapes the
- * components use. Every conversion is an explicit field assignment - no generic
+ * components use.
+ *
+ * Lists are not defended against null. The Go side builds every slice with
+ * `make([]T, 0, n)`, so an empty list marshals to `[]` and never to `null` -
+ * and `contract_test.go` pins that. A `?? []` here would be guarding against a
+ * shape the backend cannot produce, on one field out of four, which reads as
+ * uncertainty about the contract rather than care. Every conversion is an explicit field assignment - no generic
  * key-rewriting helper - so a missing or renamed Go field shows up as a
  * TypeScript error here rather than as `undefined` somewhere in a render.
  */
@@ -44,7 +50,7 @@ export function toScene(w: WireScene): Scene {
     orbitSource: w.orbit_source,
     centerLatDeg: w.center_lat_deg,
     centerLonDeg: w.center_lon_deg,
-    footprint: (w.footprint ?? []).map(([lon, lat]) => [lon, lat] as Position2D),
+    footprint: w.footprint.map(([lon, lat]) => [lon, lat] as Position2D),
     durationS: w.duration_s,
     mapProjection: w.map_projection,
     resolutionAzimuthM: w.resolution_azimuth_m,
