@@ -6,6 +6,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/nikomastro/strix-scene-explorer/backend/internal/adapter/repo"
@@ -102,23 +103,41 @@ func TestSceneFileHasNoQuicklookForSyntheticScenes(t *testing.T) {
 	}
 }
 
-// A catalog that names an image it cannot serve should not start. Both ways
-// that can happen are covered: the file is missing, and the file is there but
-// is not a PNG.
+// A catalog that names an image it cannot serve, or would put somewhere wrong,
+// should not start. Better a process that refuses than a console drawing a
+// scene across the equator.
 func TestLoadSceneFileRefusesABrokenQuicklook(t *testing.T) {
-	const catalog = `{"scenes":[{"id":"X","acquired_at":"2026-01-01T00:00:00Z",` +
-		`"quicklook":{"file":"quicklook/x.png","bounds":[0,0,1,1],"min_db":-10,"max_db":0,"width_px":1,"height_px":1}}]}`
+	catalog := func(quicklook string) string {
+		return `{"scenes":[{"id":"X","acquired_at":"2026-01-01T00:00:00Z","quicklook":` + quicklook + `}]}`
+	}
+	const goodBlock = `{"file":"quicklook/x.png","bounds":[130,32,131,33],"min_db":-10,"max_db":0,"width_px":8,"height_px":8}`
+
+	writePNG := func(t *testing.T, dir string) {
+		t.Helper()
+		if err := os.WriteFile(filepath.Join(dir, "quicklook", "x.png"), pngSignature, 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
 
 	cases := []struct {
-		name  string
-		setup func(t *testing.T, dir string)
+		name     string
+		block    string
+		setup    func(t *testing.T, dir string)
+		wantWord string
 	}{
-		{"missing file", func(*testing.T, string) {}},
-		{"not a PNG", func(t *testing.T, dir string) {
+		{"missing file", goodBlock, func(*testing.T, string) {}, "quicklook"},
+		{"not a PNG", goodBlock, func(t *testing.T, dir string) {
 			if err := os.WriteFile(filepath.Join(dir, "quicklook", "x.png"), []byte("hello"), 0o644); err != nil {
 				t.Fatal(err)
 			}
-		}},
+		}, "not a PNG"},
+
+		// Bounds is a [4]float64 and Go zero-fills what JSON did not supply, so
+		// a truncated array parses cleanly into a north edge of 0 and the image
+		// is drawn stretched to the equator. Nothing downstream would notice.
+		{"bounds lost an entry", `{"file":"quicklook/x.png","bounds":[130,32,131],"min_db":-10,"max_db":0,"width_px":8,"height_px":8}`, writePNG, "bounds"},
+		{"east and west the wrong way round", `{"file":"quicklook/x.png","bounds":[131,32,130,33],"min_db":-10,"max_db":0,"width_px":8,"height_px":8}`, writePNG, "bounds"},
+		{"no pixels", `{"file":"quicklook/x.png","bounds":[130,32,131,33],"min_db":-10,"max_db":0,"width_px":0,"height_px":8}`, writePNG, "not an image"},
 	}
 
 	for _, c := range cases {
@@ -128,7 +147,7 @@ func TestLoadSceneFileRefusesABrokenQuicklook(t *testing.T) {
 				t.Fatal(err)
 			}
 			path := filepath.Join(dir, "scenes.json")
-			if err := os.WriteFile(path, []byte(catalog), 0o644); err != nil {
+			if err := os.WriteFile(path, []byte(catalog(c.block)), 0o644); err != nil {
 				t.Fatal(err)
 			}
 			c.setup(t, dir)
@@ -137,8 +156,11 @@ func TestLoadSceneFileRefusesABrokenQuicklook(t *testing.T) {
 			if err == nil {
 				t.Fatal("loaded a catalog whose quicklook cannot be served")
 			}
-			if !bytes.Contains([]byte(err.Error()), []byte("scene X")) {
+			if !strings.Contains(err.Error(), "scene X") {
 				t.Errorf("the error should name the scene: %v", err)
+			}
+			if !strings.Contains(err.Error(), c.wantWord) {
+				t.Errorf("the error should say what was wrong (%q): %v", c.wantWord, err)
 			}
 		})
 	}

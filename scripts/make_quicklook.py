@@ -36,6 +36,7 @@ Run from anywhere inside the repository, with the notebook environment:
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 
 import numpy as np
@@ -75,6 +76,11 @@ PERCENTILES = (2, 98)
 # well under a pixel of what the map draws at any zoom the footprint is visible.
 FOOTPRINT_TOLERANCE_DEG = 0.0005
 
+# Metres per degree on a sphere. Good to well under a percent against the
+# ellipsoid, which is far finer than anything decided from these numbers.
+M_PER_DEG_LAT = 110_900
+M_PER_DEG_LON_EQUATOR = 111_320
+
 
 def read_decibels(path: Path):
     """The gamma0 band in dB at reduced size, NaN where there is no data."""
@@ -108,7 +114,20 @@ def to_wgs84(grey, alpha, src_crs, src_bounds):
     """Reproject both bands north-up in WGS84. Returns the bands and the edges."""
     west, south, east, north = transform_bounds(src_crs, "EPSG:4326", *src_bounds)
     width = OUT_WIDTH
-    height = round(width * (north - south) / (east - west))
+
+    # The height is chosen so a pixel is square ON THE GROUND, not in degrees.
+    # A degree of latitude is a fixed 110.9 km; a degree of longitude is only
+    # 93.5 km at Mt. Aso's latitude. A grid that is square in degrees therefore
+    # samples 19% coarser north-south than east-west, and the product sheet -
+    # which draws the PNG at its own pixel aspect ratio - would show the caldera
+    # squashed by that much. The map would not, because deck.gl stretches the
+    # image onto the geographic bounds either way, so this is the half of the
+    # problem that only the sheet sees.
+    mid_lat_rad = math.radians((south + north) / 2)
+    span_ew_m = (east - west) * M_PER_DEG_LON_EQUATOR * math.cos(mid_lat_rad)
+    span_ns_m = (north - south) * M_PER_DEG_LAT
+    height = round(width * span_ns_m / span_ew_m)
+
     dst_transform = from_bounds(west, south, east, north, width, height)
 
     h, w = grey.shape
@@ -190,8 +209,14 @@ def main() -> None:
     update_catalog(footprint, bounds, vmin, vmax, width, height, png_name)
 
     size_mb = (OUT_DIR / png_name).stat().st_size / 1e6
+    west, south, east, north = bounds
+    mid_lat_rad = math.radians((south + north) / 2)
+    m_ew = (east - west) * M_PER_DEG_LON_EQUATOR * math.cos(mid_lat_rad) / width
+    m_ns = (north - south) * M_PER_DEG_LAT / height
+
     print(f"wrote {OUT_DIR / png_name}: {width} x {height} px, {size_mb:.2f} MB")
     print(f"stretch {vmin:.2f} to {vmax:.2f} dB, bounds {tuple(round(b, 6) for b in bounds)}")
+    print(f"ground pixel {m_ew:.2f} m east-west, {m_ns:.2f} m north-south (ratio {m_ns / m_ew:.3f})")
     print(f"footprint {len(footprint) - 1} vertices, valid pixels {np.mean(alpha > 127):.1%} of the rectangle")
 
 

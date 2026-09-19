@@ -52,7 +52,8 @@ Every setting has a default that works from this directory.
 
 ## Endpoints
 
-All JSON, all `GET`, everything under `/api/v1` except the probe.
+All `GET`, everything under `/api/v1` except the probe. JSON throughout, with one
+exception noted below: the quicklook, which is a PNG.
 
 ### scene-service, `:8080`
 

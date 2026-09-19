@@ -216,6 +216,28 @@ describe('App with one feed down', () => {
     expect(screen.queryByRole('img', { name: /Radar backscatter/ })).not.toBeInTheDocument();
     expect(screen.getByText(/No imagery/)).toBeInTheDocument();
   });
+
+  // A filter that excludes the selected scene already drops its footprint from
+  // the map. The image has to go with it: a picture floating with no outline
+  // around it belongs to nothing on screen. The sheet is the other way round -
+  // that is still the scene being read, so it keeps the picture and says the
+  // filters have excluded it.
+  it('stops draping a scene the filters exclude, while the sheet keeps showing it', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await waitFor(() => expect(screen.getByText('No scene selected')).toBeInTheDocument());
+    const list = within(screen.getByRole('list', { name: /Scenes matching/ }));
+    await user.click(list.getByRole('button', { name: /STRIX-3/ }));
+    expect(screen.getByRole('checkbox', { name: 'Radar image' })).toBeInTheDocument();
+
+    // The real scene is Sliding Spotlight; this leaves only the synthetic one.
+    await user.selectOptions(screen.getByLabelText('Imaging mode'), 'Stripmap');
+
+    expect(screen.queryByRole('checkbox', { name: 'Radar image' })).not.toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /Radar backscatter/ })).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('outside the current filters');
+  });
 });
 
 describe('App with the backend down', () => {

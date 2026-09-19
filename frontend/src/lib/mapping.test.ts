@@ -50,7 +50,7 @@ describe('toScene', () => {
       minDb: -12.85,
       maxDb: -2.27,
       widthPx: 1400,
-      heightPx: 1054,
+      heightPx: 1251,
     });
     expect(toScene({ ...wireAsoScene, quicklook: null }).quicklook).toBeNull();
   });

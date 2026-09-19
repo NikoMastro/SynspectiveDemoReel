@@ -92,9 +92,16 @@ export default function App(): React.JSX.Element {
     if (scene) locateScene(scene);
   };
 
-  // What the map drapes: the selected scene's quicklook, when it has one.
+  // What the map drapes: the selected scene's quicklook, when it has one and
+  // the filters have not excluded it. The sheet keeps showing the picture for
+  // an excluded scene, because that is the scene being read; the map must not,
+  // because it has already dropped that scene's footprint and an image floating
+  // with no outline around it belongs to nothing on screen.
+  const selectedIsVisible =
+    selectedScene !== null && visibleScenes.some((s) => s.id === selectedScene.id);
+
   const imagery: SceneImagery | null =
-    selectedScene?.quicklook
+    selectedScene?.quicklook && selectedIsVisible
       ? {
           sceneId: selectedScene.id,
           quicklook: selectedScene.quicklook,

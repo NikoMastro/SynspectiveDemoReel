@@ -8,7 +8,6 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 	"time"
 
@@ -258,10 +257,12 @@ func TestGetQuicklook(t *testing.T) {
 		if !bytes.HasPrefix(rec.Body.Bytes(), []byte("\x89PNG\r\n\x1a\n")) {
 			t.Error("the body does not start with the PNG signature")
 		}
-		// Under a megabyte on every reload would be the wrong default for an
-		// image that never changes.
-		if cc := rec.Header().Get("Cache-Control"); !strings.Contains(cc, "max-age") {
-			t.Errorf("Cache-Control %q does not allow caching", cc)
+		// The whole value, not just "it mentions max-age". Turning this into
+		// max-age=0 would still mention it while undoing the caching, and
+		// under a megabyte on every reload is the wrong default for an image
+		// that never changes.
+		if cc := rec.Header().Get("Cache-Control"); cc != "public, max-age=86400" {
+			t.Errorf("Cache-Control is %q, want %q", cc, "public, max-age=86400")
 		}
 	})
 

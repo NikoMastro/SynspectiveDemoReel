@@ -178,12 +178,27 @@ describe('footprintLayer', () => {
 
   // A tinted fill over the radar image would shift every grey towards the
   // satellite's colour, and the whole point of the image is its greys.
-  it('drops the fill under the scene whose imagery is drawn, and keeps its outline', () => {
+  //
+  // Clearing only the imaged scene's own fill was not enough, and this is the
+  // regression that proved it: footprints overlap, and the synthetic STRIX-1
+  // scene in the seed catalog covers 95% of the Mt. Aso quicklook. Its
+  // translucent polygon washed a second satellite's hue across almost the whole
+  // picture. So the assertion is about every scene, not about the imaged one.
+  it('drops every fill while imagery is drawn, so no other scene can tint it', () => {
     const layer = footprintLayer({ ...options, imagedSceneId: asoScene.id });
 
     expect(call<typeof asoScene, number[]>(props(layer).getFillColor, asoScene)[3]).toBe(0);
+    expect(call<typeof asoScene, number[]>(props(layer).getFillColor, syntheticScene)[3]).toBe(0);
+
+    // The outlines stay, so identity survives the fill going away.
     expect(call<typeof asoScene, number[]>(props(layer).getLineColor, asoScene)[3]).toBe(255);
-    // Only that scene: the others keep their fill.
+    expect(call<typeof asoScene, number[]>(props(layer).getLineColor, syntheticScene)[3]).toBe(235);
+  });
+
+  it('keeps the fills when there is no imagery to protect', () => {
+    const layer = footprintLayer({ ...options, imagedSceneId: null });
+
+    expect(call<typeof asoScene, number[]>(props(layer).getFillColor, asoScene)[3]).toBe(150);
     expect(call<typeof asoScene, number[]>(props(layer).getFillColor, syntheticScene)[3]).toBe(70);
   });
 

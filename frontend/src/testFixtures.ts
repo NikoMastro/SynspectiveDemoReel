@@ -50,7 +50,7 @@ export const wireAsoScene: WireScene = {
     min_db: -12.85,
     max_db: -2.27,
     width_px: 1400,
-    height_px: 1054,
+    height_px: 1251,
   },
   duration_s: 1.41,
   map_projection: 'UTM zone 52N / WGS84',

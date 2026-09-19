@@ -189,16 +189,28 @@ export interface FootprintOptions {
   colors: SatelliteColorScale;
   selectedSceneId: string | null;
   /**
-   * The scene whose imagery is drawn underneath. Its fill goes transparent so
-   * the picture is not tinted by the satellite's colour; the outline stays.
+   * The scene whose imagery is drawn underneath, or null when none is. While a
+   * picture is on screen every fill is dropped; the outlines stay and go on
+   * carrying satellite identity.
    */
   imagedSceneId: string | null;
   onSelect: (sceneId: string) => void;
 }
 
-/** Selection brightens the fill; imagery removes it. */
+/**
+ * Selection brightens the fill. Imagery removes every fill, not just the fill
+ * of the scene being drawn.
+ *
+ * Clearing only the imaged scene's own fill was not enough, and the seed
+ * catalog proves it: the synthetic STRIX-1 scene SYN-S1-20260830-09 covers 95%
+ * of the Mt. Aso quicklook, so its translucent polygon washed another
+ * satellite's hue across almost the whole radar image - the exact thing
+ * dropping the fill was meant to prevent. Footprints overlap; that is normal
+ * for a catalog, so the rule has to be about the picture rather than about one
+ * polygon.
+ */
 function footprintFillAlpha(sceneId: string, selected: string | null, imaged: string | null): number {
-  if (sceneId === imaged) return 0;
+  if (imaged !== null) return 0;
   return sceneId === selected ? 150 : 70;
 }
 

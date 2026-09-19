@@ -90,6 +90,24 @@ type quicklookRec struct {
 // than a broken image in the browser.
 var pngSignature = []byte("\x89PNG\r\n\x1a\n")
 
+// validate rejects a quicklook block that would place an image somewhere it
+// does not belong.
+//
+// Bounds is a [4]float64, and Go fills a fixed-size array with zeros for
+// whatever JSON did not supply. So a bounds array that lost an entry does not
+// fail to parse: it parses into a north edge of 0, and the console draws the
+// scene stretched down to the equator. Checking the ordering catches that, an
+// east and west the wrong way round, and a block of all zeros.
+func (q quicklookRec) validate() error {
+	if q.Bounds[0] >= q.Bounds[2] || q.Bounds[1] >= q.Bounds[3] {
+		return fmt.Errorf("quicklook bounds %v are not west < east, south < north", q.Bounds)
+	}
+	if q.WidthPx <= 0 || q.HeightPx <= 0 {
+		return fmt.Errorf("quicklook is %dx%d px, which is not an image", q.WidthPx, q.HeightPx)
+	}
+	return nil
+}
+
 // LoadSceneFile reads the seed catalog.
 func LoadSceneFile(path string) (*SceneFile, error) {
 	raw, err := os.ReadFile(path)
@@ -114,6 +132,9 @@ func LoadSceneFile(path string) (*SceneFile, error) {
 		byID[s.ID] = s
 
 		if r.Quicklook != nil {
+			if err := r.Quicklook.validate(); err != nil {
+				return nil, fmt.Errorf("scene %s: %w", r.ID, err)
+			}
 			img, err := readPNG(filepath.Join(filepath.Dir(path), r.Quicklook.File))
 			if err != nil {
 				return nil, fmt.Errorf("scene %s: %w", r.ID, err)
