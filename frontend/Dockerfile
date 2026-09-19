@@ -22,5 +22,10 @@ RUN npm run build
 # ----------------------------------------------------------------- run stage
 FROM nginx:1.27-alpine
 COPY --from=build /app/dist /usr/share/nginx/html
-COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Anything in /etc/nginx/templates is run through envsubst at container start by
+# the official image's entrypoint, so SCENE_URL is resolved then rather than
+# baked in here. One image, two environments.
+COPY frontend/nginx.conf.template /etc/nginx/templates/default.conf.template
+ENV SCENE_URL=http://scene:8080
 EXPOSE 80

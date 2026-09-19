@@ -45,7 +45,7 @@ func main() {
 
 	server := &httpapi.SceneServer{
 		Catalog:   catalog,
-		FlightDyn: flightdyn.New(cfg.FlightDynURL, cfg.FlightDynTimeout),
+		FlightDyn: flightdyn.New(cfg.FlightDynURL, cfg.FlightDynAudience, cfg.FlightDynTimeout),
 		Log:       log,
 	}
 

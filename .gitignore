@@ -34,6 +34,9 @@ playwright-report/
 *.tfstate
 *.tfstate.*
 *.tfvars
+# Saved plans can embed resolved variable values, and they are never worth keeping.
+tfplan
+*.tfplan
 
 # Local config / credentials
 .env

@@ -45,7 +45,7 @@ func startFlightDyn(t *testing.T) *flightdyn.Client {
 	ts := httptest.NewServer(server.Handler("*"))
 	t.Cleanup(ts.Close)
 
-	return flightdyn.New(ts.URL, 30*time.Second)
+	return flightdyn.New(ts.URL, "", 30*time.Second)
 }
 
 func TestClientGroundTrack(t *testing.T) {

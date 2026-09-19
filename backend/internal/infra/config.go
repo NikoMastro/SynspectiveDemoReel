@@ -29,6 +29,11 @@ type Config struct {
 	FlightDynURL     string        // where scene-service finds flightdyn-service
 	FlightDynTimeout time.Duration // whole-request budget for that call
 
+	// FlightDynAudience turns on service-to-service authentication. Terraform
+	// sets it to flightdyn-service's own URL in Cloud Run. Empty everywhere
+	// else, which is why nothing has to change to run this locally.
+	FlightDynAudience string
+
 	// Envelope is the assumed off-nadir steering range. See
 	// domain.DefaultOffNadirMinDeg for why it is an assumption and not a fact.
 	Envelope domain.OffNadirEnvelope
@@ -41,13 +46,14 @@ type Config struct {
 // Load reads the environment and applies defaults.
 func Load() (Config, error) {
 	cfg := Config{
-		ScenePort:        env("SCENE_PORT", ":8080"),
-		FlightDynPort:    env("FLIGHTDYN_PORT", ":8081"),
-		SceneFile:        env("SCENE_FILE", "testdata/scenes.json"),
-		TLEFile:          env("TLE_FILE", "../fixtures/tle_strix.txt"),
-		FlightDynURL:     env("FLIGHTDYN_URL", "http://localhost:8081"),
-		FlightDynTimeout: time.Minute,
-		AllowedOrigin:    env("ALLOWED_ORIGIN", "*"),
+		ScenePort:         env("SCENE_PORT", ":8080"),
+		FlightDynPort:     env("FLIGHTDYN_PORT", ":8081"),
+		SceneFile:         env("SCENE_FILE", "testdata/scenes.json"),
+		TLEFile:           env("TLE_FILE", "../fixtures/tle_strix.txt"),
+		FlightDynURL:      env("FLIGHTDYN_URL", "http://localhost:8081"),
+		FlightDynAudience: env("FLIGHTDYN_AUDIENCE", ""),
+		FlightDynTimeout:  time.Minute,
+		AllowedOrigin:     env("ALLOWED_ORIGIN", "*"),
 	}
 
 	min, err := envFloat("OFF_NADIR_MIN_DEG", domain.DefaultOffNadirMinDeg)

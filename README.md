@@ -2,6 +2,8 @@
 
 An operator-style console for SAR satellite mission planning: acquisition footprints, TLE-derived ground tracks, access windows, and scene metadata. Python notebooks to understand the data, a Go service on GCP to serve it, a React and Deck.gl frontend to fly it.
 
+**Live: https://web-g7vdca6wsq-an.a.run.app**
+
 > Working title. Independent portfolio project. Not affiliated with Synspective.
 
 ## Purpose
@@ -223,6 +225,33 @@ cd frontend && LIVE_BACKEND=1 VITE_API_BASE=http://localhost:8080/api/v1 npm tes
 jupyter lab notebooks/
 ```
 
+## Deployment
+
+Three Cloud Run services in `asia-northeast1`, provisioned by Terraform in `infra/terraform/`.
+All three scale to zero and allocate CPU only while a request is in flight, so an idle day costs
+nothing and the images sit inside Artifact Registry's free tier.
+
+`web` and `scene-service` are public. `flightdyn-service` is not: it accepts only the runtime
+service account, and `scene-service` proves it is that account with an identity token fetched
+from the Cloud Run metadata server on each call.
+
+That last part was not the first design. `flightdyn-service` originally used internal-only
+ingress, on the assumption that one Cloud Run service calling another stays inside Google's
+network. It does not — a call over a `run.app` URL is external traffic, and internal ingress
+answered it with a 404. Making that route genuinely internal would mean Direct VPC egress and a
+subnet, which is a lot of infrastructure for two services. Moving the control from the network to
+IAM costs about twenty lines in the client and is the shape Cloud Run is designed around.
+
+```sh
+cd infra/terraform
+terraform apply -target=google_artifact_registry_repository.images   # registry first
+../../scripts/push-images.sh                                        # Cloud Run needs the images
+terraform apply                                                     # then the services
+```
+
+The two passes are not ceremony: Cloud Run will not create a service whose image does not exist
+yet, and Terraform cannot push one.
+
 ## Build status
 
 The repo is being built in public and is early. Nothing below is claimed as working until it is checked off.
@@ -242,9 +271,9 @@ The repo is being built in public and is early. Nothing below is claimed as work
 - [ ] BigQuery and GCS repositories behind the existing ports
 - [x] Dockerfiles and `docker compose up` for the whole stack
 - [x] GitHub Actions: gofmt, vet, `go test -race`, typecheck, vitest, image build
-- [ ] Terraform and Cloud Run deploy
+- [x] Terraform, Artifact Registry, Cloud Run, service-to-service auth by ID token
 - [ ] Playwright suite and visual regression
-- [ ] Deployed link
+- [x] Deployed link
 
 ## What this project exercises
 
