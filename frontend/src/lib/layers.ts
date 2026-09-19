@@ -21,11 +21,18 @@ import { splitAtAntimeridian, trackPositions } from './tracks';
 
 export type Rgba = [number, number, number, number];
 
-const SELECTED: Rgba = [255, 255, 255, 255];
-const OUTLINE_DARK: Rgba = [8, 11, 16, 255];
-const TARGET_FILL: Rgba = [232, 186, 74, 220];
-const LABEL_INK: Rgba = [226, 232, 240, 255];
-const LABEL_HALO: Rgba = [8, 11, 16, 200];
+/* Marks are drawn on OpenStreetMap raster, which is a light surface, so the
+   high-contrast end of every pair is the dark one. Selection used to be white,
+   which disappeared against the tiles the moment the console stopped being dark. */
+const SELECTED: Rgba = [19, 28, 38, 255];
+const OUTLINE_DARK: Rgba = [19, 28, 38, 255];
+/* Targets are reference points, not a data series, so they take the neutral ink
+   rather than a ninth hue that would compete with the eight satellites. */
+const TARGET_FILL: Rgba = [43, 58, 74, 225];
+const LABEL_INK: Rgba = [19, 28, 38, 255];
+/* A light halo now: the label sits on tiles, and the halo is what separates it
+   from them. */
+const LABEL_HALO: Rgba = [255, 255, 255, 220];
 
 function withAlpha(hex: string, alpha: number): Rgba {
   const [r, g, b] = hexToRgb(hex);

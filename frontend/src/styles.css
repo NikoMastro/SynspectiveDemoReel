@@ -10,23 +10,35 @@
  */
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 
-  --bg: #0b0e13;
-  --surface-1: #12161c;
-  --surface-2: #181d25;
-  --surface-3: #1f2630;
-  --border: #29313d;
-  --border-strong: #3a4553;
+  /* Light, because the map is. The basemap is OpenStreetMap raster, which is a
+     bright surface, and a dark console around it meant every panel fought the
+     one element that carries the data. Every value below is measured against
+     WCAG AA on all three surfaces rather than picked by eye. */
 
-  --ink: #e8edf5;
-  --ink-2: #a8b3c4;
-  --ink-3: #78849a;
+  --bg: #f2f5f8;
+  --surface-1: #ffffff;
+  --surface-2: #f7f9fc;
+  --surface-3: #eaeff5;
+  /* Decorative separators only. A panel edge carries no meaning on its own, so
+     it is allowed to sit below 3:1. */
+  --border: #d4dce5;
+  /* This one is not decorative: it is the entire visible boundary of every
+     select and button, which WCAG 1.4.11 holds to 3:1 like any other UI
+     component boundary. 3.20:1 against the control background. */
+  --border-strong: #7f8d9f;
 
-  --accent: #4da3ff;
-  --warn: #e8ba4a;
-  --danger: #e66767;
-  --good: #35c08b;
+  --ink: #131c26;
+  --ink-2: #48566a;
+  /* 4.92:1 at worst, on --surface-3. The obvious lighter grey sat at 4.10 and
+     would have failed the one surface it is most used on. */
+  --ink-3: #5a6879;
+
+  --accent: #1b5e93;
+  --warn: #8a5a00;
+  --danger: #b3261e;
+  --good: #116b45;
 
   --radius: 8px;
   --gutter: 16px;
@@ -258,10 +270,10 @@ select:focus-visible,
   z-index: 2;
   padding: 2px 8px;
   border-radius: 4px;
-  /* The tiles underneath are light, so a translucent panel composites bright
-     and --ink-3 lands near 2.9:1. A denser panel and the brighter ink reach
-     about 5.2:1, which the OSM attribution has to hold to stay legible. */
-  background: rgba(11, 14, 19, 0.92);
+  /* Opaque rather than translucent: the tiles underneath vary from pale sea to
+     dense urban detail, and a see-through panel would let the attribution's
+     contrast drift with whatever happens to be beneath it. */
+  background: rgba(255, 255, 255, 0.94);
   color: var(--ink-2);
   font-size: 11px;
 }
@@ -274,7 +286,7 @@ select:focus-visible,
   place-items: center;
   padding: 24px;
   text-align: center;
-  background: rgba(11, 14, 19, 0.88);
+  background: rgba(242, 245, 248, 0.92);
 }
 
 /* A partial failure, over the top of a map that still has something to draw. */
@@ -287,7 +299,7 @@ select:focus-visible,
   padding: 8px 12px;
   border-radius: 6px;
   border: 1px solid var(--border-strong);
-  background: rgba(18, 22, 28, 0.96);
+  background: rgba(255, 255, 255, 0.97);
 }
 
 .map__tooltip {
@@ -297,7 +309,7 @@ select:focus-visible,
   padding: 6px 9px;
   border-radius: 6px;
   border: 1px solid var(--border-strong);
-  background: rgba(18, 22, 28, 0.96);
+  background: rgba(255, 255, 255, 0.97);
   font-size: 12px;
   max-width: 240px;
 }
@@ -322,7 +334,7 @@ select:focus-visible,
 
 .timeline__bar { cursor: pointer; }
 
-.timeline__brush { fill: rgba(77, 163, 255, 0.14); stroke: var(--accent); }
+.timeline__brush { fill: rgba(27, 94, 147, 0.12); stroke: var(--accent); }
 
 .timeline__hint { font-size: 12px; color: var(--ink-3); }
 

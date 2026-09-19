@@ -3,16 +3,22 @@
  * and the legend all ask this module, so a satellite is the same colour
  * everywhere.
  *
- * Eight fixed hues, assigned in order and never cycled. They are the dark-mode
- * steps of a palette validated for colour-vision deficiency: as an ordered set
- * (the pairs a legend puts side by side) every gate passes. Across *all* 28
- * pairs it does not - #d55181 against #199e70 is deutan dE 1.6 - which is why
- * satellite identity in this UI is never colour alone: every bar has a hover
- * tooltip naming it, the legend is always on screen, and clicking a legend chip
- * isolates one satellite. See TESTING.md.
+ * Eight fixed hues, assigned in order and never cycled, from a palette
+ * validated for colour-vision deficiency: as an ordered set (the pairs a legend
+ * puts side by side) every gate passes. Across *all* 28 pairs it does not -
+ * #d55181 against #199e70 is deutan dE 1.6 - which is why satellite identity in
+ * this UI is never colour alone: every bar has a hover tooltip naming it, the
+ * legend is always on screen, and clicking a legend chip isolates one
+ * satellite. See TESTING.md.
+ *
+ * These were originally chosen against a dark console. The theme is light now,
+ * and they were re-measured rather than assumed: the weakest is #c98500 at
+ * 3.07:1 on white and the strongest #008300 at 4.95:1, so all eight clear the
+ * 3:1 that non-text marks need. The palette carried over unchanged, which is
+ * the good outcome - the CVD work did not have to be redone.
  */
 
-/** Dark-surface categorical slots, in fixed assignment order. */
+/** Categorical slots, in fixed assignment order. */
 export const SERIES_HEX = [
   '#3987e5', // blue
   '#d95926', // orange
