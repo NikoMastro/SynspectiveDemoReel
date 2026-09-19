@@ -57,4 +57,4 @@ services:
       SCENE_URL: "http://scene:8080"
     # 8088 rather than 5173, which is often already taken by a Vite dev server.
     ports:
-      - "8088:80"
+      - "8088:8080"
