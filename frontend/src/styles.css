@@ -91,14 +91,25 @@ a { color: var(--accent); }
   padding: 12px var(--gutter) 0;
 }
 .console__filters  { grid-area: filters; }
-.console__map      { grid-area: map; min-height: 320px; }
+.console__map      { grid-area: map; }
 .console__panel    { grid-area: panel; }
 .console__timeline { grid-area: timeline; }
+
+/* Two classes, and the reason is worth stating: `.panel` below sets
+   min-height: 0 so that a long product sheet scrolls instead of growing its
+   grid row, and it is declared later in this file with the same specificity as
+   a bare `.console__map`. So a single-class floor here silently lost to it.
+
+   Every other panel has flow content to give it height. The map does not - its
+   canvas is absolutely positioned inside `.map` - so with a floor of 0 it
+   collapsed to two pixels wherever the grid row is sized by content, which is
+   every width below 1100px. On a phone the map was simply not there. */
+.panel.console__map { min-height: 320px; }
 
 /* Tablet: the timeline gets the full width under a wider map. */
 @media (min-width: 720px) {
   .console { gap: 14px; padding: 14px 20px 28px; }
-  .console__map { min-height: 420px; }
+  .panel.console__map { min-height: 420px; }
 }
 
 /* Desktop: map and metadata panel side by side, timeline across the bottom. */
@@ -382,6 +393,17 @@ select:focus-visible,
 .map__control input[type="range"] {
   width: 96px;
   accent-color: var(--accent);
+}
+
+/* The attribution owns the bottom-right corner and the tile usage policy means
+   it cannot be moved or covered. On a phone the map is only about 360px wide,
+   which is narrower than the controls and the attribution side by side, so the
+   controls take the row above instead of running underneath it. */
+@media (max-width: 719px) {
+  .map__controls {
+    bottom: 34px;
+    right: 6px;
+  }
 }
 
 /* -------------------------------------------------------------- timeline */
