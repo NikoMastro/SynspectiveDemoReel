@@ -47,7 +47,7 @@ async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
       headers: { Accept: 'application/json' },
       ...(signal ? { signal } : {}),
     });
-  } catch (cause) {
+  } catch {
     // fetch only rejects when the request never got an HTTP answer, which in
     // practice means the backend is not running. Status 0 marks that case.
     throw new ApiError({
