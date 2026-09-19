@@ -246,11 +246,17 @@ IAM costs about twenty lines in the client and is the shape Cloud Run is designe
 cd infra/terraform
 terraform apply -target=google_artifact_registry_repository.images   # registry first
 ../../scripts/push-images.sh                                        # Cloud Run needs the images
-terraform apply                                                     # then the services
+terraform apply -var image_tag=$(git rev-parse --short HEAD)         # then the services
 ```
 
 The two passes are not ceremony: Cloud Run will not create a service whose image does not exist
 yet, and Terraform cannot push one.
+
+The images are tagged with the commit rather than `latest`. A moving tag gives Terraform nothing
+to diff, so a deploy that changes no configuration plans as an update, creates a revision only
+for the services whose config genuinely changed, and leaves the rest serving the previous build
+while reporting success. That is not hypothetical — it happened once here, and pinning the tag is
+what caught it.
 
 ## Build status
 
