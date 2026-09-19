@@ -1,0 +1,57 @@
+# One command to run the whole thing, for a reviewer who has neither Go nor Node:
+#
+#   docker compose up --build      then open http://localhost:8088
+#
+# This is the demo and deployment path. Day-to-day development does not go
+# through Docker - `go run` rebuilds in a second and Vite hot-reloads, and
+# putting a container rebuild in that loop buys nothing. See the root README.
+#
+# Every build context is the repository root, because the services read
+# fixtures/, which lives above backend/.
+
+services:
+  flightdyn:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      args:
+        SERVICE: flightdyn-service
+    environment:
+      FLIGHTDYN_PORT: ":8081"
+      # The assumed steering envelope, overridable here precisely because it is
+      # an assumption rather than a published figure.
+      OFF_NADIR_MIN_DEG: "20"
+      OFF_NADIR_MAX_DEG: "45"
+    expose:
+      - "8081"
+
+  scene:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      args:
+        SERVICE: scene-service
+    environment:
+      SCENE_PORT: ":8080"
+      # Service name, not localhost: inside the compose network each service
+      # resolves by the key above.
+      FLIGHTDYN_URL: "http://flightdyn:8081"
+      ALLOWED_ORIGIN: "*"
+    depends_on:
+      - flightdyn
+    expose:
+      - "8080"
+    # Published so the API can be curled directly while debugging; the browser
+    # itself goes through nginx on the web service and never uses this.
+    ports:
+      - "8080:8080"
+
+  web:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    depends_on:
+      - scene
+    # 8088 rather than 5173, which is often already taken by a Vite dev server.
+    ports:
+      - "8088:80"

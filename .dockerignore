@@ -1,0 +1,16 @@
+# The build context is the repository root, because the services read
+# fixtures/ which lives outside backend/. That makes this file load-bearing:
+# without it, data/ alone would send 3.8 GB of SAR products to the daemon.
+
+data/
+.venv/
+.git/
+**/node_modules/
+**/dist/
+backend/bin/
+notebooks/
+*.ipynb
+__pycache__/
+.ipynb_checkpoints/
+.vscode/
+*.md

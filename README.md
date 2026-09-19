@@ -191,7 +191,18 @@ Every tolerance in those tests is a number that was measured first and then writ
 
 ## Running it locally
 
-Prerequisites: Go 1.24+, Node 20+, Python 3.11+. No Docker, no code generation, no `buf`.
+Prerequisites: Go 1.24+, Node 20+, Python 3.11+. No code generation, no `buf`.
+
+Or, with only Docker installed:
+
+```sh
+docker compose up --build        # then open http://localhost:8088
+```
+
+That path exists for two reasons: a reviewer with neither Go nor Node can still run the whole
+thing, and Cloud Run deploys containers and nothing else, so the images are on the critical path
+regardless. Development does not go through it — `go run` rebuilds in a second and Vite
+hot-reloads, and a container rebuild in that loop buys nothing.
 
 Three terminals:
 
@@ -229,7 +240,9 @@ The repo is being built in public and is early. Nothing below is claimed as work
 - [ ] Ground-station passes on the timeline
 - [ ] Server-streamed access windows (not needed at this scale - see Concurrency)
 - [ ] BigQuery and GCS repositories behind the existing ports
-- [ ] Terraform, GitHub Actions, Cloud Run deploy
+- [x] Dockerfiles and `docker compose up` for the whole stack
+- [x] GitHub Actions: gofmt, vet, `go test -race`, typecheck, vitest, image build
+- [ ] Terraform and Cloud Run deploy
 - [ ] Playwright suite and visual regression
 - [ ] Deployed link
 
