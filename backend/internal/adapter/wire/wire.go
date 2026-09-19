@@ -71,6 +71,10 @@ type Scene struct {
 	CenterLonDeg float64      `json:"center_lon_deg"`
 	Footprint    []Coordinate `json:"footprint"`
 
+	// Quicklook is null for a synthetic scene: there is no product behind it
+	// to render, and the console says so rather than showing a placeholder.
+	Quicklook *Quicklook `json:"quicklook"`
+
 	// Below here are fields the console does not read yet. They are sent
 	// anyway: they are part of the delivered product and the sheet is the
 	// natural place for them.
@@ -79,6 +83,19 @@ type Scene struct {
 	ResolutionAzimuthM float64 `json:"resolution_azimuth_m"`
 	ResolutionRangeM   float64 `json:"resolution_range_m"`
 	Note               string  `json:"note,omitempty"`
+}
+
+// Quicklook places a scene's rendered preview on the map. The image itself is
+// fetched from /api/v1/scenes/{id}/quicklook.png; this is what the console
+// needs to know before it does.
+type Quicklook struct {
+	// Bounds is west, south, east, north in WGS84 degrees: the image's edges
+	// are lines of constant longitude and latitude.
+	Bounds   [4]float64 `json:"bounds"`
+	MinDb    float64    `json:"min_db"`
+	MaxDb    float64    `json:"max_db"`
+	WidthPx  int        `json:"width_px"`
+	HeightPx int        `json:"height_px"`
 }
 
 // ScenesResponse is the list shape.
@@ -92,6 +109,17 @@ func SceneFromDomain(s domain.Scene) Scene {
 	footprint := make([]Coordinate, 0, len(s.Footprint))
 	for _, c := range s.Footprint {
 		footprint = append(footprint, Coordinate{c.LonDeg, c.LatDeg})
+	}
+
+	var quicklook *Quicklook
+	if q := s.Quicklook; q != nil {
+		quicklook = &Quicklook{
+			Bounds:   [4]float64{q.West, q.South, q.East, q.North},
+			MinDb:    q.MinDb,
+			MaxDb:    q.MaxDb,
+			WidthPx:  q.WidthPx,
+			HeightPx: q.HeightPx,
+		}
 	}
 
 	return Scene{
@@ -116,6 +144,7 @@ func SceneFromDomain(s domain.Scene) Scene {
 		CenterLatDeg:            s.Centre.LatDeg,
 		CenterLonDeg:            s.Centre.LonDeg,
 		Footprint:               footprint,
+		Quicklook:               quicklook,
 		DurationS:               s.DurationS,
 		MapProjection:           s.MapProjection,
 		ResolutionAzimuthM:      s.ResolutionAzimuthM,

@@ -52,7 +52,8 @@ Every setting has a default that works from this directory.
 
 ## Endpoints
 
-All JSON, all `GET`, everything under `/api/v1` except the probe.
+All `GET`, everything under `/api/v1` except the probe. JSON throughout, with one
+exception noted below: the quicklook, which is a PNG.
 
 ### scene-service, `:8080`
 
@@ -60,7 +61,8 @@ All JSON, all `GET`, everything under `/api/v1` except the probe.
 | --- | --- |
 | `/healthz` | `{"status":"ok","service":"scene-service"}` |
 | `/api/v1/scenes` | the catalog, newest first, with `count`. Optional `?mode=`, `?polarization=`, `?orbit=`, all case-insensitive |
-| `/api/v1/scenes/{id}` | one scene with its full metadata, or 404 |
+| `/api/v1/scenes/{id}` | one scene with its full metadata, or 404. The `quicklook` block is where its preview sits, or null for a synthetic scene |
+| `/api/v1/scenes/{id}/quicklook.png` | the rendered preview of a delivered product, as PNG with a day of cache. 404 for a scene that has none - the one endpoint here that is not JSON |
 | `/api/v1/satellites` | the 8 StriX with epoch, inclination, RAAN, eccentricity, period, mean altitude, orbit family and their TLE lines |
 | `/api/v1/targets` | the standing ground targets, so the UI does not hard-code them |
 | `/api/v1/ground-track?sat=STRIX-3&minutes=100&step=20` | proxied to flightdyn-service |
@@ -105,6 +107,7 @@ internal/
   infra/                  config from the environment, logging, graceful shutdown
   testfixture/            finds fixtures/ from inside any test
 testdata/scenes.json      the seed catalog
+testdata/quicklook/       the real scene's preview PNG, named by scenes.json and read at startup
 ```
 
 Dependencies point inward. `domain` knows nothing about HTTP, JSON or SGP4; adapters depend on ports, never the reverse. The practical payoff shows up in the tests: `stubFlightDyn` in `httpapi` and `oneSatellite` in `usecase` are twenty lines of hand-written fake each, and there is no mocking library anywhere.

@@ -23,7 +23,13 @@
  * Without LIVE_BACKEND set it skips, so `npm test` stays green offline.
  */
 import { describe, expect, it } from 'vitest';
-import { fetchAccessWindows, fetchGroundTrack, fetchSatellites, fetchScenes } from './lib/api';
+import {
+  fetchAccessWindows,
+  fetchGroundTrack,
+  fetchSatellites,
+  fetchScenes,
+  quicklookUrl,
+} from './lib/api';
 
 /** The same targets and span notebook 04 swept, though not the same start. */
 const TARGET_IDS = ['aso', 'tokyo', 'jakarta', 'longyearbyen'];
@@ -51,6 +57,22 @@ describe.skipIf(!process.env.LIVE_BACKEND)('against a running backend', () => {
     // The product does not state a noise floor, and the backend must not
     // invent one. The sheet renders this as "--".
     expect(aso.neszDb).toBeNull();
+  });
+
+  // The URL the map and the sheet both load. Built by the client from the
+  // scene id, so this is the one place where "the backend serves a PNG there"
+  // is checked against a real response rather than assumed.
+  it('serves the real scene’s quicklook as a PNG where the client expects it', async () => {
+    const scenes = await fetchScenes();
+    const aso = scenes.find((s) => !s.synthetic)!;
+    expect(aso.quicklook).not.toBeNull();
+
+    const response = await fetch(quicklookUrl(aso.id));
+    expect(response.status).toBe(200);
+    expect(response.headers.get('content-type')).toBe('image/png');
+
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    expect(Array.from(bytes.slice(0, 4))).toEqual([0x89, 0x50, 0x4e, 0x47]);
   });
 
   it('serves the eight StriX with their orbit families', async () => {

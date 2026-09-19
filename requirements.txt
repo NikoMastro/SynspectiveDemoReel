@@ -11,6 +11,10 @@ matplotlib==3.11.1
 rasterio==1.5.1
 shapely==2.1.2
 
+# --- quicklook rendering: scripts/make_quicklook.py writes the PNG the console shows ---
+# Already pulled in by matplotlib; pinned here because the script imports it directly.
+pillow==12.3.0
+
 # --- orbits: SGP4 reference implementation, TLE fetch (notebooks 03-04) ---
 sgp4==2.25
 requests==2.32.5

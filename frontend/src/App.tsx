@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react';
-import type { SceneFilters, TimeRange } from './interfaces';
+import { useEffect, useMemo, useState } from 'react';
+import type { LocateRequest, Scene, SceneFilters, SceneImagery, TimeRange } from './interfaces';
+import { quicklookUrl } from './lib/api';
 import { satelliteColorScale } from './lib/colors';
 import {
   applyFilters,
@@ -77,6 +78,60 @@ export default function App(): React.JSX.Element {
   // user was reading.
   const selectedScene = scenes.find((s) => s.id === selectedSceneId) ?? null;
 
+  // Bringing the map to a scene. Picking from the list does it on its own: the
+  // list is how an operator goes to a scene, and a Sliding Spotlight footprint
+  // is a dot at the opening zoom. Clicking a footprint on the map does not -
+  // the camera is already there, and yanking it would be rude. The sheet's
+  // button covers coming back after panning away.
+  const [locate, setLocate] = useState<LocateRequest | null>(null);
+  const locateScene = (scene: Scene) =>
+    setLocate((previous) => ({ footprint: scene.footprint, key: (previous?.key ?? 0) + 1 }));
+  const selectFromList = (id: string) => {
+    setSelectedSceneId(id);
+    const scene = scenes.find((s) => s.id === id);
+    if (scene) locateScene(scene);
+  };
+
+  // The console opens on the delivered product, flown to and drawn, rather than
+  // on an empty sheet and a view of half of Japan. Eleven of the twelve scenes
+  // are synthetic; the one real acquisition is the thing worth seeing first,
+  // and asking a visitor to find it themselves wastes the only moment their
+  // attention is guaranteed.
+  //
+  // Once per mount, and only while nothing is selected, so it can never pull
+  // the map away from a scene someone has already chosen. locateScene is left
+  // out of the dependencies deliberately: it is rebuilt on every render, and
+  // the guard below is what makes this run once.
+  const [openedOnDelivered, setOpenedOnDelivered] = useState(false);
+  useEffect(() => {
+    if (openedOnDelivered || selectedSceneId !== null) return;
+
+    const delivered = scenes.find((s) => !s.synthetic && s.quicklook !== null);
+    if (!delivered) return;
+
+    setSelectedSceneId(delivered.id);
+    locateScene(delivered);
+    setOpenedOnDelivered(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scenes, openedOnDelivered, selectedSceneId]);
+
+  // What the map drapes: the selected scene's quicklook, when it has one and
+  // the filters have not excluded it. The sheet keeps showing the picture for
+  // an excluded scene, because that is the scene being read; the map must not,
+  // because it has already dropped that scene's footprint and an image drawn
+  // where the map says there is no scene belongs to nothing on screen.
+  const selectedIsVisible =
+    selectedScene !== null && visibleScenes.some((s) => s.id === selectedScene.id);
+
+  const imagery: SceneImagery | null =
+    selectedScene?.quicklook && selectedIsVisible
+      ? {
+          sceneId: selectedScene.id,
+          quicklook: selectedScene.quicklook,
+          url: quicklookUrl(selectedScene.id),
+        }
+      : null;
+
   const mapOverlay = (() => {
     if (data.scenes.status === 'error' && data.scenes.error) {
       return <ErrorBlock what="the map data" failure={data.scenes.error} onRetry={() => setReloadKey((k) => k + 1)} />;
@@ -132,6 +187,8 @@ export default function App(): React.JSX.Element {
         colors={colors}
         selectedSceneId={selectedSceneId}
         highlightedSatellite={highlighted}
+        imagery={imagery}
+        locate={locate}
         onSelectScene={setSelectedSceneId}
         {...(mapOverlay ? { overlay: mapOverlay } : {})}
         {...(mapBanner ? { banner: mapBanner } : {})}
@@ -141,7 +198,10 @@ export default function App(): React.JSX.Element {
         catalog={data.scenes}
         scenes={visibleScenes}
         selected={selectedScene}
-        onSelect={setSelectedSceneId}
+        onSelect={selectFromList}
+        onLocate={() => {
+          if (selectedScene) locateScene(selectedScene);
+        }}
         onRetry={() => setReloadKey((k) => k + 1)}
       />
 

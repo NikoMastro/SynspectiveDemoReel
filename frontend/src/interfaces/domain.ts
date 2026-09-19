@@ -7,6 +7,21 @@
 /** [longitude, latitude] in WGS84 degrees - deck.gl's coordinate order. */
 export type Position2D = [number, number];
 
+/**
+ * A delivered product's rendered preview: gamma0 in decibels, downsampled to
+ * about 10 m per pixel, north-up in WGS84 so four numbers place it on the map.
+ */
+export interface Quicklook {
+  /** west, south, east, north in WGS84 degrees. */
+  bounds: [number, number, number, number];
+  /** The gamma0 value rendered black. */
+  minDb: number;
+  /** The gamma0 value rendered white. */
+  maxDb: number;
+  widthPx: number;
+  heightPx: number;
+}
+
 export interface Scene {
   id: string;
   satellite: string;
@@ -30,6 +45,8 @@ export interface Scene {
   centerLatDeg: number;
   centerLonDeg: number;
   footprint: Position2D[];
+  /** null for a synthetic scene, which has no product behind it. */
+  quicklook: Quicklook | null;
   durationS: number;
   mapProjection: string;
   resolutionAzimuthM: number;

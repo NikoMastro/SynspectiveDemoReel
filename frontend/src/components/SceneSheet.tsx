@@ -1,4 +1,4 @@
-import type { Scene } from '../interfaces';
+import type { Quicklook, Scene } from '../interfaces';
 import {
   formatDb,
   formatDeg,
@@ -8,6 +8,7 @@ import {
   formatUtc,
   orDash,
 } from '../lib/format';
+import { quicklookResolutionM } from '../lib/viewport';
 
 /**
  * The selected scene as a SAR product sheet.
@@ -47,7 +48,30 @@ function Group({
   );
 }
 
-export function SceneSheet({ scene }: { scene: Scene }): React.JSX.Element {
+/**
+ * What the greys on the map mean, as a value rather than a caption.
+ *
+ * The picture itself is on the map, drawn inside the footprint it was taken
+ * over, so the sheet no longer repeats it. These two numbers do not survive
+ * anywhere else, and without them the image on the map is a grey rectangle: the
+ * first says which gamma0 values became black and white, the second says how
+ * far the rendering is from the product it came from.
+ */
+function stretchOf(quicklook: Quicklook): string {
+  return `${quicklook.minDb.toFixed(1)} to ${quicklook.maxDb.toFixed(1)} dB`;
+}
+
+function samplingOf(quicklook: Quicklook): string {
+  return `${Math.round(quicklookResolutionM(quicklook))} m/px`;
+}
+
+interface Props {
+  scene: Scene;
+  /** Brings the map to this scene. Absent when there is no map to bring. */
+  onLocate?: () => void;
+}
+
+export function SceneSheet({ scene, onLocate }: Props): React.JSX.Element {
   return (
     <div className="sheet">
       <div className="sheet__banner">
@@ -57,6 +81,11 @@ export function SceneSheet({ scene }: { scene: Scene }): React.JSX.Element {
         >
           {scene.synthetic ? 'Synthetic scene' : 'Delivered product'}
         </span>
+        {onLocate && (
+          <button type="button" className="button" onClick={onLocate}>
+            Locate on map
+          </button>
+        )}
       </div>
 
       <Group title="Identification">
@@ -89,6 +118,16 @@ export function SceneSheet({ scene }: { scene: Scene }): React.JSX.Element {
         <Row label="NESZ" value={formatDb(scene.neszDb)} />
         <Row label="OrbitDataSource" value={orDash(scene.orbitSource)} />
         <Row label="Footprint vertices" value={String(scene.footprint.length)} />
+        {/* Both are "--" for a synthetic scene, which has no product to render
+            and therefore nothing on the map either. */}
+        <Row
+          label="Quicklook stretch"
+          value={scene.quicklook ? stretchOf(scene.quicklook) : '--'}
+        />
+        <Row
+          label="Quicklook sampling"
+          value={scene.quicklook ? samplingOf(scene.quicklook) : '--'}
+        />
       </Group>
     </div>
   );

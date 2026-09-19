@@ -32,6 +32,11 @@ func (c *Catalog) Scene(ctx context.Context, id string) (domain.Scene, error) {
 	return c.scenes.Get(ctx, id)
 }
 
+// QuicklookImage returns the rendered preview of one scene as PNG bytes.
+func (c *Catalog) QuicklookImage(ctx context.Context, id string) ([]byte, error) {
+	return c.scenes.QuicklookImage(ctx, id)
+}
+
 // Satellites lists the constellation.
 func (c *Catalog) Satellites(ctx context.Context) ([]domain.Satellite, error) {
 	return c.sats.All(ctx)

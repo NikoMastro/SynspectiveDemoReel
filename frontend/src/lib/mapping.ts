@@ -15,6 +15,7 @@ import type {
   AccessWindow,
   GroundTrack,
   Position2D,
+  Quicklook,
   Satellite,
   Scene,
   Target,
@@ -22,11 +23,22 @@ import type {
   WireAccessResponse,
   WireAccessWindow,
   WireGroundTrack,
+  WireQuicklook,
   WireSatellite,
   WireScene,
   WireTarget,
   WireTrackPoint,
 } from '../interfaces';
+
+export function toQuicklook(w: WireQuicklook): Quicklook {
+  return {
+    bounds: [w.bounds[0], w.bounds[1], w.bounds[2], w.bounds[3]],
+    minDb: w.min_db,
+    maxDb: w.max_db,
+    widthPx: w.width_px,
+    heightPx: w.height_px,
+  };
+}
 
 export function toScene(w: WireScene): Scene {
   return {
@@ -51,6 +63,7 @@ export function toScene(w: WireScene): Scene {
     centerLatDeg: w.center_lat_deg,
     centerLonDeg: w.center_lon_deg,
     footprint: w.footprint.map(([lon, lat]) => [lon, lat] as Position2D),
+    quicklook: w.quicklook === null ? null : toQuicklook(w.quicklook),
     durationS: w.duration_s,
     mapProjection: w.map_projection,
     resolutionAzimuthM: w.resolution_azimuth_m,

@@ -1,6 +1,7 @@
 package httpapi_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"io"
@@ -241,6 +242,46 @@ func TestGetScene(t *testing.T) {
 			t.Error("a 404 should say what was not found")
 		}
 	})
+}
+
+func TestGetQuicklook(t *testing.T) {
+	handler := newSceneServer(t, &stubFlightDyn{})
+
+	t.Run("the delivered product has one", func(t *testing.T) {
+		rec := get(handler, "/api/v1/scenes/STRIX3-20260615T063527Z-SL1/quicklook.png")
+		requireStatus(t, rec, http.StatusOK)
+
+		if ct := rec.Header().Get("Content-Type"); ct != "image/png" {
+			t.Errorf("Content-Type %q, want image/png", ct)
+		}
+		if !bytes.HasPrefix(rec.Body.Bytes(), []byte("\x89PNG\r\n\x1a\n")) {
+			t.Error("the body does not start with the PNG signature")
+		}
+		// The whole value, not just "it mentions max-age". Turning this into
+		// max-age=0 would still mention it while undoing the caching, and
+		// under a megabyte on every reload is the wrong default for an image
+		// that never changes.
+		if cc := rec.Header().Get("Cache-Control"); cc != "public, max-age=86400" {
+			t.Errorf("Cache-Control is %q, want %q", cc, "public, max-age=86400")
+		}
+	})
+
+	// The same 404 as an unknown scene, and a JSON one: the console treats a
+	// missing image as "nothing to draw", never as a broken picture.
+	for _, c := range []struct{ name, id string }{
+		{"a synthetic scene", "SYN-S1-20260702-01"},
+		{"an unknown scene", "NOPE"},
+	} {
+		t.Run(c.name+" is a 404", func(t *testing.T) {
+			rec := get(handler, "/api/v1/scenes/"+c.id+"/quicklook.png")
+			requireStatus(t, rec, http.StatusNotFound)
+
+			body := decode[map[string]string](t, rec)
+			if body["error"] == "" {
+				t.Error("a 404 should say what was not found")
+			}
+		})
+	}
 }
 
 func TestListSatellites(t *testing.T) {

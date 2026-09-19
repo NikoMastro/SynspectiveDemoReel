@@ -10,11 +10,19 @@
  * Colours come from a SatelliteColorScale passed in, never from a lookup made
  * here, so the map and the timeline cannot drift apart.
  */
+import { COORDINATE_SYSTEM } from '@deck.gl/core';
 import type { Layer, PickingInfo } from '@deck.gl/core';
 import { TileLayer } from '@deck.gl/geo-layers';
 import { BitmapLayer, PathLayer, PolygonLayer, ScatterplotLayer, TextLayer } from '@deck.gl/layers';
 
-import type { GroundTrack, Position2D, Scene, SubSatellitePoint, Target } from '../interfaces';
+import type {
+  GroundTrack,
+  Position2D,
+  Scene,
+  SceneImagery,
+  SubSatellitePoint,
+  Target,
+} from '../interfaces';
 import type { SatelliteColorScale } from './colors';
 import { hexToRgb } from './colors';
 import { splitAtAntimeridian, trackPositions } from './tracks';
@@ -52,6 +60,16 @@ function identityAlpha(satellite: string, highlighted: string | null, full: numb
 export const BASEMAP_URL = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
 export const BASEMAP_ATTRIBUTION = '© OpenStreetMap contributors';
 
+/**
+ * Shown beside the basemap credit whenever a radar image is drawn.
+ *
+ * The picture is a rendering of somebody else's sample product, so it is
+ * credited wherever it appears. It used to be credited in the product sheet's
+ * caption; the sheet stopped repeating the picture, so the credit follows the
+ * picture onto the map rather than disappearing with the caption.
+ */
+export const IMAGERY_ATTRIBUTION = 'Synspective StriX-3 sample product';
+
 export function basemapLayer(): Layer {
   return new TileLayer<ImageBitmap>({
     id: 'basemap',
@@ -68,6 +86,29 @@ export function basemapLayer(): Layer {
         bounds: [box[0][0], box[0][1], box[1][0], box[1][1]],
       });
     },
+  });
+}
+
+export type ImageryOptions = SceneImagery & {
+  /** 0..1, from the slider on the map. */
+  opacity: number;
+};
+
+/**
+ * The delivered product itself, draped inside its footprint. The PNG carries
+ * alpha, so the corners of the raster's rectangle around the rotated swath
+ * show the basemap through rather than black.
+ */
+export function quicklookLayer(options: ImageryOptions): Layer {
+  return new BitmapLayer({
+    id: 'scene-quicklook',
+    image: options.url,
+    bounds: options.quicklook.bounds,
+    // The PNG is north-up in plain longitude/latitude (EPSG:4326), not Web
+    // Mercator. Over 0.12 degrees of latitude the two differ by well under a
+    // pixel, but it is the truth about the file and it costs one prop.
+    _imageCoordinateSystem: COORDINATE_SYSTEM.LNGLAT,
+    opacity: options.opacity,
   });
 }
 
@@ -157,24 +198,56 @@ export interface FootprintOptions {
   scenes: Scene[];
   colors: SatelliteColorScale;
   selectedSceneId: string | null;
+  /**
+   * The scene whose imagery is drawn underneath, or null when none is. While a
+   * picture is on screen every fill is dropped; the outlines stay and go on
+   * carrying satellite identity.
+   */
+  imagedSceneId: string | null;
   onSelect: (sceneId: string) => void;
 }
 
 /**
- * Scene footprints. The selected one gets a white outline rather than a
+ * Selection brightens the fill. Imagery removes every fill, not just the fill
+ * of the scene being drawn.
+ *
+ * Clearing only the imaged scene's own fill was not enough, and the seed
+ * catalog proves it: the synthetic STRIX-1 scene SYN-S1-20260830-09 covers 95%
+ * of the Mt. Aso quicklook, so its translucent polygon washed another
+ * satellite's hue across almost the whole radar image - the exact thing
+ * dropping the fill was meant to prevent. Footprints overlap; that is normal
+ * for a catalog, so the rule has to be about the picture rather than about one
+ * polygon.
+ */
+function footprintFillAlpha(sceneId: string, selected: string | null, imaged: string | null): number {
+  if (imaged !== null) return 0;
+  return sceneId === selected ? 150 : 70;
+}
+
+/**
+ * Scene footprints. The selected one gets a dark outline rather than a
  * different fill, so selection never competes with satellite identity.
+ *
+ * While a picture is on screen the outlines come off with the fills. An outline
+ * over a radar image is a hard black line drawn across terrain, and it marks a
+ * boundary the image already shows: the edge of the valid pixels IS the
+ * footprint, since both come from the same raster. Nothing becomes unfindable,
+ * because sceneCenterLayer still puts a dot on every scene at any zoom.
  */
 export function footprintLayer(options: FootprintOptions): Layer {
-  const { colors, selectedSceneId } = options;
+  const { colors, selectedSceneId, imagedSceneId } = options;
   return new PolygonLayer<Scene>({
     id: 'scene-footprints',
     data: options.scenes,
+    // Still picked, and still filled, at zero alpha: clicking a footprint is
+    // how the map selects a scene, and that must keep working under the image.
     pickable: true,
     filled: true,
-    stroked: true,
+    stroked: imagedSceneId === null,
     lineWidthUnits: 'pixels',
     getPolygon: (d) => d.footprint,
-    getFillColor: (d) => withAlpha(colors.hex(d.satellite), d.id === selectedSceneId ? 150 : 70),
+    getFillColor: (d) =>
+      withAlpha(colors.hex(d.satellite), footprintFillAlpha(d.id, selectedSceneId, imagedSceneId)),
     getLineColor: (d) =>
       d.id === selectedSceneId ? SELECTED : withAlpha(colors.hex(d.satellite), 235),
     getLineWidth: (d) => (d.id === selectedSceneId ? 3 : 1.5),
@@ -183,7 +256,7 @@ export function footprintLayer(options: FootprintOptions): Layer {
       return true;
     },
     updateTriggers: {
-      getFillColor: [selectedSceneId, colors.domain.join()],
+      getFillColor: [selectedSceneId, imagedSceneId, colors.domain.join()],
       getLineColor: [selectedSceneId, colors.domain.join()],
       getLineWidth: [selectedSceneId],
     },
@@ -276,18 +349,22 @@ export interface MapLayerInput {
   colors: SatelliteColorScale;
   selectedSceneId: string | null;
   highlightedSatellite: string | null;
+  /** The imagery to drape, or null when the selected scene has none or it is switched off. */
+  imagery: ImageryOptions | null;
   onSelectScene: (sceneId: string) => void;
 }
 
 /**
- * The whole stack, bottom to top. deck.gl draws in array order, so the labels
- * and the tappable scene dots end up above the fills.
+ * The whole stack, bottom to top. deck.gl draws in array order, so the
+ * quicklook sits directly on the basemap and the labels and the tappable scene
+ * dots end up above the fills.
  */
 export function buildMapLayers(input: MapLayerInput): Layer[] {
   const footprints: FootprintOptions = {
     scenes: input.scenes,
     colors: input.colors,
     selectedSceneId: input.selectedSceneId,
+    imagedSceneId: input.imagery?.sceneId ?? null,
     onSelect: input.onSelectScene,
   };
   const targets: TargetOptions = {
@@ -302,6 +379,7 @@ export function buildMapLayers(input: MapLayerInput): Layer[] {
 
   return [
     basemapLayer(),
+    ...(input.imagery ? [quicklookLayer(input.imagery)] : []),
     groundTrackLayer({
       tracks: input.tracks,
       colors: input.colors,

@@ -21,6 +21,8 @@ interface Props {
   scenes: Scene[];
   selected: Scene | null;
   onSelect: (id: string) => void;
+  /** Brings the map to the selected scene. Optional so the panel stands alone in tests. */
+  onLocate?: () => void;
   onRetry: () => void;
 }
 
@@ -29,6 +31,7 @@ export function ScenePanel({
   scenes,
   selected,
   onSelect,
+  onLocate,
   onRetry,
 }: Props): React.JSX.Element {
   // Derived rather than passed in. As a prop it could contradict `scenes` and
@@ -93,7 +96,7 @@ export function ScenePanel({
           </p>
         )}
 
-        {selected && <SceneSheet scene={selected} />}
+        {selected && <SceneSheet scene={selected} {...(onLocate ? { onLocate } : {})} />}
       </div>
     </section>
   );

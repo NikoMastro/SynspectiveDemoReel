@@ -11,6 +11,7 @@
  * assertion could ever see.
  */
 import { describe, expect, it, vi } from 'vitest';
+import { COORDINATE_SYSTEM } from '@deck.gl/core';
 import type { Layer } from '@deck.gl/core';
 import { satelliteColorScale } from './colors';
 import {
@@ -20,6 +21,7 @@ import {
   footprintLayer,
   groundTrackLayer,
   groundTrackSegments,
+  quicklookLayer,
   sceneCenterLayer,
   subSatelliteLabelLayer,
   subSatelliteLayer,
@@ -39,6 +41,14 @@ import {
 
 const colors = satelliteColorScale(['STRIX-3', 'STRIX-5']);
 const noop = () => {};
+
+const asoQuicklook = asoScene.quicklook;
+if (asoQuicklook === null) throw new Error('the Aso fixture must carry a quicklook');
+const asoImagery = {
+  sceneId: asoScene.id,
+  quicklook: asoQuicklook,
+  url: '/api/v1/scenes/STRIX3-20260615T063527Z-SL1/quicklook.png',
+};
 
 /**
  * The factories return the base `Layer` type, so the app can never depend on a
@@ -111,11 +121,32 @@ describe('groundTrackLayer', () => {
   });
 });
 
+describe('quicklookLayer', () => {
+  it('drapes the PNG over its WGS84 edges, read as longitude and latitude', () => {
+    const layer = quicklookLayer({ ...asoImagery, opacity: 0.8 });
+
+    expect(layer.id).toBe('scene-quicklook');
+    expect(layer.constructor.name).toBe('BitmapLayer');
+    // `image` is an async prop: given a URL, deck.gl fetches it and exposes
+    // the decoded texture as props.image, which is null until then. The URL
+    // it was handed is kept under a well-known symbol.
+    const original = props(layer)[Symbol.for('asyncPropOriginal') as unknown as string] as { image?: string };
+    expect(original.image).toBe(asoImagery.url);
+    expect(props(layer).bounds).toEqual(asoQuicklook.bounds);
+    // The file is equirectangular, not Web Mercator. Left at the default the
+    // image would be stretched by the Mercator factor - invisible over 0.12
+    // degrees of latitude, and wrong.
+    expect(props(layer)._imageCoordinateSystem).toBe(COORDINATE_SYSTEM.LNGLAT);
+    expect(props(layer).opacity).toBe(0.8);
+  });
+});
+
 describe('footprintLayer', () => {
   const options = {
     scenes: sampleScenes,
     colors,
     selectedSceneId: asoScene.id,
+    imagedSceneId: null,
     onSelect: noop,
   };
 
@@ -145,6 +176,35 @@ describe('footprintLayer', () => {
     expect((r + g + b) / 3).toBeLessThan(80);
   });
 
+  // A tinted fill over the radar image would shift every grey towards the
+  // satellite's colour, and the whole point of the image is its greys.
+  //
+  // Clearing only the imaged scene's own fill was not enough, and this is the
+  // regression that proved it: footprints overlap, and the synthetic STRIX-1
+  // scene in the seed catalog covers 95% of the Mt. Aso quicklook. Its
+  // translucent polygon washed a second satellite's hue across almost the whole
+  // picture. So the assertion is about every scene, not about the imaged one.
+  it('lays nothing over the picture: no fill and no outline, for any scene', () => {
+    const layer = footprintLayer({ ...options, imagedSceneId: asoScene.id });
+
+    expect(call<typeof asoScene, number[]>(props(layer).getFillColor, asoScene)[3]).toBe(0);
+    expect(call<typeof asoScene, number[]>(props(layer).getFillColor, syntheticScene)[3]).toBe(0);
+    // An outline over a radar image is a black line drawn across the terrain,
+    // and it marks a boundary the image already shows.
+    expect(props(layer).stroked).toBe(false);
+
+    // Still pickable, because clicking a footprint is how the map selects.
+    expect(props(layer).pickable).toBe(true);
+  });
+
+  it('keeps the fills and the outlines when there is no picture to protect', () => {
+    const layer = footprintLayer({ ...options, imagedSceneId: null });
+
+    expect(call<typeof asoScene, number[]>(props(layer).getFillColor, asoScene)[3]).toBe(150);
+    expect(call<typeof asoScene, number[]>(props(layer).getFillColor, syntheticScene)[3]).toBe(70);
+    expect(props(layer).stroked).toBe(true);
+  });
+
   it('calls onSelect with the clicked scene id', () => {
     const onSelect = vi.fn();
     const layer = footprintLayer({ ...options, onSelect });
@@ -166,6 +226,7 @@ describe('sceneCenterLayer', () => {
       scenes: sampleScenes,
       colors,
       selectedSceneId: null,
+      imagedSceneId: null,
       onSelect: noop,
     });
 
@@ -212,17 +273,19 @@ describe('subSatelliteLayer', () => {
 });
 
 describe('buildMapLayers', () => {
-  const layers = buildMapLayers({
+  const input = {
     scenes: sampleScenes,
     tracks: [straightTrack, wrappingTrack],
     subSatellite: subSatellitePoints([straightTrack], new Date('2026-09-19T00:00:00Z')),
     targets: sampleAccess.targets,
-    windowCounts: new Map(),
+    windowCounts: new Map<string, number>(),
     colors,
     selectedSceneId: null,
     highlightedSatellite: null,
+    imagery: null,
     onSelectScene: noop,
-  });
+  };
+  const layers = buildMapLayers(input);
 
   it('stacks the layers in draw order, basemap first', () => {
     expect(layers.map((l) => l.id)).toEqual([
@@ -235,6 +298,25 @@ describe('buildMapLayers', () => {
       'target-labels',
       'sub-satellite-labels',
     ]);
+  });
+
+  // Directly on the basemap and under everything else: the tracks, the
+  // footprint outline and the scene dot all have to stay readable over it.
+  it('slots the quicklook between the basemap and the vector layers', () => {
+    const withImagery = buildMapLayers({
+      ...input,
+      selectedSceneId: asoScene.id,
+      imagery: { ...asoImagery, opacity: 1 },
+    });
+
+    expect(withImagery.map((l) => l.id).slice(0, 3)).toEqual([
+      'basemap',
+      'scene-quicklook',
+      'ground-tracks',
+    ]);
+    // And the footprint layer knows which scene is under the image.
+    const footprints = withImagery.find((l) => l.id === 'scene-footprints');
+    expect(call<typeof asoScene, number[]>(props(footprints!).getFillColor, asoScene)[3]).toBe(0);
   });
 
   it('gives every layer a unique id, which deck.gl requires', () => {

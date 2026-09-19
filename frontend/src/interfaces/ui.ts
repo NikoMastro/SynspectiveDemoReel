@@ -1,4 +1,29 @@
-import type { AccessReport, GroundTrack, Satellite, Scene } from './domain';
+import type {
+  AccessReport,
+  GroundTrack,
+  Position2D,
+  Quicklook,
+  Satellite,
+  Scene,
+} from './domain';
+
+/**
+ * A request to bring the map to a footprint. The key makes a repeat request
+ * for the same scene a new object, so the camera moves again after the
+ * operator has panned away from it.
+ */
+export interface LocateRequest {
+  footprint: Position2D[];
+  key: number;
+}
+
+/** The selected scene's imagery, when it has any: what the map needs to drape it. */
+export interface SceneImagery {
+  sceneId: string;
+  quicklook: Quicklook;
+  /** URL of the PNG, built by lib/api.ts. */
+  url: string;
+}
 
 /** The four filters in the toolbar. `null` means "no filter on this field". */
 export interface SceneFilters {

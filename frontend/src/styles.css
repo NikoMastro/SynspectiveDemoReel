@@ -91,14 +91,25 @@ a { color: var(--accent); }
   padding: 12px var(--gutter) 0;
 }
 .console__filters  { grid-area: filters; }
-.console__map      { grid-area: map; min-height: 320px; }
+.console__map      { grid-area: map; }
 .console__panel    { grid-area: panel; }
 .console__timeline { grid-area: timeline; }
+
+/* Two classes, and the reason is worth stating: `.panel` below sets
+   min-height: 0 so that a long product sheet scrolls instead of growing its
+   grid row, and it is declared later in this file with the same specificity as
+   a bare `.console__map`. So a single-class floor here silently lost to it.
+
+   Every other panel has flow content to give it height. The map does not - its
+   canvas is absolutely positioned inside `.map` - so with a floor of 0 it
+   collapsed to two pixels wherever the grid row is sized by content, which is
+   every width below 1100px. On a phone the map was simply not there. */
+.panel.console__map { min-height: 320px; }
 
 /* Tablet: the timeline gets the full width under a wider map. */
 @media (min-width: 720px) {
   .console { gap: 14px; padding: 14px 20px 28px; }
-  .console__map { min-height: 420px; }
+  .panel.console__map { min-height: 420px; }
 }
 
 /* Desktop: map and metadata panel side by side, timeline across the bottom. */
@@ -306,6 +317,10 @@ select:focus-visible,
   background: rgba(255, 255, 255, 0.94);
   color: var(--ink-2);
   font-size: 11px;
+  /* It carries the radar image's credit as well as the basemap's when a picture
+     is drawn, which is too long for a phone-width map on one line. */
+  max-width: calc(100% - 12px);
+  text-align: right;
 }
 
 .map__overlay {
@@ -342,6 +357,57 @@ select:focus-visible,
   background: rgba(255, 255, 255, 0.97);
   font-size: 12px;
   max-width: 240px;
+}
+
+/* The imagery controls sit bottom-left: opposite the attribution, and clear of
+   the error banner, which takes the top edge. Opaque for the same reason the
+   attribution is. */
+.map__controls {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 14px;
+  padding: 0 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-strong);
+  background: rgba(255, 255, 255, 0.97);
+  font-size: 12px;
+}
+
+.map__control {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  /* The 44px floor again: these are the only controls on the map itself. */
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.map__control input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.map__control input[type="range"] {
+  width: 96px;
+  accent-color: var(--accent);
+}
+
+/* The attribution owns the bottom-right corner and the tile usage policy means
+   it cannot be moved or covered. On a phone the map is only about 360px wide,
+   which is narrower than the controls and the attribution side by side, so the
+   controls take the row above instead of running underneath it. */
+@media (max-width: 719px) {
+  .map__controls {
+    bottom: 34px;
+    right: 6px;
+  }
 }
 
 /* -------------------------------------------------------------- timeline */
@@ -444,8 +510,15 @@ select:focus-visible,
 
 /* The provenance badge is about the whole scene, not about the first group, so
    it spans the columns instead of taking a cell and pushing Identification into
-   the right one. */
-.sheet__banner { grid-column: 1 / -1; }
+   the right one. The locate button sits at its other end. */
+.sheet__banner {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 
 .sheet__group { display: grid; gap: 2px; }
 
