@@ -104,7 +104,6 @@ describe('App with the backend up', () => {
     );
 
     expect(screen.getByText(wireAsoScene.id)).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /Radar backscatter/ })).toBeInTheDocument();
     expect(screen.getByRole('checkbox', { name: 'Radar image' })).toBeInTheDocument();
     expect(screen.queryByText('No scene selected')).not.toBeInTheDocument();
   });
@@ -217,19 +216,19 @@ describe('App with one feed down', () => {
   // imagery on: the map grows its controls and the sheet shows the picture.
   // The synthetic scene, picked next, takes both away again rather than
   // leaving the last real image on screen under the wrong metadata.
-  it('shows the radar image for the delivered scene and not for a synthetic one', async () => {
+  it('draws the radar image for the delivered scene and not for a synthetic one', async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    // Opens on the delivered scene, so the image is already there.
+    // Opens on the delivered scene, so the image is already on the map.
     await waitFor(() => expect(screen.getByRole('checkbox', { name: 'Radar image' })).toBeInTheDocument());
-    expect(screen.getByRole('img', { name: /Radar backscatter/ })).toBeInTheDocument();
+    expect(screen.getByText('Quicklook stretch').nextElementSibling).toHaveTextContent('dB');
 
     const list = within(screen.getByRole('list', { name: /Scenes matching/ }));
     await user.click(list.getByRole('button', { name: /STRIX-5/ }));
+
     expect(screen.queryByRole('checkbox', { name: 'Radar image' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('img', { name: /Radar backscatter/ })).not.toBeInTheDocument();
-    expect(screen.getByText(/No imagery/)).toBeInTheDocument();
+    expect(screen.getByText('Quicklook stretch').nextElementSibling).toHaveTextContent('--');
   });
 
   // A filter that excludes the selected scene already drops its footprint from
@@ -247,7 +246,8 @@ describe('App with one feed down', () => {
     await user.selectOptions(screen.getByLabelText('Imaging mode'), 'Stripmap');
 
     expect(screen.queryByRole('checkbox', { name: 'Radar image' })).not.toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /Radar backscatter/ })).toBeInTheDocument();
+    // The sheet is still the excluded scene's, and says so.
+    expect(screen.getByText(wireAsoScene.id)).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('outside the current filters');
   });
 });

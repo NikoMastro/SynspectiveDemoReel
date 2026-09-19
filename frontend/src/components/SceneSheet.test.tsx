@@ -2,7 +2,6 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { SceneSheet } from './SceneSheet';
-import { formatDb } from '../lib/format';
 import { asoScene, syntheticScene } from '../testFixtures';
 
 describe('SceneSheet', () => {
@@ -49,32 +48,28 @@ describe('SceneSheet', () => {
     expect(screen.getAllByText('--').length).toBeGreaterThan(0);
   });
 
-  // The image is what an operator looks at first, and a SAR image is read
-  // differently from a photograph, so the caption has to say what the greys
-  // mean and where they came from.
-  it('shows the delivered product with its stretch and its source', () => {
-    const quicklook = asoScene.quicklook;
-    if (quicklook === null) throw new Error('the Aso fixture must carry a quicklook');
-
+  // The picture is on the map, inside the footprint it was taken over, so the
+  // sheet does not repeat it. What the sheet has to keep is the pair of numbers
+  // that exist nowhere else: without them the greys on the map cannot be read,
+  // and there is no way to tell how far the rendering is from the product.
+  it('keeps the numbers that decode the map image, and does not repeat the picture', () => {
     render(<SceneSheet scene={asoScene} />);
 
-    const image = screen.getByRole('img', { name: /Radar backscatter of STRIX-3/ });
-    expect(image).toHaveAttribute('src', expect.stringContaining(`/scenes/${asoScene.id}/quicklook.png`));
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
 
-    const caption = image.parentElement?.querySelector('figcaption');
-    expect(caption).toHaveTextContent(`Black is ${formatDb(quicklook.minDb)}`);
-    expect(caption).toHaveTextContent(`white ${formatDb(quicklook.maxDb)}`);
-    expect(caption).toHaveTextContent('2nd and 98th percentile');
-    expect(caption).toHaveTextContent(/about 1[01] m per pixel/);
-    expect(caption).toHaveTextContent('Synspective StriX-3 sample product');
+    expect(screen.getByText('Quicklook stretch').nextElementSibling).toHaveTextContent(
+      '-12.8 to -2.3 dB',
+    );
+    expect(screen.getByText('Quicklook sampling').nextElementSibling).toHaveTextContent('11 m/px');
   });
 
-  // No placeholder picture, no broken image: the honest sentence.
-  it('says plainly that a synthetic scene has no imagery', () => {
+  // A synthetic scene has no product behind it, so it has nothing on the map
+  // either. Dashes, the same as every other value the product does not state.
+  it('dashes both quicklook rows for a synthetic scene', () => {
     render(<SceneSheet scene={syntheticScene} />);
 
-    expect(screen.queryByRole('img')).not.toBeInTheDocument();
-    expect(screen.getByText(/No imagery/)).toBeInTheDocument();
+    expect(screen.getByText('Quicklook stretch').nextElementSibling).toHaveTextContent('--');
+    expect(screen.getByText('Quicklook sampling').nextElementSibling).toHaveTextContent('--');
   });
 
   it('offers to bring the map to the scene', async () => {

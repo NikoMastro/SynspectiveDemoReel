@@ -47,7 +47,7 @@ camelCase in the app; the mapping is in `lib/mapping.ts` and nowhere else.
 | `GET /api/v1/healthz` | `{status, service, version}` |
 | `GET /api/v1/scenes` | `{scenes: [Scene]}` |
 | `GET /api/v1/scenes/{id}` | one `Scene` |
-| `GET /api/v1/scenes/{id}/quicklook.png` | the delivered product's rendered preview, PNG. The URL is built by `quicklookUrl()` in `lib/api.ts` and loaded by an `<img>` on the sheet and a `BitmapLayer` on the map; `Scene.quicklook` says where it sits and is null for a synthetic scene |
+| `GET /api/v1/scenes/{id}/quicklook.png` | the delivered product's rendered preview, PNG. The URL is built by `quicklookUrl()` in `lib/api.ts` and loaded once, by the map's `BitmapLayer`; `Scene.quicklook` says where it sits and is null for a synthetic scene |
 | `GET /api/v1/satellites` | `{satellites: [{name, norad_id, inclination_deg, orbit_family, tle_epoch_utc}]}` |
 | `GET /api/v1/ground-track?sat=&minutes=&step=` | `{satellite, start_utc, step_s, points: [{time_utc, lat_deg, lon_deg, alt_km}]}` |
 | `GET /api/v1/access-windows?targets=&days=` | `{horizon, assumptions, targets, windows}` — the shape of `fixtures/access_windows.json` |
@@ -94,6 +94,14 @@ since the valid pixels and the footprint come from the same raster. The
 polygons stay pickable and the scene dots stay drawn, so nothing becomes
 unreachable. It opens at 65% opacity rather than fully opaque, because the point
 of draping it on a basemap is to read the two together.
+
+**The picture appears once.** The product sheet used to show the same image
+again, which is a second megabyte-sized decode of something already on screen
+two hundred pixels to the left. What the sheet keeps instead is the pair of
+numbers the picture alone cannot carry: which gamma0 values were rendered black
+and white, and how coarse the rendering is against the delivered product. The
+image's credit moved with it, so the map's attribution names the StriX-3 sample
+product whenever a radar image is drawn.
 
 **The camera is controlled, and that has one trap in it.** `viewState` plus
 `onViewStateChange` is what lets "Locate on map" move a camera the operator has
