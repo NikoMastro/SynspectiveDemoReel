@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import DeckGL from '@deck.gl/react';
+import { MapView } from '@deck.gl/core';
 import type { MapViewState, PickingInfo } from '@deck.gl/core';
 import type { Scene, SubSatellitePoint, Target } from '../interfaces';
 import { formatDeg, formatKm, formatUtc } from '../lib/format';
@@ -11,6 +12,18 @@ import type { MapLayerInput } from '../lib/layers';
  * the tooltip, and hands everything else to buildMapLayers in lib/, which is
  * where the layers are actually decided and where they are tested.
  */
+
+/**
+ * repeat: true draws every layer in each copy of the world.
+ *
+ * Without it deck.gl renders a mark only at its canonical longitude, so zooming
+ * out far enough to see more than one world width made the ground tracks,
+ * footprints and target markers appear and disappear depending on which copy
+ * the viewport happened to be over - and marks near the antimeridian landed on
+ * the wrong side. The basemap tiles repeat either way, which is what made the
+ * mismatch look like the marks were in the wrong place.
+ */
+const MAP_VIEW = new MapView({ repeat: true });
 
 /** Kyushu, framed on the Mt. Aso scene the real product covers. */
 export const INITIAL_VIEW: MapViewState = {
@@ -62,6 +75,7 @@ export function MapPanel({ overlay, banner, ...layerInput }: Props): React.JSX.E
         </p>
         <div className="map__canvas">
           <DeckGL
+            views={MAP_VIEW}
             initialViewState={INITIAL_VIEW}
             controller={{ dragRotate: false }}
             layers={buildMapLayers(layerInput)}

@@ -109,6 +109,23 @@ describe('App with the backend up', () => {
     expect(within(main).getByTestId('deck-canvas')).toBeInTheDocument();
   });
 
+  // The filters used to narrow the catalog and the map while leaving every bar
+  // in the timeline, so the two halves of the console showed different data.
+  it('narrows the access-window timeline when a satellite is filtered', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await waitFor(() =>
+      expect(screen.getAllByTestId('timeline-bar')).toHaveLength(wireAccess.windows.length),
+    );
+
+    await user.selectOptions(screen.getByLabelText('Satellite'), 'STRIX-3');
+
+    const expected = wireAccess.windows.filter((w) => w.satellite === 'STRIX-3').length;
+    expect(screen.getAllByTestId('timeline-bar')).toHaveLength(expected);
+    expect(screen.getByText(new RegExp(`filtered from ${wireAccess.windows.length}`))).toBeInTheDocument();
+  });
+
   it('links to the repository, so the console is not a dead end', async () => {
     render(<App />);
     await waitFor(() => expect(screen.getByTestId('backend-health')).toBeInTheDocument());

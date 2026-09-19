@@ -3,7 +3,7 @@ import type { AccessReport, AccessWindow, TimeRange } from '../interfaces';
 import type { SatelliteColorScale } from '../lib/colors';
 import { countWindowsBySatellite, windowsInRange } from '../lib/filters';
 import { formatUtcShort } from '../lib/format';
-import { brushToRange, layoutTimeline, timelineRows } from '../lib/timeline';
+import { brushToRange, layoutTimeline, rangeToPixels, timelineRows } from '../lib/timeline';
 import { SatelliteLegend } from './SatelliteLegend';
 import { CHART_MARGIN, TimelineChart } from './TimelineChart';
 import { useElementWidth } from './useElementWidth';
@@ -45,6 +45,10 @@ interface Props {
   colors: SatelliteColorScale;
   highlighted: string | null;
   onHighlight: (satellite: string | null) => void;
+  /** How many opportunities exist before the filters, so the count can say so. */
+  totalWindows: number;
+  /** True when a filter is set that an opportunity cannot carry - imaging mode. */
+  sceneOnlyFilter: boolean;
   range: TimeRange | null;
   onRangeChange: (range: TimeRange | null) => void;
 }
@@ -52,6 +56,8 @@ interface Props {
 export function AccessTimeline({
   report,
   colors,
+  totalWindows,
+  sceneOnlyFilter,
   highlighted,
   onHighlight,
   range,
@@ -115,6 +121,7 @@ export function AccessTimeline({
         <h2 className="panel__title">Access windows</h2>
         <span className="panel__note">
           {inRange.length} of {report.windows.length} opportunities
+          {report.windows.length !== totalWindows ? ` (filtered from ${totalWindows})` : ''}
           {range ? ` · ${formatUtcShort(range.from)} – ${formatUtcShort(range.to)}` : ''}
           {' · '}
           off-nadir {report.assumptions.offNadirMinDeg}
@@ -148,6 +155,7 @@ export function AccessTimeline({
           highlighted={highlighted}
           selectedWindow={picked}
           brush={drag}
+          selection={rangeToPixels(horizon, plotWidth, range)}
           onPickWindow={(w) => {
             setPicked(w);
             onHighlight(w.satellite);
@@ -157,6 +165,13 @@ export function AccessTimeline({
           Drag across the chart to brush a time range; the map resizes its target markers to the
           opportunities inside it. Bar width is a legibility floor, not duration - a real window is
           around 85 s, well under a pixel on a {report.horizon.days}-day axis.
+          {sceneOnlyFilter && (
+            <>
+              {' '}
+              The imaging-mode filter does not narrow this view: a mode is chosen when an
+              acquisition is ordered, and these are the chances to order one.
+            </>
+          )}
           {range && (
             <>
               {' '}

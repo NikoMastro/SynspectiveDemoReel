@@ -111,6 +111,29 @@ export function timelineRows(windows: AccessWindow[], targetNames: string[]): st
  * user dragged in does not matter, and a range under `minPx` is treated as a
  * click (null) so a stray tap does not filter everything away.
  */
+/**
+ * Where a committed range sits on the chart, in pixels.
+ *
+ * The inverse of brushToRange. Without it the brush rectangle vanished the
+ * instant the pointer came up: the drag was drawn from live pointer state and
+ * the range that survived it was only a number in the header, so after brushing
+ * there was nothing on the chart saying which part of the horizon was in play.
+ */
+export function rangeToPixels(
+  horizon: TimeRange,
+  width: number,
+  range: TimeRange | null,
+): { x0: number; x1: number } | null {
+  if (range === null) return null;
+
+  const scale = scaleUtc().domain([horizon.from, horizon.to]).range([0, width]);
+  const x0 = scale(range.from);
+  const x1 = scale(range.to);
+  if (!Number.isFinite(x0) || !Number.isFinite(x1)) return null;
+
+  return { x0: Math.min(x0, x1), x1: Math.max(x0, x1) };
+}
+
 export function brushToRange(
   horizon: TimeRange,
   width: number,

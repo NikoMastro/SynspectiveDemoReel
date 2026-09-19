@@ -19,6 +19,8 @@ function setup(overrides: Partial<React.ComponentProps<typeof AccessTimeline>> =
     <AccessTimeline
       report={sampleAccess}
       colors={colors}
+      totalWindows={sampleAccess.windows.length}
+      sceneOnlyFilter={false}
       highlighted={null}
       onHighlight={onHighlight}
       range={null}
@@ -185,6 +187,8 @@ describe('AccessTimeline', () => {
           ...sampleAccess,
           targets: [{ id: 'lyr', name: 'Longyearbyen, NO', latDeg: 78.2, lonDeg: 15.6 }],
         }}
+        totalWindows={0}
+        sceneOnlyFilter={false}
         colors={colors}
         highlighted={null}
         onHighlight={vi.fn()}
@@ -207,5 +211,66 @@ describe('AccessTimeline', () => {
     });
     expect(legend().getByRole('button', { name: /STRIX-5 1/ })).toBeInTheDocument();
     expect(legend().getByRole('button', { name: /STRIX-3 0/ })).toBeInTheDocument();
+  });
+
+  // Filtering by satellite used to repaint the map and leave every bar in place,
+  // so the two halves looked like they were showing different data.
+  it('says when the opportunities shown are a filtered subset', () => {
+    const subset = { ...sampleAccess, windows: sampleAccess.windows.slice(0, 1) };
+    setup({ report: subset, totalWindows: sampleAccess.windows.length });
+
+    expect(screen.getByText(/filtered from 3/)).toBeInTheDocument();
+  });
+
+  it('does not claim a filtered subset when nothing is filtered', () => {
+    setup();
+    expect(screen.queryByText(/filtered from/)).not.toBeInTheDocument();
+  });
+
+  // Imaging mode is chosen when an acquisition is ordered; an opportunity is the
+  // chance to order one. Silently ignoring the filter would read as a bug.
+  it('explains that the imaging-mode filter cannot narrow opportunities', () => {
+    setup({ sceneOnlyFilter: true });
+    expect(screen.getByText(/imaging-mode filter does not narrow this view/)).toBeInTheDocument();
+  });
+
+  // Before this the rectangle was drawn from live pointer state only, so the
+  // moment the pointer came up the chart went back to looking unbrushed and the
+  // only trace of the range was a number in the header.
+  it('keeps a band on the chart showing the brushed range', () => {
+    const { container } = render(
+      <AccessTimeline
+        report={sampleAccess}
+        colors={colors}
+        totalWindows={sampleAccess.windows.length}
+        sceneOnlyFilter={false}
+        highlighted={null}
+        onHighlight={vi.fn()}
+        range={{
+          from: new Date('2026-09-20T00:00:00Z'),
+          to: new Date('2026-09-21T00:00:00Z'),
+        }}
+        onRangeChange={vi.fn()}
+      />,
+    );
+
+    expect(container.querySelector('.timeline__selection')).toBeInTheDocument();
+  });
+
+  it('draws no band when no range is set', () => {
+    const { container } = render(
+      <AccessTimeline
+        report={sampleAccess}
+        colors={colors}
+        totalWindows={sampleAccess.windows.length}
+        sceneOnlyFilter={false}
+        highlighted={null}
+        onHighlight={vi.fn()}
+        range={null}
+        onRangeChange={vi.fn()}
+      />,
+    );
+
+    expect(container.querySelector('.timeline__selection')).not.toBeInTheDocument();
   });
 });

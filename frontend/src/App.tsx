@@ -1,7 +1,15 @@
 import { useMemo, useState } from 'react';
 import type { SceneFilters, TimeRange } from './interfaces';
 import { satelliteColorScale } from './lib/colors';
-import { applyFilters, countWindowsByTarget, filterOptions, NO_FILTERS, windowsInRange } from './lib/filters';
+import {
+  applyFilters,
+  countWindowsByTarget,
+  filterOptions,
+  filterWindows,
+  hasSceneOnlyFilter,
+  NO_FILTERS,
+  windowsInRange,
+} from './lib/filters';
 import { subSatellitePoints } from './lib/tracks';
 import { AccessTimeline } from './components/AccessTimeline';
 import { FilterBar } from './components/FilterBar';
@@ -51,9 +59,17 @@ export default function App(): React.JSX.Element {
 
   const subSatellite = useMemo(() => subSatellitePoints(visibleTracks, now), [visibleTracks, now]);
 
+  // The filters narrow the opportunities too, not only the catalog. A satellite
+  // filter that repainted the map and left every bar in the timeline made the
+  // two halves look like they were showing different things.
+  const filteredAccess = useMemo(
+    () => (access === null ? null : { ...access, windows: filterWindows(access.windows, filters) }),
+    [access, filters],
+  );
+
   const windowCounts = useMemo(
-    () => countWindowsByTarget(windowsInRange(access?.windows ?? [], range)),
-    [access, range],
+    () => countWindowsByTarget(windowsInRange(filteredAccess?.windows ?? [], range)),
+    [filteredAccess, range],
   );
 
   // Resolved against the whole catalog, not the filtered subset: a filter that
@@ -111,7 +127,7 @@ export default function App(): React.JSX.Element {
         scenes={visibleScenes}
         tracks={visibleTracks}
         subSatellite={subSatellite}
-        targets={access?.targets ?? []}
+        targets={filteredAccess?.targets ?? []}
         windowCounts={windowCounts}
         colors={colors}
         selectedSceneId={selectedSceneId}
@@ -150,9 +166,11 @@ export default function App(): React.JSX.Element {
           </section>
         )}
 
-        {access && (
+        {filteredAccess && (
           <AccessTimeline
-            report={access}
+            report={filteredAccess}
+            totalWindows={access?.windows.length ?? 0}
+            sceneOnlyFilter={hasSceneOnlyFilter(filters)}
             colors={colors}
             highlighted={highlighted}
             onHighlight={setHighlighted}
